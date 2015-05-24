@@ -18,7 +18,7 @@ namespace
 
     const QChar COMMA = ',';
 
-    // the following function is in palce to
+    // the following function is in place to
     // avoid QSqlDatabasePrivate::addDatabase: duplicate connection name
     // warning messages by just adding the datasource once
     QSqlDatabase GetDatabase()
@@ -74,7 +74,7 @@ DatabaseUtils::GetANonPlayedGame()
 
     db.close();
 
-    return gameID;
+    return 5; // gameID;
 }
 
 DatabaseUtils::StaticGameInfo::StaticGameInfo()
@@ -131,14 +131,14 @@ void
 FixDailyDoubleValues(DatabaseUtils::RoundQuestions& roundQuestions, bool doubleJeopardy)
 {
     using namespace DatabaseUtils;
+    auto isValidClueFunction = [doubleJeopardy](ValuePair vp)
+    {
+        return !DatabaseUtils::IsValidClueValue(vp.first, doubleJeopardy);
+    };
 
     for( auto& category : roundQuestions )
     {
         CategoryQuestions& clues = category.second;
-        auto isValidClueFunction = [doubleJeopardy](ValuePair vp)
-        {
-            return !DatabaseUtils::IsValidClueValue(vp.first, doubleJeopardy);
-        };
 
         const int numInvalid = std::count_if( clues.cbegin(), clues.cend(), isValidClueFunction);
 
@@ -175,8 +175,6 @@ FixDailyDoubleValues(DatabaseUtils::RoundQuestions& roundQuestions, bool doubleJ
                 clueNumber++;
             }
         }
-
-        // add empty clues for missing values
     }
 }
 

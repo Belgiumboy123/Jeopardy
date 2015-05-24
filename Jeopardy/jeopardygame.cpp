@@ -82,6 +82,9 @@ JeopardyGame::LoadRound( const GameMode gameMode )
 {
     const DatabaseUtils::RoundQuestions& roundQuestions = (gameMode == GM_SINGLE) ? m_staticGameInfo.singleRoundQuestions
                                                                                   : m_staticGameInfo.doubleRoundQuestions;
+
+    // $MARK - need to reset model and rows and columns here?
+
     int column = 0;
     for( const auto& category : roundQuestions)
     {
@@ -97,6 +100,19 @@ JeopardyGame::LoadRound( const GameMode gameMode )
                 item->setText( DOLLAR + QString::number(clue.first) );
             }
             m_model->setItem(GetRowFromValue(clue.first, gameMode), column, item);
+        }
+
+        //Set empty items for missing empty clues
+        if( category.second.size() != 5)
+        {
+            for( int i = 0; i<5; i++)
+            {
+                if( !m_model->item(i,column))
+                {
+                    JeopardyItem* item = new JeopardyItem( "", "" );
+                    m_model->setItem(i, column, item);
+                }
+            }
         }
 
         column++;
