@@ -104,6 +104,82 @@ namespace
     //const int SINGLE_JEOPARDY = 1; // unused
 }
 
+bool DatabaseUtils::IsValidClueValue( int value, bool dj)
+{
+    switch (value)
+    {
+    case 200:
+    case 600:
+    case 1000:
+        return !dj;
+
+    case 800:
+    case 400:
+        return true;
+
+    case 1200:
+    case 1600:
+    case 2000:
+        return dj;
+
+    default:
+        return false;
+    }
+}
+
+void
+FixDailyDoubleValues(DatabaseUtils::RoundQuestions& roundQuestions, bool doubleJeopardy)
+{
+    using namespace DatabaseUtils;
+
+    for( auto& category : roundQuestions )
+    {
+        CategoryQuestions& clues = category.second;
+        auto isValidClueFunction = [doubleJeopardy](ValuePair vp)
+        {
+            return !DatabaseUtils::IsValidClueValue(vp.first, doubleJeopardy);
+        };
+
+        const int numInvalid = std::count_if( clues.cbegin(), clues.cend(), isValidClueFunction);
+
+        if( numInvalid == 1 )
+        {
+            // find missing value
+            int newValue = -1;
+            for( int i = 1; i<6; i++)
+            {
+                if( clues.find(i*(doubleJeopardy?400:200)) == clues.end() )
+                {
+                    newValue = i*(doubleJeopardy?400:200);
+                    break;
+                }
+            }
+
+            auto iter = std::find_if( clues.cbegin(), clues.cend(), isValidClueFunction);
+            category.second.emplace(newValue, iter->second);
+            category.second.erase(iter);
+        }
+        else if( numInvalid > 1)
+        {
+            // Intended copy, so no weird issues happen
+            // while iterating
+            CategoryQuestions oldQuestions = clues;
+
+            // clear all clues and set new ones
+            clues.clear();
+
+            int clueNumber = 1;
+            for( const auto& clue : oldQuestions )
+            {
+                category.second.emplace(clueNumber*(doubleJeopardy ? 400 : 200), clue.second );
+                clueNumber++;
+            }
+        }
+
+        // add empty clues for missing values
+    }
+}
+
 /**
  * @brief FixDailyDoubleValues
  * @param roundQuestions
@@ -114,7 +190,7 @@ namespace
  * the daily double board value
  */
 void
-FixDailyDoubleValues( DatabaseUtils::RoundQuestions& roundQuestions, bool doubleJeopardy)
+FixDailyDoubleValues_old( DatabaseUtils::RoundQuestions& roundQuestions, bool doubleJeopardy)
 {
     DatabaseUtils::CategoryQuestions::iterator dailyDoubleIter;
     bool dailyDoubleFound = false;
@@ -138,8 +214,11 @@ FixDailyDoubleValues( DatabaseUtils::RoundQuestions& roundQuestions, bool double
              }
         }
 
-       if( dailyDoubleFound )
-       {
+        // if multiple mistakes were found
+        // sort and assign correct values
+
+        if( dailyDoubleFound )
+        {
            for( int i = 0; i<5; i++)
            {
                if( !validClues[i] )
@@ -151,17 +230,17 @@ FixDailyDoubleValues( DatabaseUtils::RoundQuestions& roundQuestions, bool double
                    break;
                }
            }
-       }
+        }
 
-       // add empty clues for clues that were never asked
-       for( int i = 0; i<5; i++)
-       {
+        // add empty clues for clues that were never asked
+        for( int i = 0; i<5; i++)
+        {
            if( !validClues[i])
            {
                 const int value = (i+1)*(doubleJeopardy ? 400 : 200);
                 category.second.emplace( value, std::make_pair("",""));
            }
-       }
+        }
     }
 }
 

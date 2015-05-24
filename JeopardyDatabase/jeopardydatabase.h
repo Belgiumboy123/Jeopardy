@@ -35,6 +35,8 @@ namespace DatabaseUtils
     };
 
     void GetGameInfo(const int gameID, StaticGameInfo& gameInfo);
+
+    bool IsValidClueValue( int value, bool doubleJeopardy);
 }
 
 #endif // JEOPARDYDATABASE_H
