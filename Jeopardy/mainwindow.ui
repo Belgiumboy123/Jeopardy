@@ -194,7 +194,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="spacing">
-           <number>0</number>
+           <number>10</number>
           </property>
           <property name="sizeConstraint">
            <enum>QLayout::SetNoConstraint</enum>
@@ -221,13 +221,16 @@
             </property>
            </widget>
           </item>
-          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+          <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
            <widget class="QPushButton" name="pickGameButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
             </property>
             <property name="text">
              <string>Start Game</string>
@@ -237,6 +240,13 @@
             </property>
             <property name="flat">
              <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignHCenter|Qt::AlignTop">
+           <widget class="QCheckBox" name="autoPlayCheckBox">
+            <property name="text">
+             <string>Auto Play</string>
             </property>
            </widget>
           </item>
@@ -273,7 +283,7 @@
           <bool>false</bool>
          </property>
          <property name="selectionMode">
-          <enum>QAbstractItemView::NoSelection</enum>
+          <enum>QAbstractItemView::SingleSelection</enum>
          </property>
          <property name="textElideMode">
           <enum>Qt::ElideNone</enum>

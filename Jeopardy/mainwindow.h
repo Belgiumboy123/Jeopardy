@@ -31,6 +31,8 @@ private:
     void handleBoardClick(const QModelIndex& index);
     void handleClueClick();
 
+    void SetNewClueQuestion(const QModelIndex& index, const QString& question);
+
     Ui::MainWindow *m_ui;
 
     std::unique_ptr<JeopardyGame> m_game;
@@ -60,6 +62,8 @@ private:
     void OnTimeOverTimerOut();
 
     void StartClueTimer( const unsigned int milliSeconds);
+
+    bool IsAutoPlayEnabled() const;
 };
 
 #endif // MAINWINDOW_H

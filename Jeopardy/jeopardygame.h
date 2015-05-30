@@ -3,6 +3,7 @@
 
 #include "jeopardydatabase.h"
 
+
 class QStandardItemModel;
 class QModelIndex;
 
@@ -23,6 +24,8 @@ public:
     const QString& GetFinalCategory() const;
     const QString& GetFinalClue() const;
     const QString& GetFinalAnswer() const;
+
+    std::pair<QModelIndex, QString> GetNextClue();
 
 private:
 

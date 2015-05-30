@@ -1,7 +1,6 @@
 #include "jeopardygame.h"
 
 #include <QStandardItemModel>
-
 #include <QDebug>
 
 #define CLUE_BLUE "#0A06B3"
@@ -10,6 +9,9 @@
 namespace
 {
     const QString DOLLAR = "$";
+
+    const int TOTAL_ROWS = 5;
+    const int TOTAL_COLS = 6;
 }
 
 class JeopardyItem : public QStandardItem
@@ -39,7 +41,7 @@ private:
 };
 
 JeopardyGame::JeopardyGame()
-    : m_model( new QStandardItemModel(5/*rows*/, 6/*cols*/))
+    : m_model( new QStandardItemModel(TOTAL_ROWS, TOTAL_COLS))
     , m_gameMode(GM_NONE)
     , m_cluesAnswered(0)
 {
@@ -197,6 +199,24 @@ JeopardyGame::HandleAnswerAction()
     }
 
     return false;
+}
+
+std::pair<QModelIndex, QString>
+JeopardyGame::GetNextClue()
+{
+    for( int col = 0; col<TOTAL_COLS; col++ )
+    {
+        for( int row = 0; row<TOTAL_ROWS; row++)
+        {
+            if( !m_model->item(row,col)->text().isEmpty() )
+            {
+                const QModelIndex& index = m_model->index(row,col);
+                return std::make_pair(index,HandleBoardAction(index));
+            }
+        }
+    }
+
+    return std::make_pair(QModelIndex(),"");
 }
 
 const QString&

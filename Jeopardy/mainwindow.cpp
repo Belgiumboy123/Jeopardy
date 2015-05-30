@@ -105,8 +105,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->headerWidget->hide();
     m_ui->mainToolBar->hide();
 
-    // NOTE lot of table view settings have been set in UI file
-    // TODO move them here, so it is clearer
+    // $NOTE lot of table view settings have been set in UI file
     m_ui->tableView->setModel(m_game->GetModel());
     m_ui->tableView->setHorizontalHeader(new JeopardyHeader(m_ui->tableView));
     m_ui->tableView->setShowGrid(false);
@@ -147,12 +146,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect( m_ui->pickGameButton, &QPushButton::clicked, this, &MainWindow::handleStartGameClick );
 
+    clueFont.setPointSize(28);
+    m_ui->autoPlayCheckBox->setFont(clueFont);
+
     // start with menu mode
     m_ui->tableView->hide();
     m_ui->clueWidget->hide();
     m_mode = MENU;
 
     showMaximized();
+}
+
+bool
+MainWindow::IsAutoPlayEnabled() const
+{
+    return m_ui->autoPlayCheckBox->isChecked();
 }
 
 void
@@ -174,6 +182,12 @@ MainWindow::handleBoardClick(const QModelIndex& index)
     if( question.isEmpty() )
         return;
 
+    SetNewClueQuestion(index, question);
+}
+
+void
+MainWindow::SetNewClueQuestion(const QModelIndex& index, const QString& question)
+{
     // save clicked index here, the tableview active index can't be trusted
     m_clickedIndex = index;
 
@@ -228,6 +242,31 @@ MainWindow::handleClueClick()
             m_ui->clueWidget->hide();
             m_ui->tableView->show();
             m_mode = BOARD;
+
+            if(this->IsAutoPlayEnabled())
+            {
+                const auto& clueIndex = m_game->GetNextClue();
+
+                // todo a little animation or soemthing here
+
+                // just call HandleBoardClick here
+
+                // save clicked index here, the tableview active index can't be trusted
+                m_clickedIndex = clueIndex.first;
+
+                // set label text
+                m_ui->clueLabel->setText( clueIndex.second );
+
+                StartClueTimer(10000);
+
+                // hide the board
+                m_ui->tableView->hide();
+
+                // show the label
+                m_ui->clueWidget->show();
+
+                m_mode = CLUE_QUESTION;
+            }
         }
     }
     else if( m_mode == FINAL_START)
