@@ -247,25 +247,9 @@ MainWindow::handleClueClick()
             {
                 const auto& clueIndex = m_game->GetNextClue();
 
-                // todo a little animation or soemthing here
+                // TODO, indicate what the next clue is
 
-                // just call HandleBoardClick here
-
-                // save clicked index here, the tableview active index can't be trusted
-                m_clickedIndex = clueIndex.first;
-
-                // set label text
-                m_ui->clueLabel->setText( clueIndex.second );
-
-                StartClueTimer(10000);
-
-                // hide the board
-                m_ui->tableView->hide();
-
-                // show the label
-                m_ui->clueWidget->show();
-
-                m_mode = CLUE_QUESTION;
+                SetNewClueQuestion(clueIndex.first, clueIndex.second);
             }
         }
     }

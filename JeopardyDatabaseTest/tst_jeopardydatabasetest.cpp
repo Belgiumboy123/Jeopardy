@@ -52,6 +52,8 @@ void runTest(int gameID, int totalSingleClues, int totalDoubleClues)
 
 void JeopardyDatabaseTest::testCase1()
 {
+    DatabaseUtils::UseUnitTestDatabasePath();
+
     runTest(1, 30, 30);
 
     runTest(2, 26, 29);

@@ -7,7 +7,13 @@
 #include <QSqlQuery>
 #include <QVariant>
 
-static const QString DB_NAME = "/Users/brechtmoulin/Documents/jeo/jeopardy-parser/clues.db";
+static QString DB_NAME = "../Resources/clues.db";
+
+void
+DatabaseUtils::UseUnitTestDatabasePath()
+{
+    DB_NAME = "../Jeopardy/Jeopardy.app/Contents/Resources/clues.db";
+}
 
 namespace
 {
