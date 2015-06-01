@@ -105,9 +105,9 @@ JeopardyGame::LoadRound( const GameMode gameMode )
         }
 
         //Set empty items for missing empty clues
-        if( category.second.size() != 5)
+        if( category.second.size() != TOTAL_ROWS)
         {
-            for( int i = 0; i<5; i++)
+            for( int i = 0; i<TOTAL_ROWS; i++)
             {
                 if( !m_model->item(i,column))
                 {

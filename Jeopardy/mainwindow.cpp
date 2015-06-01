@@ -3,6 +3,7 @@
 #include "jeopardygame.h"
 
 #include <QItemDelegate>
+#include <QKeyEvent>
 #include <QPainter>
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
@@ -105,18 +106,30 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->headerWidget->hide();
     m_ui->mainToolBar->hide();
 
-    // $NOTE lot of table view settings have been set in UI file
     m_ui->tableView->setModel(m_game->GetModel());
     m_ui->tableView->setHorizontalHeader(new JeopardyHeader(m_ui->tableView));
     m_ui->tableView->setShowGrid(false);
     m_ui->tableView->setItemDelegate(new JeopardyItemDelegate(this));
+    m_ui->tableView->verticalHeader()->hide();
+    m_ui->tableView->setCornerButtonEnabled(false);
+    m_ui->tableView->setTextElideMode(Qt::ElideNone);
+    m_ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_ui->tableView->setDragDropOverwriteMode(false);
+    m_ui->tableView->setDropIndicatorShown(false);
+    m_ui->tableView->setAutoScroll(false);
+    m_ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_ui->tableView->setDragEnabled(false);
+    m_ui->tableView->setFrameShape(QFrame::NoFrame);
+    m_ui->tableView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_ui->tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_ui->tableView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    m_ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_ui->tableView->installEventFilter(this);
 
     QFont boardFont( BOARD_FONT, 34, QFont::Normal );
     boardFont.setLetterSpacing( QFont::AbsoluteSpacing, 2 );
     m_ui->tableView->setFont(boardFont);
-
-    m_ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     connect( m_ui->tableView, &QAbstractItemView::clicked, this, &MainWindow::handleBoardClick );
 
@@ -240,10 +253,12 @@ MainWindow::handleClueClick()
         else
         {
             m_ui->clueWidget->hide();
+            m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::NoUpdate);
+            m_ui->tableView->clearSelection();
             m_ui->tableView->show();
             m_mode = BOARD;
 
-            if(this->IsAutoPlayEnabled())
+            if(IsAutoPlayEnabled())
             {
                 const auto& clueIndex = m_game->GetNextClue();
 
@@ -317,6 +332,26 @@ MainWindow::eventFilter(QObject* watched, QEvent* event)
         {
             handleClueClick();
             return true;
+        }
+    }
+    else if( watched == m_ui->tableView)
+    {
+        if( event->type() == QEvent::KeyRelease)
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
+            {
+                if( m_mode == BOARD)
+                {
+                    handleBoardClick(m_ui->tableView->currentIndex());
+                }
+                else
+                {
+                    handleClueClick();
+                }
+
+                return true;
+            }
         }
     }
 
