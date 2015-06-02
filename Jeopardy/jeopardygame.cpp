@@ -201,7 +201,7 @@ JeopardyGame::HandleAnswerAction()
     return false;
 }
 
-std::pair<QModelIndex, QString>
+QModelIndex
 JeopardyGame::GetNextClue()
 {
     for( int col = 0; col<TOTAL_COLS; col++ )
@@ -210,13 +210,12 @@ JeopardyGame::GetNextClue()
         {
             if( !m_model->item(row,col)->text().isEmpty() )
             {
-                const QModelIndex& index = m_model->index(row,col);
-                return std::make_pair(index,HandleBoardAction(index));
+                return m_model->index(row, col);
             }
         }
     }
 
-    return std::make_pair(QModelIndex(),"");
+    return QModelIndex();
 }
 
 const QString&

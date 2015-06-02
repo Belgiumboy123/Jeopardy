@@ -44,14 +44,24 @@ private:
         CLUE_QUESTION,
         CLUE_ANSWER,
         CLUE_TIMEOUT,
+        CLUE_ANIMATION,
         FINAL_START,
         FINAL_CATEGORY,
         FINAL_CLUE,
         FINAL_ANSWER,
         GAME_OVER
     };
-
     GameMode m_mode;
+
+    struct AutoPlayAnimationState
+    {
+        QModelIndex newIndex;
+        int currColumn;
+        int currRow;
+        int columnDirection;
+        int rowDirection;
+    };
+    AutoPlayAnimationState m_autoPlayState;
 
     QModelIndex m_clickedIndex;
 
@@ -64,6 +74,10 @@ private:
     void StartClueTimer( const unsigned int milliSeconds);
 
     bool IsAutoPlayEnabled() const;
+
+    QTimer* m_autoPlayTimer;
+    void OnAutoPlayTimer();
+    void StartAutoPlayTimer();
 };
 
 #endif // MAINWINDOW_H

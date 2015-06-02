@@ -258,13 +258,20 @@ MainWindow::handleClueClick()
             m_ui->tableView->show();
             m_mode = BOARD;
 
+
             if(IsAutoPlayEnabled())
             {
-                const auto& clueIndex = m_game->GetNextClue();
+                m_autoPlayState.newIndex = m_game->GetNextClue();
+                m_autoPlayState.currColumn = m_clickedIndex.column();
+                m_autoPlayState.currRow = m_clickedIndex.row();
+                m_autoPlayState.columnDirection = m_autoPlayState.currColumn < m_autoPlayState.newIndex.column() ? 1 : -1;
+                m_autoPlayState.rowDirection = m_autoPlayState.currRow < m_autoPlayState.newIndex.row() ? 1 : -1;
 
-                // TODO, indicate what the next clue is
+                // change the mode so we can correctly handle board clicks
+                // during the animation
+                m_mode = CLUE_ANIMATION;
 
-                SetNewClueQuestion(clueIndex.first, clueIndex.second);
+                StartAutoPlayTimer();
             }
         }
     }
@@ -303,6 +310,41 @@ MainWindow::handleClueClick()
         m_ui->clueWidget->hide();
         m_ui->pickGameWidget->show();
     }
+}
+
+void
+MainWindow::StartAutoPlayTimer()
+{
+    m_autoPlayTimer = new QTimer(this);
+    m_autoPlayTimer->setSingleShot(true);
+    m_autoPlayTimer->setInterval(400);
+    connect( m_autoPlayTimer, &QTimer::timeout, this, &MainWindow::OnAutoPlayTimer);
+    m_autoPlayTimer->start();
+}
+
+void
+MainWindow::OnAutoPlayTimer()
+{
+    if( m_autoPlayState.currColumn != m_autoPlayState.newIndex.column())
+    {
+        m_autoPlayState.currColumn += m_autoPlayState.columnDirection;
+    }
+    else if( m_autoPlayState.currRow != m_autoPlayState.newIndex.row() )
+    {
+        m_autoPlayState.currRow += m_autoPlayState.rowDirection;
+    }
+    else
+    {
+        // we have reached newIndex
+        // start a timer to open up that clue
+
+        return;
+    }
+
+    // if we have reached this code it means we haven't reached newIndex yet, so try again
+    auto stepIndex = m_ui->tableView->model()->index(m_autoPlayState.currRow, m_autoPlayState.currColumn);
+    m_ui->tableView->selectionModel()->setCurrentIndex(stepIndex,QItemSelectionModel::ClearAndSelect);
+    StartAutoPlayTimer();
 }
 
 void
