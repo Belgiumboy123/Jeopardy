@@ -337,7 +337,14 @@ MainWindow::OnAutoPlayTimer()
     {
         // we have reached newIndex
         // start a timer to open up that clue
-
+        m_timeOverTimer = new QTimer(this);
+        m_timeOverTimer->setInterval(1500);
+        m_timeOverTimer->setSingleShot(true);
+        connect(m_timeOverTimer, &QTimer::timeout, this, [&]()
+            {
+                handleBoardClick(m_autoPlayState.newIndex);
+            });
+        m_timeOverTimer->start();
         return;
     }
 
