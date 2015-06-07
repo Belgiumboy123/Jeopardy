@@ -161,10 +161,23 @@ MainWindow::MainWindow(QWidget *parent)
 
     clueFont.setPointSize(28);
     m_ui->autoPlayCheckBox->setFont(clueFont);
+    connect( m_ui->autoPlayCheckBox, &QCheckBox::toggled,
+             m_ui->autoPlayOptionsButton, &QWidget::setVisible );
+
+    clueFont.setPointSize(14);
+    m_ui->autoPlayOptionsButton->setFont(clueFont);
+    connect( m_ui->autoPlayOptionsButton, &QPushButton::clicked, this, &MainWindow::launchAutoPlayOptionsDialog );
+
+    // NOTE setting the fixed size with both autoplay widgets visible,
+    // ensures that the widget does not change size when the auto play
+    // checkbox is checked. Thus order of the following two lines is important.
+    m_ui->autoPlayWidget->setFixedSize(m_ui->autoPlayWidget->sizeHint());
+    m_ui->autoPlayOptionsButton->hide();
 
     // start with menu mode
     m_ui->tableView->hide();
     m_ui->clueWidget->hide();
+
     m_mode = MENU;
 
     showMaximized();
@@ -209,7 +222,7 @@ MainWindow::SetNewClueQuestion(const QModelIndex& index, const QString& question
     // set label text
     m_ui->clueLabel->setText( question );
 
-    StartClueTimer(10000);
+    StartClueTimer(m_timeIntervals.ClueQuestion);
 
     // hide the board
     m_ui->tableView->hide();
@@ -283,7 +296,7 @@ MainWindow::handleClueClick()
         m_ui->clueLabel->setText( m_game->GetFinalCategory() );
         m_mode = FINAL_CATEGORY;
 
-        StartClueTimer(7000);
+        StartClueTimer(m_timeIntervals.FinalCategory);
     }
     else if( m_mode == FINAL_CATEGORY)
     {
@@ -291,7 +304,7 @@ MainWindow::handleClueClick()
         m_ui->clueLabel->setText( m_game->GetFinalClue() );
         m_mode = FINAL_CLUE;
 
-        StartClueTimer(30000);
+        StartClueTimer(m_timeIntervals.FinalQuestion);
     }
     else if( m_mode == FINAL_CLUE)
     {
@@ -319,7 +332,7 @@ MainWindow::StartAutoPlayTimer()
 {
     m_autoPlayTimer = new QTimer(this);
     m_autoPlayTimer->setSingleShot(true);
-    m_autoPlayTimer->setInterval(400);
+    m_autoPlayTimer->setInterval(m_timeIntervals.AutoPlayAnimation);
     connect( m_autoPlayTimer, &QTimer::timeout, this, &MainWindow::OnAutoPlayTimer);
     m_autoPlayTimer->start();
 }
@@ -340,7 +353,7 @@ MainWindow::OnAutoPlayTimer()
         // we have reached newIndex
         // start a timer to open up that clue
         m_timeOverTimer = new QTimer(this);
-        m_timeOverTimer->setInterval(1500);
+        m_timeOverTimer->setInterval(m_timeIntervals.AutoPlayFinal);
         m_timeOverTimer->setSingleShot(true);
         connect(m_timeOverTimer, &QTimer::timeout, this, [&]()
             {
@@ -362,7 +375,7 @@ MainWindow::OnClueTimerOut()
     m_ui->clueLabel->setText("Time is Up!");
 
     m_timeOverTimer = new QTimer(this);
-    m_timeOverTimer->setInterval(2500);
+    m_timeOverTimer->setInterval(m_timeIntervals.ClueTimeOut);
     m_timeOverTimer->setSingleShot(true);
     connect(m_timeOverTimer, &QTimer::timeout, this, &MainWindow::OnTimeOverTimerOut);
     m_timeOverTimer->start();
@@ -443,6 +456,17 @@ MainWindow::StartClueTimer( const unsigned int milliSeconds)
     m_clueTimer->setSingleShot(true);
     connect(m_clueTimer, &QTimer::timeout, this, &MainWindow::OnClueTimerOut);
     m_clueTimer->start();
+}
+
+void
+MainWindow::launchAutoPlayOptionsDialog()
+{
+    AutoPlayOptionsDialog dlg;
+    dlg.SetTimeIntervals(m_timeIntervals);
+    if(dlg.exec() == QDialog::Accepted)
+    {
+        m_timeIntervals = dlg.GetTimeIntervals();
+    }
 }
 
 MainWindow::~MainWindow()

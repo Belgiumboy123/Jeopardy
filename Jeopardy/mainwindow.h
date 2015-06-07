@@ -5,6 +5,8 @@
 #include <QMainWindow>
 #include <QModelIndex>
 
+#include "autoplayoptionsdialog.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -63,6 +65,8 @@ private:
     };
     AutoPlayAnimationState m_autoPlayState;
 
+    TimeIntervals m_timeIntervals;
+
     QModelIndex m_clickedIndex;
 
     QTimer* m_clueTimer;
@@ -78,6 +82,8 @@ private:
     QTimer* m_autoPlayTimer;
     void OnAutoPlayTimer();
     void StartAutoPlayTimer();
+
+    void launchAutoPlayOptionsDialog();
 };
 
 #endif // MAINWINDOW_H

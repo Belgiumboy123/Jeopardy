@@ -85,7 +85,7 @@ JeopardyGame::LoadRound( const GameMode gameMode )
     const DatabaseUtils::RoundQuestions& roundQuestions = (gameMode == GM_SINGLE) ? m_staticGameInfo.singleRoundQuestions
                                                                                   : m_staticGameInfo.doubleRoundQuestions;
 
-    // $MARK - need to reset model and rows and columns here?
+    // $MARK - need to reset model here?
 
     int column = 0;
     for( const auto& category : roundQuestions)

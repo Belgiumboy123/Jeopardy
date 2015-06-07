@@ -15,12 +15,18 @@ CONFIG += c++11
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    jeopardygame.cpp
+    jeopardygame.cpp \
+    autoplayoptionsdialog.cpp \
+    autoplayoptionwidget.cpp
 
 HEADERS  += mainwindow.h \
-    jeopardygame.h
+    jeopardygame.h \
+    autoplayoptionsdialog.h \
+    autoplayoptionwidget.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    autoplayoptionsdialog.ui \
+    autoplayoptionwidget.ui
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../JeopardyDatabase/release/ -lJeopardyDatabase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../JeopardyDatabase/debug/ -lJeopardyDatabase
