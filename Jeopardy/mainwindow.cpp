@@ -185,6 +185,8 @@ MainWindow::handleStartGameClick()
     m_ui->pickGameWidget->hide();
     m_ui->tableView->show();
     m_ui->tableView->setFocus();
+
+    // TODO if auto play is enabled, pick the first clue
 }
 
 void
@@ -388,13 +390,39 @@ MainWindow::eventFilter(QObject* watched, QEvent* event)
         if( event->type() == QEvent::KeyRelease)
         {
             QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+
+            switch( keyEvent->key())
+            {
+            case Qt::Key_Return:
+            case Qt::Key_Enter:
+                if( m_mode == BOARD)
+                {
+                    handleBoardClick(m_ui->tableView->currentIndex());
+                }
+                else if( m_mode != CLUE_ANIMATION)
+                {
+                    handleClueClick();
+                }
+                return true;
+
+            // this cancels arrow key events when we are
+            // in middle of animation auto-playing to uor next clue.
+            case Qt::Key_Up:
+            case Qt::Key_Down:
+            case Qt::Key_Right:
+            case Qt::Key_Left:
+                if( m_mode == CLUE_ANIMATION)
+                    return true;
+                break;
+            }
+
             if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
             {
                 if( m_mode == BOARD)
                 {
                     handleBoardClick(m_ui->tableView->currentIndex());
                 }
-                else
+                else if( m_mode != CLUE_ANIMATION)
                 {
                     handleClueClick();
                 }
