@@ -9,9 +9,12 @@ TimeIntervals::TimeIntervals()
     , FinalStart(3000)
     , FinalCategory(7000)
     , FinalQuestion(30000)
+    , FinalAnswer(5000)
     , AutoPlayAnimation(400)
     , AutoPlayFinal(1500)
     , ClueTimeOut(2500)
+    , ClueAnswer(2000)
+    , GameOver(5000)
 {
 }
 
@@ -42,6 +45,7 @@ AutoPlayOptionsDialog::SetTimeIntervals( const TimeIntervals& timeIntervals )
 
     AddAutoPlayWidget("Clue Question", m_timeIntervals.ClueQuestion);
     AddAutoPlayWidget("Clue Timeout", m_timeIntervals.ClueTimeOut);
+    AddAutoPlayWidget("CLue Answer", m_timeIntervals.ClueAnswer);
     AddAutoPlayWidget("Final Jeopardy Start", m_timeIntervals.FinalStart);
     AddAutoPlayWidget("Final Jeopardy Category", m_timeIntervals.FinalCategory);
     AddAutoPlayWidget("Final Jeopardy Question", m_timeIntervals.FinalQuestion);

@@ -72,6 +72,8 @@ private:
     QTimer* m_clueTimer;
     void OnClueTimerOut();
 
+    void StartTimeOverTimer(const unsigned int milliSeconds);
+
     QTimer* m_timeOverTimer;
     void OnTimeOverTimerOut();
 

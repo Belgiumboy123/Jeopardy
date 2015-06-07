@@ -260,6 +260,11 @@ MainWindow::handleClueClick()
         m_ui->clueLabel->setText( answer );
 
         m_mode = CLUE_ANSWER;
+
+        if( IsAutoPlayEnabled())
+        {
+            StartTimeOverTimer(m_timeIntervals.ClueAnswer);
+        }
     }
     else if( m_mode == CLUE_ANSWER)
     {
@@ -271,7 +276,7 @@ MainWindow::handleClueClick()
             m_ui->clueLabel->setText( "Final Jeopardy" );
             m_mode = FINAL_START;
 
-            StartClueTimer(3000);
+            StartTimeOverTimer(m_timeIntervals.FinalStart);
         }
         else
         {
@@ -293,7 +298,7 @@ MainWindow::handleClueClick()
         m_ui->clueLabel->setText( m_game->GetFinalCategory() );
         m_mode = FINAL_CATEGORY;
 
-        StartClueTimer(m_timeIntervals.FinalCategory);
+        StartTimeOverTimer(m_timeIntervals.FinalCategory);
     }
     else if( m_mode == FINAL_CATEGORY)
     {
@@ -308,6 +313,11 @@ MainWindow::handleClueClick()
         // show final jeapardy answer wait for user click -> back to start screen
         m_ui->clueLabel->setText( m_game->GetFinalAnswer() );
         m_mode = FINAL_ANSWER;
+
+        if(IsAutoPlayEnabled())
+        {
+            StartTimeOverTimer(m_timeIntervals.FinalAnswer);
+        }
     }
     else if(m_mode == FINAL_ANSWER )
     {
@@ -315,6 +325,11 @@ MainWindow::handleClueClick()
         m_ui->clueLabel->setText("Game Over\nSorry Jillian, better luck next time.");
 
         m_mode = GAME_OVER;
+
+        if(IsAutoPlayEnabled())
+        {
+            StartTimeOverTimer(m_timeIntervals.GameOver);
+        }
     }
     else if( m_mode == GAME_OVER )
     {
@@ -387,8 +402,14 @@ MainWindow::OnClueTimerOut()
 {
     m_ui->clueLabel->setText("Time is Up!");
 
+    StartTimeOverTimer(m_timeIntervals.ClueTimeOut);
+}
+
+void
+MainWindow::StartTimeOverTimer(const unsigned int milliSeconds)
+{
     m_timeOverTimer = new QTimer(this);
-    m_timeOverTimer->setInterval(m_timeIntervals.ClueTimeOut);
+    m_timeOverTimer->setInterval(milliSeconds);
     m_timeOverTimer->setSingleShot(true);
     connect(m_timeOverTimer, &QTimer::timeout, this, &MainWindow::OnTimeOverTimerOut);
     m_timeOverTimer->start();

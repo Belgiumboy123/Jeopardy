@@ -11,9 +11,12 @@ struct TimeIntervals
     UINT FinalStart; // 3000
     UINT FinalCategory; // 7000
     UINT FinalQuestion; // 30000
+    UINT FinalAnswer; // 5000
     UINT AutoPlayAnimation; //400
     UINT AutoPlayFinal; //1500
     UINT ClueTimeOut; // 2500
+    UINT ClueAnswer; // 2000
+    UINT GameOver; // 5000
 
     // this will set the defaults
     TimeIntervals();
