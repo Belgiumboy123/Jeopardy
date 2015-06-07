@@ -78,6 +78,7 @@ private:
     void StartClueTimer( const unsigned int milliSeconds);
 
     bool IsAutoPlayEnabled() const;
+    void AutoPlayNextClue();
 
     QTimer* m_autoPlayTimer;
     void OnAutoPlayTimer();

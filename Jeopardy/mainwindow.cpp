@@ -199,7 +199,15 @@ MainWindow::handleStartGameClick()
     m_ui->tableView->show();
     m_ui->tableView->setFocus();
 
-    // TODO if auto play is enabled, pick the first clue
+    // if auto play is enabled, pick the first clue
+    if( IsAutoPlayEnabled())
+    {
+        // pick an index to start animating from
+        m_clickedIndex = m_ui->tableView->model()->index(0, 0);
+        m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::Select);
+
+        AutoPlayNextClue();
+    }
 }
 
 void
@@ -273,20 +281,9 @@ MainWindow::handleClueClick()
             m_ui->tableView->show();
             m_mode = BOARD;
 
-
             if(IsAutoPlayEnabled())
             {
-                m_autoPlayState.newIndex = m_game->GetNextClue();
-                m_autoPlayState.currColumn = m_clickedIndex.column();
-                m_autoPlayState.currRow = m_clickedIndex.row();
-                m_autoPlayState.columnDirection = m_autoPlayState.currColumn < m_autoPlayState.newIndex.column() ? 1 : -1;
-                m_autoPlayState.rowDirection = m_autoPlayState.currRow < m_autoPlayState.newIndex.row() ? 1 : -1;
-
-                // change the mode so we can correctly handle board clicks
-                // during the animation
-                m_mode = CLUE_ANIMATION;
-
-                StartAutoPlayTimer();
+                AutoPlayNextClue();
             }
         }
     }
@@ -325,6 +322,22 @@ MainWindow::handleClueClick()
         m_ui->clueWidget->hide();
         m_ui->pickGameWidget->show();
     }
+}
+
+void
+MainWindow::AutoPlayNextClue()
+{
+    m_autoPlayState.newIndex = m_game->GetNextClue();
+    m_autoPlayState.currColumn = m_clickedIndex.column();
+    m_autoPlayState.currRow = m_clickedIndex.row();
+    m_autoPlayState.columnDirection = m_autoPlayState.currColumn < m_autoPlayState.newIndex.column() ? 1 : -1;
+    m_autoPlayState.rowDirection = m_autoPlayState.currRow < m_autoPlayState.newIndex.row() ? 1 : -1;
+
+    // change the mode so we can correctly handle board clicks
+    // during the animation
+    m_mode = CLUE_ANIMATION;
+
+    StartAutoPlayTimer();
 }
 
 void
