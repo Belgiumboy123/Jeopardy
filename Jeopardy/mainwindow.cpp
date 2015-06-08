@@ -16,6 +16,8 @@
 #define CLUE_FONT "Korinna BT"
 #define BOARD_FONT "Swiss 911"
 
+#define CLUE_FONT_SIZE 34
+
 class JeopardyItemDelegate : public QStyledItemDelegate
 {
 public:
@@ -136,7 +138,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->clueLabel->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
     m_ui->clueLabel->setWordWrap(true);
 
-    QFont clueFont( CLUE_FONT, 34, QFont::Normal );
+    QFont clueFont( CLUE_FONT, CLUE_FONT_SIZE, QFont::Normal );
     m_ui->clueWidget->setFont(clueFont);
     auto cluePal = m_ui->clueWidget->palette();
     cluePal.setColor(m_ui->clueWidget->backgroundRole(), QColor(CLUE_BLUE));
@@ -256,6 +258,12 @@ MainWindow::handleClueClick()
             m_timeOverTimer->stop();
         }
 
+        // reset the text color in case it was changed
+        // hitting a time out.
+        auto cluePal = m_ui->clueWidget->palette();
+        cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::white);
+        m_ui->clueWidget->setPalette(cluePal);
+
         const QString& answer = m_game->HandleClueAction(m_clickedIndex);
         m_ui->clueLabel->setText( answer );
 
@@ -273,7 +281,13 @@ MainWindow::handleClueClick()
         if( startFinal )
         {
             // show final jeapardy start screen for 3 seconds / optional click
-            m_ui->clueLabel->setText( "Final Jeopardy" );
+
+            // Make font size a little bigger
+            auto font = m_ui->clueLabel->font();
+            font.setPointSize(CLUE_FONT_SIZE+30);
+            m_ui->clueLabel->setFont(font);
+
+            m_ui->clueLabel->setText( "Final Jeopardy!" );
             m_mode = FINAL_START;
 
             StartTimeOverTimer(m_timeIntervals.FinalStart);
@@ -294,6 +308,11 @@ MainWindow::handleClueClick()
     }
     else if( m_mode == FINAL_START)
     {
+        // reset the font size
+        auto font = m_ui->clueLabel->font();
+        font.setPointSize(CLUE_FONT_SIZE);
+        m_ui->clueLabel->setFont(font);
+
         // show final jeopardy category and for 7 seconds /  optional click;
         m_ui->clueLabel->setText( m_game->GetFinalCategory() );
         m_mode = FINAL_CATEGORY;
@@ -400,6 +419,10 @@ MainWindow::OnAutoPlayTimer()
 void
 MainWindow::OnClueTimerOut()
 {
+    auto cluePal = m_ui->clueWidget->palette();
+    cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::red);
+    m_ui->clueWidget->setPalette(cluePal);
+
     m_ui->clueLabel->setText("Time is Up!");
 
     StartTimeOverTimer(m_timeIntervals.ClueTimeOut);

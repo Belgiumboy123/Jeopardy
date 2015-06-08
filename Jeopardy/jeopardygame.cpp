@@ -76,12 +76,15 @@ JeopardyGame::LoadGame(const int gameID )
 {
     DatabaseUtils::GetGameInfo(gameID, m_staticGameInfo /*out*/);
 
-    LoadRound(GM_SINGLE);
+    LoadRound(GM_DOUBLE);
 }
 
 void
 JeopardyGame::LoadRound( const GameMode gameMode )
 {
+    if( gameMode != GM_SINGLE && gameMode != GM_DOUBLE )
+        return;
+
     const DatabaseUtils::RoundQuestions& roundQuestions = (gameMode == GM_SINGLE) ? m_staticGameInfo.singleRoundQuestions
                                                                                   : m_staticGameInfo.doubleRoundQuestions;
 
