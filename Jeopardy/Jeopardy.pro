@@ -28,6 +28,9 @@ FORMS    += mainwindow.ui \
     autoplayoptionsdialog.ui \
     autoplayoptionwidget.ui
 
+QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
+macx: LIBS += -framework CoreFoundation
+
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../JeopardyDatabase/release/ -lJeopardyDatabase
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../JeopardyDatabase/debug/ -lJeopardyDatabase
 else:unix: LIBS += -L$$OUT_PWD/../JeopardyDatabase/ -lJeopardyDatabase

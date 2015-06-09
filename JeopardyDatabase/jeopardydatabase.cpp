@@ -6,6 +6,9 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
+#include <QDir>
+
+#include "CoreFoundation/CFBundle.h"
 
 static QString DB_NAME = "../Resources/clues.db";
 
@@ -27,9 +30,20 @@ namespace
         static bool OPENED = false;
         if( !OPENED)
         {
+            CFURLRef appUrlRef = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("clues.db"), NULL, NULL);
+            CFStringRef filePathRef = CFURLCopyPath(appUrlRef);
+            const char* filePath = CFStringGetCStringPtr(filePathRef, kCFStringEncodingUTF8);
+            DB_NAME = QString(filePath);
+
+            qDebug() << DB_NAME;
+
             QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-            db.setDatabaseName( DB_NAME );
+            db.setDatabaseName( DB_NAME);
             OPENED = true;
+
+            // Release references
+            CFRelease(filePathRef);
+            CFRelease(appUrlRef);
         }
 
         return QSqlDatabase::database();

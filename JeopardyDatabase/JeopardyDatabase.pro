@@ -13,6 +13,9 @@ TEMPLATE = lib
 CONFIG += staticlib
 CONFIG += c++11
 
+QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
+macx: LIBS += -framework CoreFoundation
+
 SOURCES += jeopardydatabase.cpp
 
 HEADERS += jeopardydatabase.h
