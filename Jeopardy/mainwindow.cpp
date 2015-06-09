@@ -215,11 +215,16 @@ MainWindow::handleStartGameClick()
 void
 MainWindow::handleBoardClick(const QModelIndex& index)
 {
-    // cancel the auto play timer
+    // cancel the auto-play and time-over timers
     // and pick the clue the user just clicked
     if( m_autoPlayTimer && m_autoPlayTimer->isActive())
     {
         m_autoPlayTimer->stop();
+    }
+
+    if( m_timeOverTimer && m_timeOverTimer->isActive())
+    {
+        m_timeOverTimer->stop();
     }
 
     const QString& question = m_game->HandleBoardAction( index );
