@@ -263,13 +263,13 @@ MainWindow::handleClueClick()
         m_clueTimer->stop();
     }
 
+    if( m_timeOverTimer && m_timeOverTimer->isActive())
+    {
+        m_timeOverTimer->stop();
+    }
+
     if( m_mode == CLUE_QUESTION)
     {
-        if( m_timeOverTimer && m_timeOverTimer->isActive())
-        {
-            m_timeOverTimer->stop();
-        }
-
         // reset the text color in case it was changed
         // hitting a time out.
         auto cluePal = m_ui->clueWidget->palette();
@@ -325,7 +325,7 @@ MainWindow::handleClueClick()
         font.setPointSize(CLUE_FONT_SIZE);
         m_ui->clueLabel->setFont(font);
 
-        // show final jeopardy category and for 7 seconds /  optional click;
+        // show final jeopardy category
         m_ui->clueLabel->setText( m_game->GetFinalCategory() );
         m_mode = FINAL_CATEGORY;
 
@@ -373,13 +373,13 @@ MainWindow::handleClueClick()
 void
 MainWindow::AutoPlayNextClue()
 {
-    m_autoPlayState.newIndex = m_game->GetNextClue();
+    m_autoPlayState.newIndex = m_game->GetNextClue(m_clickedIndex);
     m_autoPlayState.currColumn = m_clickedIndex.column();
     m_autoPlayState.currRow = m_clickedIndex.row();
     m_autoPlayState.columnDirection = m_autoPlayState.currColumn < m_autoPlayState.newIndex.column() ? 1 : -1;
     m_autoPlayState.rowDirection = m_autoPlayState.currRow < m_autoPlayState.newIndex.row() ? 1 : -1;
 
-    // change the mode so we can correctly handle board clicks
+    // change the mode so we can correctly handle user interaction
     // during the animation
     m_mode = CLUE_ANIMATION;
 

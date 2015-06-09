@@ -1,6 +1,7 @@
 #include "jeopardygame.h"
 
 #include <QStandardItemModel>
+#include <QTime>
 #include <QDebug>
 
 #define CLUE_BLUE "#0A06B3"
@@ -45,6 +46,8 @@ JeopardyGame::JeopardyGame()
     , m_gameMode(GM_NONE)
     , m_cluesAnswered(0)
 {
+    QTime time = QTime::currentTime();
+    qsrand((uint)time.msec());
 }
 
 JeopardyGame::~JeopardyGame()
@@ -88,7 +91,7 @@ JeopardyGame::LoadRound( const GameMode gameMode )
     const DatabaseUtils::RoundQuestions& roundQuestions = (gameMode == GM_SINGLE) ? m_staticGameInfo.singleRoundQuestions
                                                                                   : m_staticGameInfo.doubleRoundQuestions;
 
-    // $MARK - need to reset model here?
+    m_model->clear();
 
     int column = 0;
     for( const auto& category : roundQuestions)
@@ -204,21 +207,131 @@ JeopardyGame::HandleAnswerAction()
     return false;
 }
 
-QModelIndex
-JeopardyGame::GetNextClue()
+namespace
 {
-    for( int col = 0; col<TOTAL_COLS; col++ )
+    bool IsWithinRandPercentage(int percent)
     {
-        for( int row = 0; row<TOTAL_ROWS; row++)
+        return qrand() % 101 < percent;
+    }
+
+    int GetRandomIndex(int size)
+    {
+        return qrand() % size;
+    }
+
+    bool IsItemAvailable(const QStandardItemModel* model, const int row, const int col)
+    {
+        if( !model->item(row,col))
         {
-            if( !m_model->item(row,col)->text().isEmpty() )
-            {
-                return m_model->index(row, col);
-            }
+            qDebug() << "ERROR " << row  << " " << col;
+            return false;
+        }
+
+        return !model->item(row,col)->text().isEmpty();
+    }
+}
+
+QModelIndex
+JeopardyGame::GetNextClue(const QModelIndex& currentClue)
+{
+    /**
+     * This is the algorithm
+     *
+     * if currCol.IsEmpty() || 90% chance
+     *      newCol = new equally random column
+     *
+     * if newCol != currCol
+     *      newRow = 75% chance ? lowest available ? random avail
+     * else
+     *      newRow = 90% chance ? next lowest available ? random avail
+     **/
+
+    const int currColumn = currentClue.column();
+    int newColumn = currColumn;
+    bool isCurrColumnEmpty = true;
+    for( int row = 0; row< TOTAL_ROWS; row++)
+    {
+        if(IsItemAvailable(m_model,row,currColumn))
+        {
+            isCurrColumnEmpty = false;
+            break;
         }
     }
 
-    return QModelIndex();
+    if( isCurrColumnEmpty || IsWithinRandPercentage(10))
+    {
+        std::vector<int> availCols;
+        for( int col = 0; col<TOTAL_COLS; col++)
+        {
+            if( col == currColumn)
+                continue;
+
+            for( int row = 0; row<TOTAL_ROWS; row++)
+            {
+                if(IsItemAvailable(m_model,row,col))
+                {
+                    availCols.push_back(col);
+                    break;
+                }
+            }
+        }
+
+        newColumn = availCols[GetRandomIndex(availCols.size())];
+    }
+
+    // at this point we are guaranteed that newColumn contains valid rows
+    // otherwise it should not have been chosen by the above code
+
+    int newRow = -1;
+    std::vector<int> availRows;
+    for( int row = 0; row <TOTAL_ROWS; row++)
+    {
+        if( IsItemAvailable(m_model,row,newColumn))
+        {
+            availRows.push_back(row);
+        }
+    }
+
+    // assert that availRows is not empty
+
+    if( newColumn != currColumn)
+    {
+        if( IsWithinRandPercentage(70))
+        {
+            newRow = availRows[0];
+        }
+        else
+        {
+            newRow = availRows[GetRandomIndex(availRows.size())];
+        }
+    }
+    else
+    {
+        const bool useNextLowest = IsWithinRandPercentage(90);
+
+        if( useNextLowest)
+        {
+            // current clue has been answered ( unless it's the start of the game
+            // and new clues have been answered yet ), so start at the next row
+            const int startRow = currentClue.row() + (m_cluesAnswered == 0 ? 0 : 1);
+
+            for( auto row : availRows )
+            {
+                if( row >= startRow )
+                {
+                    newRow = row;
+                    break;
+                }
+            }
+        }
+
+        if( newRow == -1 )
+        {
+            newRow = availRows[GetRandomIndex(availRows.size())];
+        }
+    }
+
+    return m_model->index(newRow,newColumn);
 }
 
 const QString&

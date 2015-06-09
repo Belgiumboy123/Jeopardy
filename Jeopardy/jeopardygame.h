@@ -25,7 +25,7 @@ public:
     const QString& GetFinalClue() const;
     const QString& GetFinalAnswer() const;
 
-    QModelIndex GetNextClue();
+    QModelIndex GetNextClue(const QModelIndex& currentClue);
 
 private:
 

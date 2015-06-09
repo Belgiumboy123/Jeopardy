@@ -17,11 +17,6 @@ DatabaseUtils::UseUnitTestDatabasePath()
 
 namespace
 {
-    bool IsInteger(const double& d)
-    {
-        return d - (double)(int)d == 0.0;
-    }
-
     const QChar COMMA = ',';
 
     // the following function is in place to
@@ -84,9 +79,22 @@ DatabaseUtils::GetANonPlayedGame()
 }
 
 DatabaseUtils::StaticGameInfo::StaticGameInfo()
-    : totalSingleClues(0)
-    , totalDoubleClues(0)
 {
+    clear();
+}
+
+void
+DatabaseUtils::StaticGameInfo::clear()
+{
+    totalDoubleClues = 0;
+    totalSingleClues = 0;
+
+    finalCategory.clear();
+    finalClue.clear();
+    finalAnswer.clear();
+
+    singleRoundQuestions.clear();
+    doubleRoundQuestions.clear();
 }
 
 namespace
@@ -135,7 +143,7 @@ bool DatabaseUtils::IsValidClueValue( int value, bool dj)
 
 void
 FixDailyDoubleValues(DatabaseUtils::RoundQuestions& roundQuestions, bool doubleJeopardy)
-{
+{   
     using namespace DatabaseUtils;
     auto isValidClueFunction = [doubleJeopardy](ValuePair vp)
     {
@@ -184,73 +192,12 @@ FixDailyDoubleValues(DatabaseUtils::RoundQuestions& roundQuestions, bool doubleJ
     }
 }
 
-/**
- * @brief FixDailyDoubleValues
- * @param roundQuestions
- *
- * The database stores daily double values as the value
- * that the player happened to bet that game
- * so go through rest of clues in category and figure out
- * the daily double board value
- */
-void
-FixDailyDoubleValues_old( DatabaseUtils::RoundQuestions& roundQuestions, bool doubleJeopardy)
-{
-    DatabaseUtils::CategoryQuestions::iterator dailyDoubleIter;
-    bool dailyDoubleFound = false;
-    for( auto& category : roundQuestions )
-    {
-        std::vector<bool> validClues(5,false);
-        dailyDoubleFound = false;
-        for( auto clue : category.second)
-        {
-             double value = clue.first / (doubleJeopardy ? 400 : 200);
-             if( !IsInteger(value) || value > 6 || value < 1)
-             {
-                   // we have found daily double
-                   //qDebug() << clue.first << " " << category.first << " " << value;
-                   dailyDoubleIter = category.second.find(clue.first);
-                   dailyDoubleFound = true;
-             }
-             else
-             {
-                 validClues[value-1] = true;
-             }
-        }
-
-        // if multiple mistakes were found
-        // sort and assign correct values
-
-        if( dailyDoubleFound )
-        {
-           for( int i = 0; i<5; i++)
-           {
-               if( !validClues[i] )
-               {
-                   int value = (i+1)*(doubleJeopardy ? 400 : 200);
-                   category.second.emplace( value, dailyDoubleIter->second);
-                   category.second.erase( dailyDoubleIter );
-                   validClues[i] = true;
-                   break;
-               }
-           }
-        }
-
-        // add empty clues for clues that were never asked
-        for( int i = 0; i<5; i++)
-        {
-           if( !validClues[i])
-           {
-                const int value = (i+1)*(doubleJeopardy ? 400 : 200);
-                category.second.emplace( value, std::make_pair("",""));
-           }
-        }
-    }
-}
-
 void
 DatabaseUtils::GetGameInfo(const int gameID, StaticGameInfo& info)
 {
+    // be sure to clear any variables from a previously loaded game
+    info.clear();
+
     QSqlDatabase db = GetDatabase();
 
     if(db.open())

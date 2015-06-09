@@ -32,6 +32,7 @@ namespace DatabaseUtils
         int totalDoubleClues;
 
         StaticGameInfo();
+        void clear();
     };
 
     void GetGameInfo(const int gameID, StaticGameInfo& gameInfo);
