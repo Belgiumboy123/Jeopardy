@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "jeopardygame.h"
 
+#include <QFontDatabase>
 #include <QItemDelegate>
 #include <QKeyEvent>
 #include <QPainter>
@@ -93,6 +94,10 @@ MainWindow::MainWindow(QWidget *parent)
     , m_game( new JeopardyGame )
 {
     m_ui->setupUi(this);
+
+    // Load the two needed fonts from resources.qrc
+    QFontDatabase::addApplicationFont(":/korinna");
+    QFontDatabase::addApplicationFont(":/swiss");
 
     QPalette pal = m_ui->bottomWidget->palette();
     pal.setColor( m_ui->bottomWidget->backgroundRole(), Qt::yellow);
