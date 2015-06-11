@@ -5,10 +5,13 @@
 #include <QFontDatabase>
 #include <QItemDelegate>
 #include <QKeyEvent>
+#include <QMediaPlayer>
 #include <QPainter>
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 #include <QTimer>
+
+#include "CoreFoundation/CFBundle.h"
 
 #include <QDebug>
 
@@ -181,6 +184,14 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->autoPlayWidget->setFixedSize(m_ui->autoPlayWidget->sizeHint());
     m_ui->autoPlayOptionsButton->hide();
 
+    // setup up media player with final jeopardy song
+    m_mediaPlayer = new QMediaPlayer(this);
+    CFURLRef appUrlRef = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("song.mp3"), NULL, NULL);
+    CFStringRef filePathRef = CFURLCopyPath(appUrlRef);
+    const char* filePath = CFStringGetCStringPtr(filePathRef, kCFStringEncodingUTF8);
+    m_mediaPlayer->setMedia(QUrl::fromLocalFile(filePath));
+    m_mediaPlayer->setVolume(50);
+
     // start with menu mode
     m_ui->tableView->hide();
     m_ui->clueWidget->hide();
@@ -343,9 +354,15 @@ MainWindow::handleClueClick()
         m_mode = FINAL_CLUE;
 
         StartClueTimer(m_timeIntervals.FinalQuestion);
+
+        // start the final jeopardy music
+        m_mediaPlayer->play();
     }
     else if( m_mode == FINAL_CLUE)
     {
+        // stop the final jeopardy music
+        m_mediaPlayer->stop();
+
         // show final jeapardy answer wait for user click -> back to start screen
         m_ui->clueLabel->setText( m_game->GetFinalAnswer() );
         m_mode = FINAL_ANSWER;

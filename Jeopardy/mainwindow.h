@@ -12,9 +12,9 @@ class MainWindow;
 }
 
 class JeopardyGame;
+class QMediaPlayer;
 class QModelIndex;
 class QTimer;
-class QModelIndex;
 
 class MainWindow : public QMainWindow
 {
@@ -87,6 +87,8 @@ private:
     void StartAutoPlayTimer();
 
     void launchAutoPlayOptionsDialog();
+
+    QMediaPlayer* m_mediaPlayer;
 };
 
 #endif // MAINWINDOW_H

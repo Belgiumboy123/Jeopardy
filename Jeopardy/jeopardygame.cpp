@@ -276,7 +276,10 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
             }
         }
 
-        newColumn = availCols[GetRandomIndex(availCols.size())];
+        if(availCols.size())
+        {
+            newColumn = availCols[GetRandomIndex(availCols.size())];
+        }
     }
 
     // at this point we are guaranteed that newColumn contains valid rows
