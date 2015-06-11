@@ -18,9 +18,10 @@ TimeIntervals::TimeIntervals()
 {
 }
 
-AutoPlayOptionsDialog::AutoPlayOptionsDialog(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::AutoPlayOptionsDialog)
+AutoPlayOptionsDialog::AutoPlayOptionsDialog(QWidget *parent, const TimeIntervals& timeIntervals)
+    : QDialog(parent)
+    , m_ui(new Ui::AutoPlayOptionsDialog)
+    , m_timeIntervals(timeIntervals)
 {
     m_ui->setupUi(this);
 
@@ -29,19 +30,6 @@ AutoPlayOptionsDialog::AutoPlayOptionsDialog(QWidget *parent) :
 
     QVBoxLayout* layout = new QVBoxLayout(m_ui->container);
     m_ui->container->setLayout( layout );
-}
-
-void
-AutoPlayOptionsDialog::AddAutoPlayWidget( const QString& label, unsigned int& value)
-{
-    AutoPlayOptionWidget* widget = new AutoPlayOptionWidget(m_ui->container, label, value);
-    m_ui->container->layout()->addWidget( widget );
-}
-
-void
-AutoPlayOptionsDialog::SetTimeIntervals( const TimeIntervals& timeIntervals )
-{
-    m_timeIntervals = timeIntervals;
 
     AddAutoPlayWidget("Clue Question", m_timeIntervals.ClueQuestion);
     AddAutoPlayWidget("Clue Timeout", m_timeIntervals.ClueTimeOut);
@@ -53,19 +41,16 @@ AutoPlayOptionsDialog::SetTimeIntervals( const TimeIntervals& timeIntervals )
     AddAutoPlayWidget("Auto play final clue", m_timeIntervals.AutoPlayFinal);
 }
 
+void
+AutoPlayOptionsDialog::AddAutoPlayWidget( const QString& label, unsigned int& value)
+{
+    AutoPlayOptionWidget* widget = new AutoPlayOptionWidget(m_ui->container, label, value);
+    m_ui->container->layout()->addWidget( widget );
+}
+
 TimeIntervals
 AutoPlayOptionsDialog::GetTimeIntervals() const
 {
-    // Until the individual widgets can figure out how to do this on their own
-    for( auto child : m_ui->container->children())
-    {
-        auto autoPlayWidget = dynamic_cast<AutoPlayOptionWidget*>(child);
-        if( autoPlayWidget)
-        {
-            autoPlayWidget->SetValue();
-        }
-    }
-
     return m_timeIntervals;
 }
 

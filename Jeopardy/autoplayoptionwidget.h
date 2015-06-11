@@ -15,8 +15,6 @@ public:
     explicit AutoPlayOptionWidget(QWidget *parent, const QString& label, unsigned int& value);
     ~AutoPlayOptionWidget();
 
-    void SetValue();
-
 private:
     Ui::AutoPlayOptionWidget *m_ui;
 

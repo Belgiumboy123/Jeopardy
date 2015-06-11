@@ -15,21 +15,15 @@ AutoPlayOptionWidget::AutoPlayOptionWidget(QWidget *parent, const QString& label
     m_ui->spinBox->setSingleStep(100);
     m_ui->spinBox->setValue(value);
 
-    // For some reason the following line does not compile
-    // Which is why the ugly SetValue workaround is needed
-    //connect( m_ui->spinBox, &QSpinBox::valueChanged, this, &AutoPlayOptionWidget::onValueChanged);
+    // There are two signals with the same name in QSpinBox
+    // so we have to do this ugly casting for it to work
+    connect( m_ui->spinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &AutoPlayOptionWidget::onValueChanged);
 }
 
 void
 AutoPlayOptionWidget::onValueChanged(int value)
 {
     m_value = value;
-}
-
-void
-AutoPlayOptionWidget::SetValue()
-{
-    m_value = m_ui->spinBox->value();
 }
 
 AutoPlayOptionWidget::~AutoPlayOptionWidget()

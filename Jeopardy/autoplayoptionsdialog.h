@@ -31,10 +31,9 @@ class AutoPlayOptionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AutoPlayOptionsDialog(QWidget *parent = 0);
+    explicit AutoPlayOptionsDialog(QWidget *parent, const TimeIntervals& timeIntervals);
     ~AutoPlayOptionsDialog();
 
-    void SetTimeIntervals( const TimeIntervals& timeIntervals );
     TimeIntervals GetTimeIntervals() const;
 
 private:

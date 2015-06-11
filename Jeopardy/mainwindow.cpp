@@ -521,8 +521,7 @@ MainWindow::StartClueTimer( const unsigned int milliSeconds)
 void
 MainWindow::launchAutoPlayOptionsDialog()
 {
-    AutoPlayOptionsDialog dlg;
-    dlg.SetTimeIntervals(m_timeIntervals);
+    AutoPlayOptionsDialog dlg(this, m_timeIntervals);
     if(dlg.exec() == QDialog::Accepted)
     {
         m_timeIntervals = dlg.GetTimeIntervals();
