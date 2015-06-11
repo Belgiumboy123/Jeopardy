@@ -502,20 +502,6 @@ MainWindow::eventFilter(QObject* watched, QEvent* event)
                     return true;
                 break;
             }
-
-            if(keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
-            {
-                if( m_mode == BOARD)
-                {
-                    handleBoardClick(m_ui->tableView->currentIndex());
-                }
-                else if( m_mode != CLUE_ANIMATION)
-                {
-                    handleClueClick();
-                }
-
-                return true;
-            }
         }
     }
 
