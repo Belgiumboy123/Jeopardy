@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file alias="korinna">../../../Downloads/Korinna Regular BT.ttf</file>
-        <file alias="swiss">../../../Downloads/Swiss 911 Extra Compressed.ttf</file>
+        <file alias="swiss">Swiss 911 Extra Compressed.ttf</file>
+        <file alias="korinna">Korinna Regular BT.ttf</file>
     </qresource>
 </RCC>
