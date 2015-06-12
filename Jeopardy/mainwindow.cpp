@@ -11,8 +11,6 @@
 #include <QStyledItemDelegate>
 #include <QTimer>
 
-#include "CoreFoundation/CFBundle.h"
-
 #include <QDebug>
 
 #define CLUE_BLUE "#0A06B3"
@@ -186,10 +184,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // setup up media player with final jeopardy song
     m_mediaPlayer = new QMediaPlayer(this);
-    CFURLRef appUrlRef = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("song.mp3"), NULL, NULL);
-    CFStringRef filePathRef = CFURLCopyPath(appUrlRef);
-    const char* filePath = CFStringGetCStringPtr(filePathRef, kCFStringEncodingUTF8);
-    m_mediaPlayer->setMedia(QUrl::fromLocalFile(filePath));
+    m_mediaPlayer->setMedia(QUrl::fromLocalFile(DatabaseUtils::GetFilePathAppResourcesFile("song.mp3")));
     m_mediaPlayer->setVolume(50);
 
     // start with menu mode

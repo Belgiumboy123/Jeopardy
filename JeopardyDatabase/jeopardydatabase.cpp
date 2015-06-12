@@ -18,6 +18,21 @@ DatabaseUtils::UseUnitTestDatabasePath()
     DB_NAME = "../Jeopardy/Jeopardy.app/Contents/Resources/clues.db";
 }
 
+QString
+DatabaseUtils::GetFilePathAppResourcesFile(const QString& filename)
+{
+    CFURLRef appUrlRef = CFBundleCopyResourceURL(CFBundleGetMainBundle(), filename.toCFString(), NULL, NULL);
+    CFStringRef filePathRef = CFURLCopyPath(appUrlRef);
+    const char* filePath = CFStringGetCStringPtr(filePathRef, kCFStringEncodingUTF8);
+    const QString filePathFinal = QString(filePath);
+
+    // Release references
+    CFRelease(filePathRef);
+    CFRelease(appUrlRef);
+
+    return filePathFinal;
+}
+
 namespace
 {
     const QChar COMMA = ',';
@@ -32,14 +47,7 @@ namespace
         {
             if( DB_NAME.isEmpty())
             {
-                CFURLRef appUrlRef = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("clues.db"), NULL, NULL);
-                CFStringRef filePathRef = CFURLCopyPath(appUrlRef);
-                const char* filePath = CFStringGetCStringPtr(filePathRef, kCFStringEncodingUTF8);
-                DB_NAME = QString(filePath);
-
-                // Release references
-                CFRelease(filePathRef);
-                CFRelease(appUrlRef);
+                DB_NAME = DatabaseUtils::GetFilePathAppResourcesFile("clues.db");
             }
 
             QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");

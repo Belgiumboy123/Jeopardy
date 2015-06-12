@@ -9,6 +9,8 @@
 
 namespace DatabaseUtils
 {
+    QString GetFilePathAppResourcesFile(const QString& filename);
+
     int GetANonPlayedGame();
 
     typedef std::pair<QString,QString> ClueAnswerPair;
