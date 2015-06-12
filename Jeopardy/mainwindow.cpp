@@ -35,8 +35,11 @@ protected:
         // draw a thicker black border around each item
         // by drawing the clue 3 pixels in from it's original size
         // and letting the black background show through
+        // Always draw the item as if the listview is active,
+        // this avoids the ugly black/white inactive autoplay selection colors
         QStyleOptionViewItem opt = option;
         opt.rect = option.rect.adjusted(3, 3, -3, -3);
+        opt.state |= QStyle::State_Active;
         QStyledItemDelegate::paint(painter,opt,index);
     }
 };
