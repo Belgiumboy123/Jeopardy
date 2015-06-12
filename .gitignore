@@ -10,6 +10,10 @@
 *.dll
 *.dylib
 
+# Build files
+*.app
+tst_*
+
 # Qt-es
 
 /.qmake.cache
