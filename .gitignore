@@ -13,6 +13,7 @@
 # Build files
 *.app
 tst_*
+*.stash
 
 # Qt-es
 
