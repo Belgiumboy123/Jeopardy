@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+#include "optionsdialog.h"
 #include "jeopardygame.h"
 
 #include <QFontDatabase>
@@ -95,7 +97,8 @@ private:
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , m_ui(new Ui::MainWindow)
-    , m_game( new JeopardyGame )
+    , m_game( new JeopardyGame(m_options.m_nextClueOptions) )
+    , m_timeIntervals(m_options.m_timeIntervals)
 {
     m_ui->setupUi(this);
 
@@ -156,39 +159,35 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->clueWidget->setAutoFillBackground(true);
     m_ui->clueWidget->installEventFilter(this);
 
-    auto pickGamePal = m_ui->pickGameLabel->palette();
-    pickGamePal.setColor(m_ui->pickGameLabel->foregroundRole(), BOARD_TEXT);
-    m_ui->pickGameLabel->setPalette(pickGamePal);
+    auto jeopardyTitleLabelPal = m_ui->jeopardyTitleLabel->palette();
+    jeopardyTitleLabelPal.setColor(m_ui->jeopardyTitleLabel->foregroundRole(), BOARD_TEXT);
+    m_ui->jeopardyTitleLabel->setPalette(jeopardyTitleLabelPal);
     boardFont.setPointSize(200);
-    m_ui->pickGameLabel->setFont(boardFont);
+    m_ui->jeopardyTitleLabel->setFont(boardFont);
 
     clueFont.setPointSize(40);
-    m_ui->pickGameButton->setFont(clueFont);
+    m_ui->startGameButton->setFont(clueFont);
+
+    connect( m_ui->startGameButton, &QPushButton::clicked, this, &MainWindow::handleStartGameClick );
+
 
     m_ui->pickGameWidget->setAutoFillBackground(true);
     m_ui->pickGameWidget->setPalette(cluePal);
 
-    connect( m_ui->pickGameButton, &QPushButton::clicked, this, &MainWindow::handleStartGameClick );
 
     clueFont.setPointSize(28);
     m_ui->autoPlayCheckBox->setFont(clueFont);
-    connect( m_ui->autoPlayCheckBox, &QCheckBox::toggled,
-             m_ui->autoPlayOptionsButton, &QWidget::setVisible );
 
-    clueFont.setPointSize(14);
-    m_ui->autoPlayOptionsButton->setFont(clueFont);
-    connect( m_ui->autoPlayOptionsButton, &QPushButton::clicked, this, &MainWindow::launchAutoPlayOptionsDialog );
+    clueFont.setPointSize(20);
+    m_ui->optionsButton->setFont(clueFont);
+    connect( m_ui->optionsButton, &QPushButton::clicked, this, &MainWindow::launchOptionsDialog );
 
-    // NOTE setting the fixed size with both autoplay widgets visible,
-    // ensures that the widget does not change size when the auto play
-    // checkbox is checked. Thus order of the following two lines is important.
-    m_ui->autoPlayWidget->setFixedSize(m_ui->autoPlayWidget->sizeHint());
-    m_ui->autoPlayOptionsButton->hide();
+    m_ui->optionsWidget->setFixedSize(m_ui->optionsWidget->sizeHint());
 
     // setup up media player with final jeopardy song
     m_mediaPlayer = new QMediaPlayer(this);
     m_mediaPlayer->setMedia(QUrl::fromLocalFile(DatabaseUtils::GetFilePathAppResourcesFile("song.mp3")));
-    m_mediaPlayer->setVolume(50);
+    UpdateMediaPlayerFromOptions();
 
     // start with menu mode
     m_ui->tableView->hide();
@@ -360,6 +359,10 @@ MainWindow::handleClueClick()
     {
         // stop the final jeopardy music
         m_mediaPlayer->stop();
+
+        auto cluePal = m_ui->clueWidget->palette();
+        cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::white);
+        m_ui->clueWidget->setPalette(cluePal);
 
         // show final jeapardy answer wait for user click -> back to start screen
         m_ui->clueLabel->setText( m_game->GetFinalAnswer() );
@@ -534,13 +537,23 @@ MainWindow::StartClueTimer( const unsigned int milliSeconds)
 }
 
 void
-MainWindow::launchAutoPlayOptionsDialog()
+MainWindow::launchOptionsDialog()
 {
-    AutoPlayOptionsDialog dlg(this, m_timeIntervals);
+    OptionsDialog dlg(this, m_options);
     if(dlg.exec() == QDialog::Accepted)
     {
-        m_timeIntervals = dlg.GetTimeIntervals();
+        m_options = dlg.GetOptions();
+        m_timeIntervals = m_options.m_timeIntervals;
+        UpdateMediaPlayerFromOptions();
+        m_game->SetNextClueOptions(m_options.m_nextClueOptions);
     }
+}
+
+void
+MainWindow::UpdateMediaPlayerFromOptions()
+{
+    m_mediaPlayer->setVolume(m_options.m_music.volume);
+    m_mediaPlayer->setMuted(!m_options.m_music.playFinalJeopardy);
 }
 
 MainWindow::~MainWindow()

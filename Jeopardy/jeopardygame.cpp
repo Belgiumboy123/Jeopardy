@@ -41,10 +41,11 @@ private:
     QString m_answer;
 };
 
-JeopardyGame::JeopardyGame()
+JeopardyGame::JeopardyGame(NextClueOptions& nextClueOptions)
     : m_model( new QStandardItemModel(TOTAL_ROWS, TOTAL_COLS))
     , m_gameMode(GM_NONE)
     , m_cluesAnswered(0)
+    , m_nextClueOptions(nextClueOptions)
 {
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());
@@ -79,7 +80,7 @@ JeopardyGame::LoadGame(const int gameID )
 {
     DatabaseUtils::GetGameInfo(gameID, m_staticGameInfo /*out*/);
 
-    LoadRound(GM_DOUBLE);
+    LoadRound(GM_SINGLE);
 }
 
 void
@@ -204,7 +205,7 @@ JeopardyGame::HandleAnswerAction()
             break;
     }
 
-    return false;
+    return true;
 }
 
 namespace
@@ -241,7 +242,7 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
      *      newCol = new equally random column
      *
      * if newCol != currCol
-     *      newRow = 75% chance ? lowest available ? random avail
+     *      newRow = 70% chance ? lowest available ? random avail
      * else
      *      newRow = 90% chance ? next lowest available ? random avail
      **/
@@ -258,7 +259,7 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
         }
     }
 
-    if( isCurrColumnEmpty || IsWithinRandPercentage(10))
+    if( isCurrColumnEmpty || IsWithinRandPercentage(m_nextClueOptions.NewColumnChance) )
     {
         std::vector<int> availCols;
         for( int col = 0; col<TOTAL_COLS; col++)
@@ -299,7 +300,7 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
 
     if( newColumn != currColumn)
     {
-        if( IsWithinRandPercentage(70))
+        if( IsWithinRandPercentage(m_nextClueOptions.NextRowNewColumnChance))
         {
             newRow = availRows[0];
         }
@@ -308,9 +309,9 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
             newRow = availRows[GetRandomIndex(availRows.size())];
         }
     }
-    else
+    else    // Not changing columns
     {
-        const bool useNextLowest = IsWithinRandPercentage(90);
+        const bool useNextLowest = IsWithinRandPercentage(m_nextClueOptions.NextRowSameColumnChance);
 
         if( useNextLowest)
         {
@@ -359,4 +360,10 @@ int
 JeopardyGame::GetRowFromValue( const int value, const GameMode mode) const
 {
     return (value / (mode == GM_DOUBLE ? 400 : 200) ) - 1;
+}
+
+void
+JeopardyGame::SetNextClueOptions(const NextClueOptions& nextClueOptions)
+{
+    m_nextClueOptions = nextClueOptions;
 }

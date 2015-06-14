@@ -2,7 +2,7 @@
 #define JEOPARDYGAME_H
 
 #include "jeopardydatabase.h"
-
+#include "options.h"
 
 class QStandardItemModel;
 class QModelIndex;
@@ -10,7 +10,7 @@ class QModelIndex;
 class JeopardyGame
 {
 public:
-    JeopardyGame();
+    JeopardyGame(NextClueOptions& nextClueOptions);
     ~JeopardyGame();
 
     QStandardItemModel* GetModel() const;
@@ -26,6 +26,8 @@ public:
     const QString& GetFinalAnswer() const;
 
     QModelIndex GetNextClue(const QModelIndex& currentClue);
+
+    void SetNextClueOptions(const NextClueOptions& nextClueOptions);
 
 private:
 
@@ -49,6 +51,8 @@ private:
 
     int GetRowFromValue( const int value, const GameMode mode) const;
     void LoadRound( const GameMode gameMode );
+
+    NextClueOptions& m_nextClueOptions;
 };
 
 #endif // JEOPARDYGAME_H

@@ -98,7 +98,7 @@ DatabaseUtils::GetANonPlayedGame()
 
     db.close();
 
-    return 5; // gameID;
+    return 5; //gameID;
 }
 
 DatabaseUtils::StaticGameInfo::StaticGameInfo()

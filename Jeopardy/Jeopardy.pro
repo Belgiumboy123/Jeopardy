@@ -16,17 +16,19 @@ CONFIG += c++11
 SOURCES += main.cpp\
         mainwindow.cpp \
     jeopardygame.cpp \
-    autoplayoptionsdialog.cpp \
-    autoplayoptionwidget.cpp
+    autoplayoptionwidget.cpp \
+    options.cpp \
+    optionsdialog.cpp
 
 HEADERS  += mainwindow.h \
     jeopardygame.h \
-    autoplayoptionsdialog.h \
-    autoplayoptionwidget.h
+    autoplayoptionwidget.h \
+    options.h \
+    optionsdialog.h
 
 FORMS    += mainwindow.ui \
-    autoplayoptionsdialog.ui \
-    autoplayoptionwidget.ui
+    autoplayoptionwidget.ui \
+    optionsdialog.ui
 
 QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
 macx: LIBS += -framework CoreFoundation
