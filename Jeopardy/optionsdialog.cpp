@@ -58,6 +58,18 @@ public:
         AddAutoPlayWidgets("Auto play final clue", timeIntervals.AutoPlayFinal, 7);
     }
 
+    void SetValues(TimeIntervals& timeIntervals)
+    {
+        setValue( timeIntervals.ClueQuestion, 0);
+        setValue( timeIntervals.ClueTimeOut, 1);
+        setValue( timeIntervals.ClueAnswer, 2);
+        setValue( timeIntervals.FinalStart, 3);
+        setValue( timeIntervals.FinalCategory, 4);
+        setValue( timeIntervals.FinalQuestion, 5);
+        setValue( timeIntervals.AutoPlayAnimation, 6);
+        setValue( timeIntervals.AutoPlayFinal, 7);
+    }
+
     ~AutoPlayTab(){}
 
 private:
@@ -73,6 +85,15 @@ private:
 
         m_layout->addWidget(label, row, 0);
         m_layout->addWidget(spinBox, row, 1);
+    }
+
+    void setValue( int& value, int row)
+    {
+        auto spinBox = dynamic_cast<QSpinBox*>(m_layout->itemAtPosition(row,1)->widget());
+        if( spinBox)
+        {
+            spinBox->setValue(value);
+        }
     }
 
     QGridLayout* m_layout;
@@ -93,12 +114,12 @@ public:
         setLayout( layout );
 
         QLabel* label = new QLabel("Play Final Jeopardy Tune:", this);
-        QCheckBox* checkBox = new QCheckBox(this);
-        checkBox->setChecked(m_playMusic);
-        connect( checkBox, &QCheckBox::toggled, this, &SoundTab::OnMusicToggled);
+        m_playMusicCheckBox = new QCheckBox(this);
+        m_playMusicCheckBox->setChecked(m_playMusic);
+        connect( m_playMusicCheckBox, &QCheckBox::toggled, this, &SoundTab::OnMusicToggled);
 
         layout->addWidget( label, 0, 0);
-        layout->addWidget(checkBox, 0, 1);
+        layout->addWidget( m_playMusicCheckBox, 0, 1);
 
         m_sliderLabel = new QLabel("Volume: " + QString::number(m_volume), this);
         m_sliderLabel->setEnabled(m_playMusic);
@@ -111,6 +132,12 @@ public:
 
         layout->addWidget( m_sliderLabel, 1, 0);
         layout->addWidget( m_slider, 1, 1);
+    }
+
+    void SetValues(SoundOptions& musicOptions)
+    {
+        m_playMusicCheckBox->setChecked(musicOptions.playFinalJeopardy);
+        m_slider->setValue(musicOptions.volume);
     }
 
     ~SoundTab(){}
@@ -134,6 +161,7 @@ private:
     bool& m_playMusic;
     int& m_volume;
 
+    QCheckBox* m_playMusicCheckBox;
     QSlider* m_slider;
     QLabel* m_sliderLabel;
 };
@@ -155,6 +183,13 @@ public:
         AddWidgets("Chance of proceeding to next row when *not* switching category", nextClueOptions.NextRowSameColumnChance, 2);
     }
 
+    void SetValues(NextClueOptions& nextClueOptions)
+    {
+        setValue( nextClueOptions.NewColumnChance, 0);
+        setValue( nextClueOptions.NextRowNewColumnChance, 1);
+        setValue( nextClueOptions.NextRowSameColumnChance, 2);
+    }
+
     ~NextClueTab(){}
 
 private:
@@ -174,6 +209,15 @@ private:
         m_layout->addWidget(spinBox, row, 1);
     }
 
+    void setValue( int& value, int row)
+    {
+        auto spinBox = dynamic_cast<QSpinBox*>(m_layout->itemAtPosition(row,1)->widget());
+        if( spinBox)
+        {
+            spinBox->setValue(value);
+        }
+    }
+
     QGridLayout* m_layout;
 };
 
@@ -190,12 +234,37 @@ OptionsDialog::OptionsDialog(QWidget *parent, const OptionsData& options)
     setModal(false);
     setWindowModality(Qt::ApplicationModal);
 
+    connect( m_ui->defaultButton, &QPushButton::clicked, this, &OptionsDialog::OnDefaultButtonClicked);
     connect( m_ui->cancelButton, &QPushButton::clicked, this, &QDialog::reject);
     connect( m_ui->okButton, &QPushButton::clicked, this, &QDialog::accept);
 
     m_ui->tabWidget->addTab(new AutoPlayTab(this, m_options.m_timeIntervals), "Auto Play Timers");
     m_ui->tabWidget->addTab(new SoundTab(this, m_options.m_music), "Sound");
     m_ui->tabWidget->addTab(new NextClueTab(this, m_options.m_nextClueOptions), "Next Clue Chances");
+}
+
+void
+OptionsDialog::OnDefaultButtonClicked()
+{
+    m_options = OptionsData();
+
+    auto autoPlayTab = dynamic_cast<AutoPlayTab*>(m_ui->tabWidget->widget(0));
+    if( autoPlayTab )
+    {
+        autoPlayTab->SetValues(m_options.m_timeIntervals);
+    }
+
+    auto soundTab = dynamic_cast<SoundTab*>(m_ui->tabWidget->widget(1));
+    if( soundTab )
+    {
+        soundTab->SetValues(m_options.m_music);
+    }
+
+    auto nextClueTab = dynamic_cast<NextClueTab*>(m_ui->tabWidget->widget(2));
+    if( nextClueTab )
+    {
+        nextClueTab->SetValues(m_options.m_nextClueOptions);
+    }
 }
 
 OptionsData

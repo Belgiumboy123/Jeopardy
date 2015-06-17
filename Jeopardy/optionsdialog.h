@@ -19,6 +19,8 @@ public:
     OptionsData GetOptions() const;
 
 private:
+    void OnDefaultButtonClicked();
+
     Ui::OptionsDialog *m_ui;
 
     OptionsData m_options;
