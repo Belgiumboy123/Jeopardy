@@ -18,7 +18,11 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QWidget" name="container" native="true"/>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>-1</number>
+     </property>
+    </widget>
    </item>
    <item alignment="Qt::AlignRight|Qt::AlignBottom">
     <widget class="QWidget" name="buttonBox" native="true">

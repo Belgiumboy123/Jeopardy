@@ -22,8 +22,6 @@ private:
     Ui::OptionsDialog *m_ui;
 
     OptionsData m_options;
-
-    void AddAutoPlayWidget( const QString& label, unsigned int& value);
 };
 
 #endif // AUTOPLAYOPTIONSDIALOG_H

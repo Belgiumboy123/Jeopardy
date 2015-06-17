@@ -14,7 +14,7 @@ TimeIntervals::TimeIntervals()
 {
 }
 
-MusicOptions::MusicOptions()
+SoundOptions::SoundOptions()
     : playFinalJeopardy(true)
     , volume(50)
 {

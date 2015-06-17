@@ -1,32 +1,30 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
-typedef unsigned int UINT;
-
 struct TimeIntervals
 {
     // These are times in milliseconds
-    UINT ClueQuestion;      // 10000
-    UINT FinalStart;        // 3000
-    UINT FinalCategory;     // 7000
-    UINT FinalQuestion;     // 30000
-    UINT FinalAnswer;       // 5000
-    UINT AutoPlayAnimation; //400
-    UINT AutoPlayFinal;     //1500
-    UINT ClueTimeOut;       // 2500
-    UINT ClueAnswer;        // 2000
-    UINT GameOver;          // 5000
+    int ClueQuestion;      // 10000
+    int FinalStart;        // 3000
+    int FinalCategory;     // 7000
+    int FinalQuestion;     // 30000
+    int FinalAnswer;       // 5000
+    int AutoPlayAnimation; //400
+    int AutoPlayFinal;     //1500
+    int ClueTimeOut;       // 2500
+    int ClueAnswer;        // 2000
+    int GameOver;          // 5000
 
     // this will set the defaults
     TimeIntervals();
 };
 
-struct MusicOptions
+struct SoundOptions
 {
     bool playFinalJeopardy; // true
     int volume;             // 50
 
-    MusicOptions();
+    SoundOptions();
 };
 
 struct NextClueOptions
@@ -42,7 +40,7 @@ struct NextClueOptions
 struct OptionsData
 {
     TimeIntervals       m_timeIntervals;
-    MusicOptions        m_music;
+    SoundOptions        m_music;
     NextClueOptions     m_nextClueOptions;
 };
 
