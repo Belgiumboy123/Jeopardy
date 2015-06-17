@@ -97,8 +97,9 @@ private:
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , m_ui(new Ui::MainWindow)
-    , m_game( new JeopardyGame(m_options.m_nextClueOptions) )
+    , m_options(OptionsData::FromSettings())
     , m_timeIntervals(m_options.m_timeIntervals)
+    , m_game( new JeopardyGame(m_options.m_nextClueOptions) )
 {
     m_ui->setupUi(this);
 
@@ -554,6 +555,12 @@ MainWindow::UpdateMediaPlayerFromOptions()
 {
     m_mediaPlayer->setVolume(m_options.m_music.volume);
     m_mediaPlayer->setMuted(!m_options.m_music.playFinalJeopardy);
+}
+
+void
+MainWindow::closeEvent(QCloseEvent *)
+{
+    m_options.Save();
 }
 
 MainWindow::~MainWindow()

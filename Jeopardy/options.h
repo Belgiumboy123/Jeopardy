@@ -42,6 +42,10 @@ struct OptionsData
     TimeIntervals       m_timeIntervals;
     SoundOptions        m_music;
     NextClueOptions     m_nextClueOptions;
+
+    void Save();
+
+    static OptionsData FromSettings();
 };
 
 #endif // OPTIONS_H

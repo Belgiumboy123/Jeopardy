@@ -26,6 +26,7 @@ public:
 
 protected:
     virtual bool eventFilter(QObject* watched, QEvent* event);
+    virtual void closeEvent(QCloseEvent *event);
 
 private:
 
@@ -36,6 +37,9 @@ private:
     void SetNewClueQuestion(const QModelIndex& index, const QString& question);
 
     Ui::MainWindow *m_ui;
+
+    OptionsData m_options;
+    TimeIntervals& m_timeIntervals;
 
     std::unique_ptr<JeopardyGame> m_game;
 
@@ -64,9 +68,6 @@ private:
         int rowDirection;
     };
     AutoPlayAnimationState m_autoPlayState;
-
-    OptionsData m_options;
-    TimeIntervals& m_timeIntervals;
 
     QModelIndex m_clickedIndex;
 
