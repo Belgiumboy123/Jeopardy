@@ -1,8 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "optionsdialog.h"
 #include "jeopardygame.h"
+#include "optionsdialog.h"
+#include "pausedialog.h"
 
 #include <QFontDatabase>
 #include <QItemDelegate>
@@ -168,13 +169,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     clueFont.setPointSize(40);
     m_ui->startGameButton->setFont(clueFont);
-
     connect( m_ui->startGameButton, &QPushButton::clicked, this, &MainWindow::handleStartGameClick );
-
 
     m_ui->pickGameWidget->setAutoFillBackground(true);
     m_ui->pickGameWidget->setPalette(cluePal);
-
 
     clueFont.setPointSize(28);
     m_ui->autoPlayCheckBox->setFont(clueFont);
@@ -302,9 +300,9 @@ MainWindow::handleClueClick()
     }
     else if( m_mode == CLUE_ANSWER)
     {
-        const bool startFinal = m_game->HandleAnswerAction();
+        auto newMode = m_game->HandleAnswerAction();
 
-        if( startFinal )
+        if( newMode == JeopardyGame::GM_FINAL )
         {
             // show final jeapardy start screen for 3 seconds / optional click
 
@@ -321,8 +319,21 @@ MainWindow::handleClueClick()
         else
         {
             m_ui->clueWidget->hide();
-            m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::NoUpdate);
-            m_ui->tableView->clearSelection();
+
+            // When loading to double jeopardy
+            // need to reset m_clickedIndex because it needs to point to the
+            // newly added widgets in the model.
+            if( newMode == JeopardyGame::GM_DOUBLE)
+            {
+                m_clickedIndex = m_ui->tableView->model()->index(0, 0);
+                m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::Select);
+            }
+            else
+            {
+                m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::NoUpdate);
+                m_ui->tableView->clearSelection();
+            }
+
             m_ui->tableView->show();
             m_mode = BOARD;
 
@@ -389,6 +400,7 @@ MainWindow::handleClueClick()
     else if( m_mode == GAME_OVER )
     {
         // show start game screen
+        m_mode = MENU;
         m_ui->clueWidget->hide();
         m_ui->pickGameWidget->show();
     }
@@ -490,6 +502,15 @@ MainWindow::eventFilter(QObject* watched, QEvent* event)
             handleClueClick();
             return true;
         }
+        else if( event->type() == QEvent::KeyRelease)
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            if( keyEvent->key() == Qt::Key_Escape)
+            {
+                launchPauseDialog();
+                return true;
+            }
+        }
     }
     else if( watched == m_ui->tableView)
     {
@@ -520,6 +541,10 @@ MainWindow::eventFilter(QObject* watched, QEvent* event)
                 if( m_mode == CLUE_ANIMATION)
                     return true;
                 break;
+
+            case Qt::Key_Escape:
+                launchPauseDialog();
+                return true;
             }
         }
     }
@@ -555,6 +580,78 @@ MainWindow::UpdateMediaPlayerFromOptions()
 {
     m_mediaPlayer->setVolume(m_options.m_music.volume);
     m_mediaPlayer->setMuted(!m_options.m_music.playFinalJeopardy);
+}
+
+void
+MainWindow::launchPauseDialog()
+{
+    if( m_mode != PAUSED && m_mode != MENU)
+    {
+        GameState originalMode = m_mode;
+        m_mode = PAUSED;
+
+        auto setTimeLeft = [](QTimer* timer, int& timeLeft){
+            timeLeft = 0;
+            if( timer && timer->isActive())
+            {
+                timeLeft = timer->remainingTime();
+                if( timeLeft > -1 )
+                {
+                    timer->stop();
+                }
+            }
+        };
+
+         // stop all timers and record any remaining time
+        int clueTimeLeft;
+        setTimeLeft( m_clueTimer, clueTimeLeft);
+
+        int timeOverLeft;
+        setTimeLeft( m_timeOverTimer, timeOverLeft);
+
+        int autoPlayLeft;
+        setTimeLeft(m_autoPlayTimer, autoPlayLeft);
+
+        auto mediaPosition = m_mediaPlayer->position();
+        m_mediaPlayer->stop();
+
+        // initialize dialog and set its colors
+        PauseDialog dlg(this, QColor(BOARD_TEXT));
+        if( dlg.exec() == QDialog::Accepted)
+        {
+            m_mode = originalMode;
+
+            // restart any timers that had time left
+            if( m_mode == FINAL_CLUE)
+            {
+                m_mediaPlayer->setPosition(mediaPosition);
+                m_mediaPlayer->play();
+            }
+
+            if( clueTimeLeft > 0)
+            {
+                StartClueTimer(clueTimeLeft);
+            }
+
+            if( timeOverLeft > 0)
+            {
+                StartTimeOverTimer(timeOverLeft);
+            }
+
+            if( autoPlayLeft > 0)
+            {
+                StartAutoPlayTimer();
+            }
+        }
+        else
+        {
+            // gracefully quit the game and return to main screen
+            m_mode = MENU;
+            m_ui->tableView->hide();
+            m_ui->clueWidget->hide();
+            m_ui->pickGameWidget->show();
+        }
+    }
 }
 
 void

@@ -19,7 +19,15 @@ public:
 
     QString HandleBoardAction( const QModelIndex& index );
     QString HandleClueAction( const QModelIndex& index );
-    bool HandleAnswerAction();
+
+    enum GameMode
+    {
+        GM_NONE = 0,
+        GM_SINGLE,
+        GM_DOUBLE,
+        GM_FINAL
+    };
+    GameMode HandleAnswerAction();
 
     const QString& GetFinalCategory() const;
     const QString& GetFinalClue() const;
@@ -36,14 +44,6 @@ private:
     DatabaseUtils::StaticGameInfo m_staticGameInfo;
 
     QStandardItemModel* m_model;
-
-    enum GameMode
-    {
-        GM_NONE = 0,
-        GM_SINGLE,
-        GM_DOUBLE,
-        GM_FINAL
-    };
 
     GameMode m_gameMode;
 

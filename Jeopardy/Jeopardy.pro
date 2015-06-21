@@ -17,15 +17,18 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     jeopardygame.cpp \
     options.cpp \
-    optionsdialog.cpp
+    optionsdialog.cpp \
+    pausedialog.cpp
 
 HEADERS  += mainwindow.h \
     jeopardygame.h \
     options.h \
-    optionsdialog.h
+    optionsdialog.h \
+    pausedialog.h
 
 FORMS    += mainwindow.ui \
-    optionsdialog.ui
+    optionsdialog.ui \
+    pausedialog.ui
 
 QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
 macx: LIBS += -framework CoreFoundation

@@ -179,7 +179,7 @@ JeopardyGame::HandleClueAction( const QModelIndex& index )
 /*
  *  User clicked on index's answer - Handle changing rounds here.
  */
-bool
+JeopardyGame::GameMode
 JeopardyGame::HandleAnswerAction()
 {
     switch( m_gameMode )
@@ -188,6 +188,7 @@ JeopardyGame::HandleAnswerAction()
             if( m_cluesAnswered == m_staticGameInfo.totalSingleClues)
             {
                 LoadRound(GM_DOUBLE);
+                return GM_DOUBLE;
             }
             break;
 
@@ -197,7 +198,7 @@ JeopardyGame::HandleAnswerAction()
                 m_gameMode = GM_FINAL;
 
                 // return true when FINAL round has begun
-                return true;
+                return GM_FINAL;
             }
             break;
 
@@ -205,7 +206,7 @@ JeopardyGame::HandleAnswerAction()
             break;
     }
 
-    return true;
+    return GM_NONE;
 }
 
 namespace

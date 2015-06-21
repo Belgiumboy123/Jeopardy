@@ -43,7 +43,7 @@ private:
 
     std::unique_ptr<JeopardyGame> m_game;
 
-    enum GameMode
+    enum GameState
     {
         MENU = 0,
         BOARD,
@@ -55,9 +55,10 @@ private:
         FINAL_CATEGORY,
         FINAL_CLUE,
         FINAL_ANSWER,
-        GAME_OVER
+        GAME_OVER,
+        PAUSED
     };
-    GameMode m_mode;
+    GameState m_mode;
 
     struct AutoPlayAnimationState
     {
@@ -92,6 +93,8 @@ private:
 
     QMediaPlayer* m_mediaPlayer;
     void UpdateMediaPlayerFromOptions();
+
+    void launchPauseDialog();
 };
 
 #endif // MAINWINDOW_H
