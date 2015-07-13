@@ -623,11 +623,19 @@ MainWindow::launchPauseDialog()
 
         // initialize dialog and set its colors
         PauseDialog dlg(this, QColor(BOARD_TEXT), m_options);
-        if( dlg.exec() == QDialog::Accepted)
+
+        auto dialogReturnCode = dlg.exec();
+
+        // we update the options if the user changes them
+        // regardless if they quit the game or continued
+        if( dlg.HaveOptionsChanged() )
         {
             m_options = dlg.GetOptions();
             UpdateFromOptions();
+        }
 
+        if( dialogReturnCode == QDialog::Accepted)
+        {
             m_mode = originalMode;
 
             // restart any timers that had time left

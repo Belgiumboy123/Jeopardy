@@ -10,6 +10,7 @@ PauseDialog::PauseDialog(QWidget *parent, const QColor& textColor, const Options
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint)
     , m_ui(new Ui::PauseDialog)
     , m_options(options)
+    , m_optionsChanged(false)
 {
     m_ui->setupUi(this);
     setWindowTitle("");
@@ -38,6 +39,12 @@ PauseDialog::GetOptions() const
     return m_options;
 }
 
+bool
+PauseDialog::HaveOptionsChanged() const
+{
+    return m_optionsChanged;
+}
+
 void
 PauseDialog::LaunchOptionsDialog()
 {
@@ -45,6 +52,7 @@ PauseDialog::LaunchOptionsDialog()
     if(dlg.exec() == QDialog::Accepted)
     {
         m_options = dlg.GetOptions();
+        m_optionsChanged = true;
     }
 }
 

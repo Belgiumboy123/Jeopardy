@@ -16,6 +16,7 @@ public:
     explicit PauseDialog(QWidget *parent, const QColor& textColor, const OptionsData& options);
     ~PauseDialog();
 
+    bool HaveOptionsChanged() const;
     OptionsData GetOptions() const;
 
 protected:
@@ -27,6 +28,7 @@ private:
     Ui::PauseDialog* m_ui;
 
     OptionsData m_options;
+    bool m_optionsChanged;
 };
 
 #endif // PAUSEDDIALOG_H
