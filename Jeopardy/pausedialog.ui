@@ -62,7 +62,7 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item>
+      <item alignment="Qt::AlignHCenter">
        <widget class="QLabel" name="header">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -119,6 +119,16 @@
        <widget class="QPushButton" name="continueButton">
         <property name="text">
          <string>Continue</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="optionsButton">
+        <property name="text">
+         <string>Options</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>

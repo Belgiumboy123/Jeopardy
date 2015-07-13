@@ -1,12 +1,15 @@
 #include "pausedialog.h"
 #include "ui_pausedialog.h"
 
+#include "optionsdialog.h"
+
 #include <QApplication>
 #include <QKeyEvent>
 
-PauseDialog::PauseDialog(QWidget *parent, const QColor& textColor)
+PauseDialog::PauseDialog(QWidget *parent, const QColor& textColor, const OptionsData& options)
     : QDialog(parent, Qt::CustomizeWindowHint | Qt::WindowTitleHint)
     , m_ui(new Ui::PauseDialog)
+    , m_options(options)
 {
     m_ui->setupUi(this);
     setWindowTitle("");
@@ -22,11 +25,27 @@ PauseDialog::PauseDialog(QWidget *parent, const QColor& textColor)
 
     auto buttonFont(headerFont);
     buttonFont.setPointSize(14);
-    m_ui->quitButton->setFont(buttonFont);
-    m_ui->continueButton->setFont(buttonFont);
+    m_ui->buttonWidget->setFont(buttonFont);
 
     connect( m_ui->quitButton, &QPushButton::clicked, this, &QDialog::reject);
     connect( m_ui->continueButton, &QPushButton::clicked, this, &QDialog::accept);
+    connect( m_ui->optionsButton, &QPushButton::clicked, this, &PauseDialog::LaunchOptionsDialog);
+}
+
+OptionsData
+PauseDialog::GetOptions() const
+{
+    return m_options;
+}
+
+void
+PauseDialog::LaunchOptionsDialog()
+{
+    OptionsDialog dlg(this, m_options);
+    if(dlg.exec() == QDialog::Accepted)
+    {
+        m_options = dlg.GetOptions();
+    }
 }
 
 void

@@ -569,9 +569,7 @@ MainWindow::launchOptionsDialog()
     if(dlg.exec() == QDialog::Accepted)
     {
         m_options = dlg.GetOptions();
-        m_timeIntervals = m_options.m_timeIntervals;
-        UpdateMediaPlayerFromOptions();
-        m_game->SetNextClueOptions(m_options.m_nextClueOptions);
+        UpdateFromOptions();
     }
 }
 
@@ -580,6 +578,14 @@ MainWindow::UpdateMediaPlayerFromOptions()
 {
     m_mediaPlayer->setVolume(m_options.m_music.volume);
     m_mediaPlayer->setMuted(!m_options.m_music.playFinalJeopardy);
+}
+
+void
+MainWindow::UpdateFromOptions()
+{
+    m_timeIntervals = m_options.m_timeIntervals;
+    UpdateMediaPlayerFromOptions();
+    m_game->SetNextClueOptions(m_options.m_nextClueOptions);
 }
 
 void
@@ -616,9 +622,12 @@ MainWindow::launchPauseDialog()
         m_mediaPlayer->stop();
 
         // initialize dialog and set its colors
-        PauseDialog dlg(this, QColor(BOARD_TEXT));
+        PauseDialog dlg(this, QColor(BOARD_TEXT), m_options);
         if( dlg.exec() == QDialog::Accepted)
         {
+            m_options = dlg.GetOptions();
+            UpdateFromOptions();
+
             m_mode = originalMode;
 
             // restart any timers that had time left

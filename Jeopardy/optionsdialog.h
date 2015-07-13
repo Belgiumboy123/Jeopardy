@@ -13,7 +13,7 @@ class OptionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit OptionsDialog(QWidget *parent, const OptionsData& timeIntervals);
+    explicit OptionsDialog(QWidget *parent, const OptionsData& options);
     ~OptionsDialog();
 
     OptionsData GetOptions() const;

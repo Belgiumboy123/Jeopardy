@@ -40,6 +40,7 @@ private:
 
     OptionsData m_options;
     TimeIntervals& m_timeIntervals;
+    void UpdateFromOptions();
 
     std::unique_ptr<JeopardyGame> m_game;
 
