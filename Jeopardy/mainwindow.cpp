@@ -95,7 +95,7 @@ private:
     QLabel* m_label;
 };
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent/*=nullptr*/)
     : QMainWindow(parent)
     , m_ui(new Ui::MainWindow)
     , m_options(OptionsData::FromSettings())
