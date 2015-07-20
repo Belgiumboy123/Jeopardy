@@ -78,13 +78,26 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="servertStartLabel">
+        <widget class="QLabel" name="serverStartLabel">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="resultLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
      </widget>
     </item>
     <item>

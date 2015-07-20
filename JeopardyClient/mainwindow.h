@@ -21,6 +21,7 @@ private:
     void OnHostFound();
     void OnSocketError(QAbstractSocket::SocketError socketError);
     void OnSocketConnected();
+    void OnStateChanged(QAbstractSocket::SocketState socketState);
 
     Ui::MainWindow *m_ui;
 

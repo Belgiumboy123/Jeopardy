@@ -15,7 +15,27 @@ MainWindow::MainWindow(QWidget *parent)
     connect( m_socket, &QAbstractSocket::hostFound, this, &MainWindow::OnHostFound);
     connect( m_socket, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &MainWindow::OnSocketError);
     connect( m_socket, &QAbstractSocket::connected, this, &MainWindow::OnSocketConnected);
+    connect( m_socket, &QAbstractSocket::stateChanged, this, &MainWindow::OnStateChanged);
     // todo connect to disconnected
+}
+
+void
+MainWindow::OnStateChanged(QAbstractSocket::SocketState socketState)
+{
+    QString text;
+
+    switch(socketState)
+    {
+    case QAbstractSocket::UnconnectedState: text = "UnconnectedState"; break;
+    case QAbstractSocket::HostLookupState: text = "HostLookupState"; break;
+    case QAbstractSocket::ConnectingState: text = "ConnectingState"; break;
+    case QAbstractSocket::ConnectedState: text = "Connected"; break;
+    case QAbstractSocket::BoundState: text = "Bound"; break;
+    case QAbstractSocket::ClosingState: text = "Closing"; break;
+    case QAbstractSocket::ListeningState: text = "Listening"; break;
+    }
+
+    m_ui->resultLabel->setText(text);
 }
 
 void
@@ -34,6 +54,8 @@ MainWindow::OnConnectClicked()
         m_socket->connectToHost(serverName, portNumber);
         m_ui->resultLabel->setText("Attempting to connect to server.");
     }
+
+    m_ui->connectButton->hide();
 }
 
 void
