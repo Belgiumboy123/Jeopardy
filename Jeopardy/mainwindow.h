@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <QMainWindow>
-#include <QModelIndex>
 
 #include "options.h"
 
@@ -11,9 +10,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class JeopardyGame;
 class QMediaPlayer;
-class QModelIndex;
 class QTimer;
 
 class MainWindow : public QMainWindow
@@ -29,72 +26,23 @@ protected:
     virtual void closeEvent(QCloseEvent *event);
 
 private:
-
     void handleStartGameClick();
-    void handleBoardClick(const QModelIndex& index);
-    void handleClueClick();
-
-    void SetNewClueQuestion(const QModelIndex& index, const QString& question);
+    void OnGameOver();
 
     Ui::MainWindow *m_ui;
 
     OptionsData m_options;
-    TimeIntervals& m_timeIntervals;
-    void UpdateFromOptions();
-
-    std::unique_ptr<JeopardyGame> m_game;
 
     enum GameState
     {
         MENU = 0,
-        BOARD,
-        CLUE_QUESTION,
-        CLUE_ANSWER,
-        CLUE_TIMEOUT,
-        CLUE_ANIMATION,
-        FINAL_START,
-        FINAL_CATEGORY,
-        FINAL_CLUE,
-        FINAL_ANSWER,
+        GAME,
         GAME_OVER,
         PAUSED
     };
     GameState m_mode;
 
-    struct AutoPlayAnimationState
-    {
-        QModelIndex newIndex;
-        int currColumn;
-        int currRow;
-        int columnDirection;
-        int rowDirection;
-    };
-    AutoPlayAnimationState m_autoPlayState;
-
-    QModelIndex m_clickedIndex;
-
-    QTimer* m_clueTimer;
-    void OnClueTimerOut();
-
-    void StartTimeOverTimer(const unsigned int milliSeconds);
-
-    QTimer* m_timeOverTimer;
-    void OnTimeOverTimerOut();
-
-    void StartClueTimer( const unsigned int milliSeconds);
-
-    bool IsAutoPlayEnabled() const;
-    void AutoPlayNextClue();
-
-    QTimer* m_autoPlayTimer;
-    void OnAutoPlayTimer();
-    void StartAutoPlayTimer();
-
     void launchOptionsDialog();
-
-    QMediaPlayer* m_mediaPlayer;
-    void UpdateMediaPlayerFromOptions();
-
     void launchPauseDialog();
 };
 

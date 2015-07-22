@@ -41,11 +41,10 @@ private:
     QString m_answer;
 };
 
-JeopardyGame::JeopardyGame(NextClueOptions& nextClueOptions)
+JeopardyGame::JeopardyGame()
     : m_model( new QStandardItemModel(TOTAL_ROWS, TOTAL_COLS))
     , m_gameMode(GM_NONE)
     , m_cluesAnswered(0)
-    , m_nextClueOptions(nextClueOptions)
 {
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());

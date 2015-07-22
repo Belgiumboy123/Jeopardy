@@ -10,7 +10,7 @@ class QModelIndex;
 class JeopardyGame
 {
 public:
-    JeopardyGame(NextClueOptions& nextClueOptions);
+    JeopardyGame();
     ~JeopardyGame();
 
     QStandardItemModel* GetModel() const;
@@ -52,7 +52,7 @@ private:
     int GetRowFromValue( const int value, const GameMode mode) const;
     void LoadRound( const GameMode gameMode );
 
-    NextClueOptions& m_nextClueOptions;
+    NextClueOptions m_nextClueOptions;
 };
 
 #endif // JEOPARDYGAME_H
