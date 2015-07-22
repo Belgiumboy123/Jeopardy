@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    virtual ~MainWindow();
 
 protected:
     virtual bool eventFilter(QObject* watched, QEvent* event);
@@ -29,7 +29,7 @@ private:
     void handleStartGameClick();
     void OnGameOver();
 
-    Ui::MainWindow *m_ui;
+    std::unique_ptr<Ui::MainWindow> m_ui;
 
     OptionsData m_options;
 

@@ -3,16 +3,10 @@
 
 #include "optionsdialog.h"
 #include "pausedialog.h"
+#include "utility.h"
 
 #include <QFontDatabase>
 #include <QKeyEvent>
-
-#define CLUE_BLUE "#0A06B3"
-#define BOARD_TEXT "#E29D44"
-#define CLUE_FONT "Korinna BT"
-#define BOARD_FONT "Swiss 911"
-
-#define CLUE_FONT_SIZE 34
 
 MainWindow::MainWindow(QWidget *parent/*=nullptr*/)
     : QMainWindow(parent)
@@ -28,10 +22,8 @@ MainWindow::MainWindow(QWidget *parent/*=nullptr*/)
     // the toolbar is unused for now
     m_ui->mainToolBar->hide();
 
-    // TODO move fonts to common location
-    QFont boardFont( BOARD_FONT, 34, QFont::Normal );
-    boardFont.setLetterSpacing( QFont::AbsoluteSpacing, 2 );
-    QFont clueFont( CLUE_FONT, CLUE_FONT_SIZE, QFont::Normal );
+    QFont boardFont( Util::GetBasicBoardFont() );
+    QFont clueFont( Util::GetBasicClueFont() );
 
     auto jeopardyTitleLabelPal = m_ui->jeopardyTitleLabel->palette();
     jeopardyTitleLabelPal.setColor(m_ui->jeopardyTitleLabel->foregroundRole(), BOARD_TEXT);
@@ -164,7 +156,4 @@ MainWindow::closeEvent(QCloseEvent *)
     m_options.Save();
 }
 
-MainWindow::~MainWindow()
-{
-    delete m_ui;
-}
+MainWindow::~MainWindow() {}

@@ -19,14 +19,16 @@ SOURCES += main.cpp\
     options.cpp \
     optionsdialog.cpp \
     pausedialog.cpp \
-    gamepanewidget.cpp
+    gamepanewidget.cpp \
+    utility.cpp
 
 HEADERS  += mainwindow.h \
     jeopardygame.h \
     options.h \
     optionsdialog.h \
     pausedialog.h \
-    gamepanewidget.h
+    gamepanewidget.h \
+    utility.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui \

@@ -21,7 +21,7 @@ class GamePaneWidget : public QWidget
 
 public:
     explicit GamePaneWidget(QWidget *parent = 0);
-    ~GamePaneWidget();
+    virtual ~GamePaneWidget();
 
     void StartGame();
     void SetOptions(const OptionsData& options);
@@ -42,7 +42,7 @@ private:
 
     void SetNewClueQuestion(const QModelIndex& index, const QString& question);
 
-    Ui::GamePaneWidget* m_ui;
+    std::unique_ptr<Ui::GamePaneWidget> m_ui;
 
     OptionsData m_options;
     TimeIntervals m_timeIntervals;

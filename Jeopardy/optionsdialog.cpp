@@ -25,7 +25,7 @@ public:
         connect( this, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsSpinBox::onValueChanged);
     }
 
-    ~OptionsSpinBox(){}
+    virtual ~OptionsSpinBox() = default;
 
 private:
     void onValueChanged(int value)
@@ -70,7 +70,7 @@ public:
         setValue( timeIntervals.AutoPlayFinal, 7);
     }
 
-    ~AutoPlayTab(){}
+    virtual ~AutoPlayTab() = default;
 
 private:
 
@@ -140,7 +140,7 @@ public:
         m_slider->setValue(musicOptions.volume);
     }
 
-    ~SoundTab(){}
+    virtual ~SoundTab() = default;
 
 private:
 
@@ -190,7 +190,7 @@ public:
         setValue( nextClueOptions.NextRowSameColumnChance, 2);
     }
 
-    ~NextClueTab(){}
+    virtual ~NextClueTab() = default;
 
 private:
 
@@ -273,7 +273,4 @@ OptionsDialog::GetOptions() const
     return m_options;
 }
 
-OptionsDialog::~OptionsDialog()
-{
-    delete m_ui;
-}
+OptionsDialog::~OptionsDialog() {}

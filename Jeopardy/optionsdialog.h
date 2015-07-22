@@ -14,14 +14,14 @@ class OptionsDialog : public QDialog
 
 public:
     explicit OptionsDialog(QWidget *parent, const OptionsData& options);
-    ~OptionsDialog();
+    virtual ~OptionsDialog();
 
     OptionsData GetOptions() const;
 
 private:
     void OnDefaultButtonClicked();
 
-    Ui::OptionsDialog *m_ui;
+    std::unique_ptr<Ui::OptionsDialog> m_ui;
 
     OptionsData m_options;
 };

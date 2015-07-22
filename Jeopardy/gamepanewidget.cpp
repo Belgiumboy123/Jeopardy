@@ -2,6 +2,7 @@
 #include "ui_gamepanewidget.h"
 
 #include "jeopardygame.h"
+#include "utility.h"
 
 #include <QItemDelegate>
 #include <QKeyEvent>
@@ -10,13 +11,6 @@
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 #include <QTimer>
-
-#define CLUE_BLUE "#0A06B3"
-#define BOARD_TEXT "#E29D44"
-#define CLUE_FONT "Korinna BT"
-#define BOARD_FONT "Swiss 911"
-
-#define CLUE_FONT_SIZE 34
 
 class JeopardyItemDelegate : public QStyledItemDelegate
 {
@@ -119,18 +113,14 @@ GamePaneWidget::GamePaneWidget(QWidget *parent)
     m_ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui->tableView->installEventFilter(this);
-
-    QFont boardFont( BOARD_FONT, 34, QFont::Normal );
-    boardFont.setLetterSpacing( QFont::AbsoluteSpacing, 2 );
-    m_ui->tableView->setFont(boardFont);
+    m_ui->tableView->setFont(Util::GetBasicBoardFont());
 
     connect( m_ui->tableView, &QAbstractItemView::clicked, this, &GamePaneWidget::handleBoardClick );
 
     m_ui->clueLabel->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
     m_ui->clueLabel->setWordWrap(true);
 
-    QFont clueFont( CLUE_FONT, CLUE_FONT_SIZE, QFont::Normal );
-    m_ui->clueWidget->setFont(clueFont);
+    m_ui->clueWidget->setFont(Util::GetBasicClueFont());
     auto cluePal = m_ui->clueWidget->palette();
     cluePal.setColor(m_ui->clueWidget->backgroundRole(), QColor(CLUE_BLUE));
     cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::white);
@@ -565,7 +555,4 @@ GamePaneWidget::ContinueGame()
     }
 }
 
-GamePaneWidget::~GamePaneWidget()
-{
-    delete m_ui;
-}
+GamePaneWidget::~GamePaneWidget() {}

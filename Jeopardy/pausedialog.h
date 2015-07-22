@@ -14,7 +14,7 @@ class PauseDialog : public QDialog
 
 public:
     explicit PauseDialog(QWidget *parent, const QColor& textColor, const OptionsData& options);
-    ~PauseDialog();
+    virtual ~PauseDialog();
 
     bool HaveOptionsChanged() const;
     OptionsData GetOptions() const;
@@ -25,7 +25,7 @@ protected:
 private:
     void LaunchOptionsDialog();
 
-    Ui::PauseDialog* m_ui;
+    std::unique_ptr<Ui::PauseDialog> m_ui;
 
     OptionsData m_options;
     bool m_optionsChanged;

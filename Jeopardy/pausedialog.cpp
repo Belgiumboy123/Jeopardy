@@ -68,7 +68,4 @@ PauseDialog::keyPressEvent(QKeyEvent* event)
     QDialog::keyPressEvent(event);
 }
 
-PauseDialog::~PauseDialog()
-{
-    delete m_ui;
-}
+PauseDialog::~PauseDialog() {}
