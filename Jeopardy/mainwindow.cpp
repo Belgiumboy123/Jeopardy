@@ -11,7 +11,6 @@
 MainWindow::MainWindow(QWidget *parent/*=nullptr*/)
     : QMainWindow(parent)
     , m_ui(new Ui::MainWindow)
-    , m_options(OptionsData::FromSettings())
 {
     m_ui->setupUi(this);
 
@@ -53,8 +52,7 @@ MainWindow::MainWindow(QWidget *parent/*=nullptr*/)
 
     // Lets us know when a game is over
     connect( m_ui->gamePaneWidget, &GamePaneWidget::GameOver, this, &MainWindow::OnGameOver);
-    m_ui->gamePaneWidget->SetOptions(m_options);
-    m_ui->gamePaneWidget->installEventFilter(this);
+    m_ui->gamePaneWidget->SetOptions(OptionsData::GetInstance());
 
     connect( m_ui->autoPlayCheckBox, &QCheckBox::toggled, m_ui->gamePaneWidget, &GamePaneWidget::SetAutoPlayEnabled);
 
@@ -83,77 +81,21 @@ MainWindow::handleStartGameClick()
     m_ui->gamePaneWidget->show();
 }
 
-bool
-MainWindow::eventFilter(QObject* watched, QEvent* event)
-{
-    if( watched == m_ui->gamePaneWidget)
-    {
-        if( event->type() == QEvent::KeyRelease)
-        {
-            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-            if( keyEvent->key() == Qt::Key_Escape)
-            {
-                launchPauseDialog();
-                return true;
-            }
-        }
-    }
-
-    return QMainWindow::eventFilter(watched,event);
-}
-
 void
 MainWindow::launchOptionsDialog()
 {
-    OptionsDialog dlg(this, m_options);
+    OptionsDialog dlg(this, OptionsData::GetInstance());
     if(dlg.exec() == QDialog::Accepted)
     {
-        m_options = dlg.GetOptions();
-        m_ui->gamePaneWidget->SetOptions(m_options);
-    }
-}
-
-void
-MainWindow::launchPauseDialog()
-{
-    if( m_mode == GAME)
-    {
-        m_mode = PAUSED;
-
-        m_ui->gamePaneWidget->PauseGame();
-
-        // initialize dialog and set its colors
-        PauseDialog dlg(this, QColor(BOARD_TEXT), m_options);
-
-        auto dialogReturnCode = dlg.exec();
-
-        // we update the options if the user changes them
-        // regardless if they quit the game or continued
-        if( dlg.HaveOptionsChanged() )
-        {
-            m_options = dlg.GetOptions();
-            m_ui->gamePaneWidget->SetOptions(m_options);
-        }
-
-        if( dialogReturnCode == QDialog::Accepted)
-        {
-            m_mode = GAME;
-            m_ui->gamePaneWidget->ContinueGame();
-        }
-        else
-        {
-            // gracefully quit the game and return to main screen
-            m_mode = MENU;
-            m_ui->gamePaneWidget->hide();
-            m_ui->pickGameWidget->show();
-        }
+        OptionsData::GetInstance() = dlg.GetOptions();
+        m_ui->gamePaneWidget->SetOptions(OptionsData::GetInstance());
     }
 }
 
 void
 MainWindow::closeEvent(QCloseEvent *)
 {
-    m_options.Save();
+    OptionsData::GetInstance().Save();
 }
 
 MainWindow::~MainWindow() {}

@@ -22,7 +22,6 @@ public:
     virtual ~MainWindow();
 
 protected:
-    virtual bool eventFilter(QObject* watched, QEvent* event);
     virtual void closeEvent(QCloseEvent *event);
 
 private:
@@ -30,8 +29,6 @@ private:
     void OnGameOver();
 
     std::unique_ptr<Ui::MainWindow> m_ui;
-
-    OptionsData m_options;
 
     enum GameState
     {
@@ -43,7 +40,6 @@ private:
     GameState m_mode;
 
     void launchOptionsDialog();
-    void launchPauseDialog();
 };
 
 #endif // MAINWINDOW_H

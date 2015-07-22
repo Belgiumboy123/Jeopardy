@@ -2,6 +2,7 @@
 #include "ui_gamepanewidget.h"
 
 #include "jeopardygame.h"
+#include "pausedialog.h"
 #include "utility.h"
 
 #include <QItemDelegate>
@@ -87,7 +88,9 @@ private:
 GamePaneWidget::GamePaneWidget(QWidget *parent)
   : QWidget(parent)
   , m_ui(new Ui::GamePaneWidget)
-  , m_game( new JeopardyGame )
+  , m_options(OptionsData::GetInstance())
+  , m_timeIntervals(m_options.m_timeIntervals)
+  , m_game( new JeopardyGame(m_options.m_nextClueOptions) )
   , m_isAutoPlayEnabled(false)
   , m_mediaPlayer(nullptr)
 {
@@ -452,6 +455,15 @@ GamePaneWidget::eventFilter(QObject* watched, QEvent* event)
             handleClueClick();
             return true;
         }
+        else if( event->type() == QEvent::KeyRelease)
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            if( keyEvent->key() == Qt::Key_Escape)
+            {
+                launchPauseDialog();
+                return true;
+            }
+        }
     }
     else if( watched == m_ui->tableView)
     {
@@ -482,11 +494,91 @@ GamePaneWidget::eventFilter(QObject* watched, QEvent* event)
                 if( m_mode == CLUE_ANIMATION)
                     return true;
                 break;
+
+            case Qt::Key_Escape:
+                launchPauseDialog();
+                return true;
             }
         }
     }
 
     return QWidget::eventFilter(watched,event);
+}
+
+void
+GamePaneWidget::launchPauseDialog()
+{
+    if( m_mode != MENU && m_mode != PAUSED)
+    {
+        auto originalMode = m_mode;
+        m_mode = PAUSED;
+
+        PauseState pauseState;
+        auto setTimeLeft = [](QTimer* timer, int& timeLeft){
+            timeLeft = 0;
+            if( timer && timer->isActive())
+            {
+                timeLeft = timer->remainingTime();
+                if( timeLeft > -1 )
+                {
+                    timer->stop();
+                }
+            }
+        };
+
+        // stop all timers and record any remaining time
+        setTimeLeft( m_clueTimer, pauseState.clueTimeLeft);
+        setTimeLeft( m_timeOverTimer, pauseState.timeOverLeft);
+        setTimeLeft(m_autoPlayTimer, pauseState.autoPlayLeft);
+        pauseState.mediaPosition = m_mediaPlayer->position();
+        m_mediaPlayer->stop();
+
+        // initialize dialog and set its colors
+        PauseDialog dlg(this, QColor(BOARD_TEXT), OptionsData::GetInstance());
+
+        auto dialogReturnCode = dlg.exec();
+
+        // we update the options if the user changes them
+        // regardless if they quit the game or continued
+        if( dlg.HaveOptionsChanged() )
+        {
+            OptionsData::GetInstance() = dlg.GetOptions();
+            SetOptions(OptionsData::GetInstance());
+        }
+
+        if( dialogReturnCode == QDialog::Accepted)
+        {
+            m_mode = originalMode;
+
+            // restart any timers that had time left
+            if( m_mode == FINAL_CLUE)
+            {
+                m_mediaPlayer->setPosition(pauseState.mediaPosition);
+                m_mediaPlayer->play();
+            }
+
+            if( pauseState.clueTimeLeft > 0)
+            {
+                StartClueTimer(pauseState.clueTimeLeft);
+            }
+
+            if( pauseState.timeOverLeft > 0)
+            {
+                StartTimeOverTimer(pauseState.timeOverLeft);
+            }
+
+            if( pauseState.autoPlayLeft > 0)
+            {
+                StartAutoPlayTimer();
+            }
+        }
+        else
+        {
+            // gracefully quit the game and return to main screen
+            m_mode = MENU;
+            emit GameOver();
+        }
+    }
 }
 
 void
@@ -504,55 +596,6 @@ GamePaneWidget::UpdateMediaPlayerFromOptions()
 {
     m_mediaPlayer->setVolume(m_options.m_music.volume);
     m_mediaPlayer->setMuted(!m_options.m_music.playFinalJeopardy);
-}
-
-void GamePaneWidget::PauseGame()
-{
-    auto setTimeLeft = [](QTimer* timer, int& timeLeft){
-        timeLeft = 0;
-        if( timer && timer->isActive())
-        {
-            timeLeft = timer->remainingTime();
-            if( timeLeft > -1 )
-            {
-                timer->stop();
-            }
-        }
-    };
-
-    // stop all timers and record any remaining time
-    setTimeLeft( m_clueTimer, m_pauseState.clueTimeLeft);
-    setTimeLeft( m_timeOverTimer, m_pauseState.timeOverLeft);
-    setTimeLeft(m_autoPlayTimer, m_pauseState.autoPlayLeft);
-
-    m_pauseState.mediaPosition = m_mediaPlayer->position();
-    m_mediaPlayer->stop();
-}
-
-void
-GamePaneWidget::ContinueGame()
-{
-    // restart any timers that had time left
-    if( m_mode == FINAL_CLUE)
-    {
-        m_mediaPlayer->setPosition(m_pauseState.mediaPosition);
-        m_mediaPlayer->play();
-    }
-
-    if( m_pauseState.clueTimeLeft > 0)
-    {
-        StartClueTimer(m_pauseState.clueTimeLeft);
-    }
-
-    if( m_pauseState.timeOverLeft > 0)
-    {
-        StartTimeOverTimer(m_pauseState.timeOverLeft);
-    }
-
-    if( m_pauseState.autoPlayLeft > 0)
-    {
-        StartAutoPlayTimer();
-    }
 }
 
 GamePaneWidget::~GamePaneWidget() {}

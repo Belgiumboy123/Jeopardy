@@ -1,6 +1,8 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+#include <mutex>
+
 struct TimeIntervals
 {
     // These are times in milliseconds
@@ -37,8 +39,16 @@ struct NextClueOptions
     NextClueOptions();
 };
 
-struct OptionsData
+class OptionsData
 {
+private:
+    static std::unique_ptr<OptionsData> m_instance;
+    static std::once_flag               m_once;
+
+public:
+    OptionsData() = default;
+    virtual ~OptionsData() = default;
+
     TimeIntervals       m_timeIntervals;
     SoundOptions        m_music;
     NextClueOptions     m_nextClueOptions;
@@ -46,6 +56,8 @@ struct OptionsData
     void Save();
 
     static OptionsData FromSettings();
+
+    static OptionsData& GetInstance();
 };
 
 #endif // OPTIONS_H

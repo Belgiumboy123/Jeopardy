@@ -27,9 +27,6 @@ public:
     void SetOptions(const OptionsData& options);
     void SetAutoPlayEnabled(bool flag);
 
-    void PauseGame();
-    void ContinueGame();
-
 signals:
     void GameOver();
 
@@ -44,8 +41,8 @@ private:
 
     std::unique_ptr<Ui::GamePaneWidget> m_ui;
 
-    OptionsData m_options;
-    TimeIntervals m_timeIntervals;
+    OptionsData& m_options;
+    TimeIntervals& m_timeIntervals;
 
     std::unique_ptr<JeopardyGame> m_game;
 
@@ -101,13 +98,13 @@ private:
 
     struct PauseState
     {
-        GameState mode;
         int clueTimeLeft;
         int timeOverLeft;
         int autoPlayLeft;
         int mediaPosition;
     };
-    PauseState m_pauseState;
+
+    void launchPauseDialog();
 };
 
 #endif // GAMEPANEWIDGET_H

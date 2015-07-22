@@ -75,6 +75,21 @@ OptionsData::FromSettings()
     }
 }
 
+/*static*/ OptionsData&
+OptionsData::GetInstance()
+{
+    std::call_once( OptionsData::m_once, []()
+    {
+        OptionsData::m_instance.reset( new OptionsData(OptionsData::FromSettings()));
+    });
+
+    return *m_instance;
+}
+
+std::unique_ptr<OptionsData> OptionsData::m_instance = nullptr;
+
+std::once_flag OptionsData::m_once;
+
 void
 OptionsData::Save()
 {
