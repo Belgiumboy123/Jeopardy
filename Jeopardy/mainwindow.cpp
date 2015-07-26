@@ -3,7 +3,8 @@
 
 #include "optionsdialog.h"
 #include "pausedialog.h"
-#include "utility.h"
+#include "qtutility.h"
+#include "statehandleroffline.h"
 
 #include <QFontDatabase>
 #include <QKeyEvent>
@@ -21,8 +22,8 @@ MainWindow::MainWindow(QWidget *parent/*=nullptr*/)
     // the toolbar is unused for now
     m_ui->mainToolBar->hide();
 
-    QFont boardFont( Util::GetBasicBoardFont() );
-    QFont clueFont( Util::GetBasicClueFont() );
+    QFont boardFont( QtUtil::GetBasicBoardFont() );
+    QFont clueFont( QtUtil::GetBasicClueFont() );
 
     auto jeopardyTitleLabelPal = m_ui->jeopardyTitleLabel->palette();
     jeopardyTitleLabelPal.setColor(m_ui->jeopardyTitleLabel->foregroundRole(), BOARD_TEXT);
@@ -77,7 +78,8 @@ MainWindow::handleStartGameClick()
     m_mode = GAME;
     m_ui->pickGameWidget->hide();
 
-    m_ui->gamePaneWidget->StartGame();
+    std::unique_ptr<IStateHandler> stateHandler(new StateHandlerOffline);
+    m_ui->gamePaneWidget->StartGame(std::move(stateHandler));
     m_ui->gamePaneWidget->show();
 }
 

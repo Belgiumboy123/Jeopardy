@@ -9,7 +9,7 @@
 
 #define CLUE_FONT_SIZE 34
 
-namespace Util
+namespace QtUtil
 {
     QFont GetBasicClueFont();
 

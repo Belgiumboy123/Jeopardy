@@ -1,11 +1,9 @@
 #include "jeopardygame.h"
-
+#include "qtutility.h"
 #include <QStandardItemModel>
 #include <QTime>
 #include <QDebug>
 
-#define CLUE_BLUE "#0A06B3"
-#define BOARD_TEXT "#E29D44"
 
 namespace
 {
@@ -40,6 +38,11 @@ private:
     QString m_clue;
     QString m_answer;
 };
+
+JeopardyGame::JeopardyGame()
+    : JeopardyGame(OptionsData::GetInstance().m_nextClueOptions)
+{
+}
 
 JeopardyGame::JeopardyGame(NextClueOptions& nextClueOptions)
     : m_model( new QStandardItemModel(TOTAL_ROWS, TOTAL_COLS))

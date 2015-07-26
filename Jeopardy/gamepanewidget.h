@@ -10,6 +10,11 @@ class JeopardyGame;
 class QMediaPlayer;
 class QStandardItemModel;
 class QTimer;
+class IStateHandler;
+namespace GameStateUtils
+{
+    enum class GameState;
+}
 
 namespace Ui {
 class GamePaneWidget;
@@ -23,7 +28,7 @@ public:
     explicit GamePaneWidget(QWidget *parent = 0);
     virtual ~GamePaneWidget();
 
-    void StartGame();
+    void StartGame(std::unique_ptr<IStateHandler> stateHandler);
     void SetOptions(const OptionsData& options);
     void SetAutoPlayEnabled(bool flag);
 
@@ -34,17 +39,15 @@ protected:
     virtual bool eventFilter(QObject* watched, QEvent* event);
 
 private:
+    void OnStateChanged(GameStateUtils::GameState state, const QModelIndex& index, const QString& message);
+
     void handleBoardClick(const QModelIndex& index);
     void handleClueClick();
-
-    void SetNewClueQuestion(const QModelIndex& index, const QString& question);
 
     std::unique_ptr<Ui::GamePaneWidget> m_ui;
 
     OptionsData& m_options;
     TimeIntervals& m_timeIntervals;
-
-    std::unique_ptr<JeopardyGame> m_game;
 
     enum GameState
     {
@@ -87,7 +90,7 @@ private:
 
     bool m_isAutoPlayEnabled;
     bool IsAutoPlayEnabled() const;
-    void AutoPlayNextClue();
+    void AutoPlayNextClue(const QModelIndex& index);
 
     QTimer* m_autoPlayTimer;
     void OnAutoPlayTimer();
@@ -105,6 +108,8 @@ private:
     };
 
     void launchPauseDialog();
+
+    std::unique_ptr<IStateHandler> m_stateHandler;
 };
 
 #endif // GAMEPANEWIDGET_H

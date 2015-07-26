@@ -3,7 +3,8 @@
 
 #include "jeopardygame.h"
 #include "pausedialog.h"
-#include "utility.h"
+#include "qtutility.h"
+#include "istatehandler.h"
 
 #include <QItemDelegate>
 #include <QKeyEvent>
@@ -90,13 +91,11 @@ GamePaneWidget::GamePaneWidget(QWidget *parent)
   , m_ui(new Ui::GamePaneWidget)
   , m_options(OptionsData::GetInstance())
   , m_timeIntervals(m_options.m_timeIntervals)
-  , m_game( new JeopardyGame(m_options.m_nextClueOptions) )
   , m_isAutoPlayEnabled(false)
   , m_mediaPlayer(nullptr)
 {
     m_ui->setupUi(this);
 
-    m_ui->tableView->setModel(m_game->GetModel());
     m_ui->tableView->setHorizontalHeader(new JeopardyHeader(m_ui->tableView));
     m_ui->tableView->setShowGrid(false);
     m_ui->tableView->setItemDelegate(new JeopardyItemDelegate(this));
@@ -116,14 +115,14 @@ GamePaneWidget::GamePaneWidget(QWidget *parent)
     m_ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui->tableView->installEventFilter(this);
-    m_ui->tableView->setFont(Util::GetBasicBoardFont());
+    m_ui->tableView->setFont(QtUtil::GetBasicBoardFont());
 
     connect( m_ui->tableView, &QAbstractItemView::clicked, this, &GamePaneWidget::handleBoardClick );
 
     m_ui->clueLabel->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
     m_ui->clueLabel->setWordWrap(true);
 
-    m_ui->clueWidget->setFont(Util::GetBasicClueFont());
+    m_ui->clueWidget->setFont(QtUtil::GetBasicClueFont());
     auto cluePal = m_ui->clueWidget->palette();
     cluePal.setColor(m_ui->clueWidget->backgroundRole(), QColor(CLUE_BLUE));
     cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::white);
@@ -141,7 +140,10 @@ GamePaneWidget::SetOptions(const OptionsData& options)
     m_options = options;
     m_timeIntervals = m_options.m_timeIntervals;
     UpdateMediaPlayerFromOptions();
-    m_game->SetNextClueOptions(m_options.m_nextClueOptions);
+    if(m_stateHandler)
+    {
+        m_stateHandler->SetNextClueOptions(m_options.m_nextClueOptions);
+    }
 }
 
 bool
@@ -157,25 +159,166 @@ GamePaneWidget::SetAutoPlayEnabled(bool flag)
 }
 
 void
-GamePaneWidget::StartGame()
+GamePaneWidget::OnStateChanged(GameStateUtils::GameState state, const QModelIndex& index, const QString& message)
 {
-    m_game->LoadRandomGame();
-
-    m_ui->clueWidget->hide();
-    m_ui->tableView->show();
-    m_ui->tableView->setFocus();
-
-    m_mode = BOARD;
-
-    // if auto play is enabled, pick the first clue
-    if( IsAutoPlayEnabled())
+    switch(state)
     {
-        // pick an index to start animating from
-        m_clickedIndex = m_ui->tableView->model()->index(0, 0);
-        m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::Select);
+    case GameStateUtils::GameState::BOARD_START:
+    {
+        m_ui->clueWidget->hide();
+        m_ui->tableView->show();
+        m_ui->tableView->setFocus();
 
-        AutoPlayNextClue();
+        m_mode = BOARD;
+
+        if( IsAutoPlayEnabled())
+        {
+            // pick an index to start animating from
+            m_clickedIndex = index;
+            m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::Select);
+
+            AutoPlayNextClue(index);
+        }
+        break;
     }
+
+    case GameStateUtils::GameState::BOARD:
+    {
+        m_ui->clueWidget->hide();
+        m_mode = BOARD;
+
+        m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::NoUpdate);
+        m_ui->tableView->clearSelection();
+        m_ui->tableView->show();
+        m_ui->tableView->setFocus();
+
+        if( IsAutoPlayEnabled())
+        {
+            AutoPlayNextClue(index);
+        }
+        break;
+    }
+
+    case GameStateUtils::GameState::CLUE_QUESTION:
+    {
+        // save clicked index here, the tableview active index can't be trusted
+        m_clickedIndex = index;
+
+        m_ui->clueLabel->setText( message );
+
+        StartClueTimer(m_timeIntervals.ClueQuestion);
+
+        m_ui->tableView->hide();
+        m_ui->clueWidget->show();
+
+        m_mode = CLUE_QUESTION;
+        break;
+    }
+
+    case GameStateUtils::GameState::CLUE_ANSWER:
+    {
+        // reset the text color in case it was changed
+        // hitting a time out.
+        auto cluePal = m_ui->clueWidget->palette();
+        cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::white);
+        m_ui->clueWidget->setPalette(cluePal);
+
+        m_ui->clueLabel->setText(message/*message is the clue answer*/ );
+
+        m_mode = CLUE_ANSWER;
+
+        if( IsAutoPlayEnabled())
+        {
+            StartTimeOverTimer(m_timeIntervals.ClueAnswer);
+        }
+        break;
+    }
+
+    case GameStateUtils::GameState::FINAL_START:
+    {
+        // Make font size a little bigger
+        auto font = m_ui->clueLabel->font();
+        font.setPointSize(CLUE_FONT_SIZE+30);
+        m_ui->clueLabel->setFont(font);
+
+        m_ui->clueLabel->setText( "Final Jeopardy!" );
+        m_mode = FINAL_START;
+
+        StartTimeOverTimer(m_timeIntervals.FinalStart);
+        break;
+    }
+
+    case GameStateUtils::GameState::FINAL_CATEGORY:
+    {
+        // reset the font size
+        auto font = m_ui->clueLabel->font();
+        font.setPointSize(CLUE_FONT_SIZE);
+        m_ui->clueLabel->setFont(font);
+
+        m_ui->clueLabel->setText(message/*message is final category*/);
+        m_mode = FINAL_CATEGORY;
+
+        StartTimeOverTimer(m_timeIntervals.FinalCategory);
+        break;
+    }
+
+    case GameStateUtils::GameState::FINAL_CLUE:
+    {
+        // show final jeapardy clue and pause for 30 seconds / optional click
+        m_ui->clueLabel->setText(message);
+        m_mode = FINAL_CLUE;
+
+        StartClueTimer(m_timeIntervals.FinalQuestion);
+
+        m_mediaPlayer->play();
+        break;
+    }
+
+    case GameStateUtils::GameState::FINAL_ANSWER:
+    {
+        m_mediaPlayer->stop();
+
+        auto cluePal = m_ui->clueWidget->palette();
+        cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::white);
+        m_ui->clueWidget->setPalette(cluePal);
+
+        m_ui->clueLabel->setText(message);
+        m_mode = FINAL_ANSWER;
+
+        if(IsAutoPlayEnabled())
+        {
+            StartTimeOverTimer(m_timeIntervals.FinalAnswer);
+        }
+        break;
+    }
+
+    case GameStateUtils::GameState::GAME_OVER:
+    {
+        m_ui->clueLabel->setText("Game Over\nSorry Jillian, better luck next time.");
+
+        m_mode = GAME_OVER;
+
+        if(IsAutoPlayEnabled())
+        {
+            StartTimeOverTimer(m_timeIntervals.GameOver);
+        }
+    }
+
+    default:
+        break;
+    }
+}
+
+void
+GamePaneWidget::StartGame(std::unique_ptr<IStateHandler> stateHandler)
+{
+    // Setup the state handler
+    m_stateHandler = std::move(stateHandler);
+    connect( m_stateHandler.get(), &IStateHandler::StateChanged, this, &GamePaneWidget::OnStateChanged);
+    m_ui->tableView->setModel(m_stateHandler->GetModel());
+
+    m_stateHandler->SetNextClueOptions(m_options.m_nextClueOptions);
+    m_stateHandler->DoActionOnState(GameStateUtils::GameState::MENU);
 }
 
 void
@@ -193,32 +336,7 @@ GamePaneWidget::handleBoardClick(const QModelIndex& index)
         m_timeOverTimer->stop();
     }
 
-    const QString& question = m_game->HandleBoardAction( index );
-
-    if( question.isEmpty() )
-        return;
-
-    SetNewClueQuestion(index, question);
-}
-
-void
-GamePaneWidget::SetNewClueQuestion(const QModelIndex& index, const QString& question)
-{
-    // save clicked index here, the tableview active index can't be trusted
-    m_clickedIndex = index;
-
-    // set label text
-    m_ui->clueLabel->setText( question );
-
-    StartClueTimer(m_timeIntervals.ClueQuestion);
-
-    // hide the board
-    m_ui->tableView->hide();
-
-    // show the label
-    m_ui->clueWidget->show();
-
-    m_mode = CLUE_QUESTION;
+    m_stateHandler->DoActionOnState(GameStateUtils::GameState::BOARD, index);
 }
 
 void
@@ -236,120 +354,27 @@ GamePaneWidget::handleClueClick()
 
     if( m_mode == CLUE_QUESTION)
     {
-        // reset the text color in case it was changed
-        // hitting a time out.
-        auto cluePal = m_ui->clueWidget->palette();
-        cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::white);
-        m_ui->clueWidget->setPalette(cluePal);
-
-        const QString& answer = m_game->HandleClueAction(m_clickedIndex);
-        m_ui->clueLabel->setText( answer );
-
-        m_mode = CLUE_ANSWER;
-
-        if( IsAutoPlayEnabled())
-        {
-            StartTimeOverTimer(m_timeIntervals.ClueAnswer);
-        }
+        m_stateHandler->DoActionOnState(GameStateUtils::GameState::CLUE_QUESTION, m_clickedIndex);
     }
     else if( m_mode == CLUE_ANSWER)
     {
-        auto newMode = m_game->HandleAnswerAction();
-
-        if( newMode == JeopardyGame::GM_FINAL )
-        {
-            // show final jeapardy start screen for 3 seconds / optional click
-
-            // Make font size a little bigger
-            auto font = m_ui->clueLabel->font();
-            font.setPointSize(CLUE_FONT_SIZE+30);
-            m_ui->clueLabel->setFont(font);
-
-            m_ui->clueLabel->setText( "Final Jeopardy!" );
-            m_mode = FINAL_START;
-
-            StartTimeOverTimer(m_timeIntervals.FinalStart);
-        }
-        else
-        {
-            m_ui->clueWidget->hide();
-
-            // When loading to double jeopardy
-            // need to reset m_clickedIndex because it needs to point to the
-            // newly added widgets in the model.
-            if( newMode == JeopardyGame::GM_DOUBLE)
-            {
-                m_clickedIndex = m_ui->tableView->model()->index(0, 0);
-                m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::Select);
-            }
-            else
-            {
-                m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::NoUpdate);
-                m_ui->tableView->clearSelection();
-            }
-
-            m_ui->tableView->show();
-            m_mode = BOARD;
-
-            if(IsAutoPlayEnabled())
-            {
-                AutoPlayNextClue();
-            }
-        }
+        m_stateHandler->DoActionOnState(GameStateUtils::GameState::CLUE_ANSWER, m_clickedIndex);
     }
     else if( m_mode == FINAL_START)
     {
-        // reset the font size
-        auto font = m_ui->clueLabel->font();
-        font.setPointSize(CLUE_FONT_SIZE);
-        m_ui->clueLabel->setFont(font);
-
-        // show final jeopardy category
-        m_ui->clueLabel->setText( m_game->GetFinalCategory() );
-        m_mode = FINAL_CATEGORY;
-
-        StartTimeOverTimer(m_timeIntervals.FinalCategory);
+        m_stateHandler->DoActionOnState(GameStateUtils::GameState::FINAL_START);
     }
     else if( m_mode == FINAL_CATEGORY)
     {
-         // show final jeapardy clue and pause for 30 seconds / optional click
-        m_ui->clueLabel->setText( m_game->GetFinalClue() );
-        m_mode = FINAL_CLUE;
-
-        StartClueTimer(m_timeIntervals.FinalQuestion);
-
-        // start the final jeopardy music
-        m_mediaPlayer->play();
+        m_stateHandler->DoActionOnState(GameStateUtils::GameState::FINAL_CATEGORY);
     }
     else if( m_mode == FINAL_CLUE)
     {
-        // stop the final jeopardy music
-        m_mediaPlayer->stop();
-
-        auto cluePal = m_ui->clueWidget->palette();
-        cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::white);
-        m_ui->clueWidget->setPalette(cluePal);
-
-        // show final jeapardy answer wait for user click -> back to start screen
-        m_ui->clueLabel->setText( m_game->GetFinalAnswer() );
-        m_mode = FINAL_ANSWER;
-
-        if(IsAutoPlayEnabled())
-        {
-            StartTimeOverTimer(m_timeIntervals.FinalAnswer);
-        }
+        m_stateHandler->DoActionOnState(GameStateUtils::GameState::FINAL_CLUE);
     }
     else if(m_mode == FINAL_ANSWER )
     {
-        // back to showing pick a game menu
-        m_ui->clueLabel->setText("Game Over\nSorry Jillian, better luck next time.");
-
-        m_mode = GAME_OVER;
-
-        if(IsAutoPlayEnabled())
-        {
-            StartTimeOverTimer(m_timeIntervals.GameOver);
-        }
+        m_stateHandler->DoActionOnState(GameStateUtils::GameState::FINAL_ANSWER);
     }
     else if( m_mode == GAME_OVER )
     {
@@ -360,9 +385,9 @@ GamePaneWidget::handleClueClick()
 }
 
 void
-GamePaneWidget::AutoPlayNextClue()
+GamePaneWidget::AutoPlayNextClue(const QModelIndex& index)
 {
-    m_autoPlayState.newIndex = m_game->GetNextClue(m_clickedIndex);
+    m_autoPlayState.newIndex = index;
     m_autoPlayState.currColumn = m_clickedIndex.column();
     m_autoPlayState.currRow = m_clickedIndex.row();
     m_autoPlayState.columnDirection = m_autoPlayState.currColumn < m_autoPlayState.newIndex.column() ? 1 : -1;

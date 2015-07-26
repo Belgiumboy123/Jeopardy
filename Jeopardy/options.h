@@ -11,8 +11,8 @@ struct TimeIntervals
     int FinalCategory;     // 7000
     int FinalQuestion;     // 30000
     int FinalAnswer;       // 5000
-    int AutoPlayAnimation; //400
-    int AutoPlayFinal;     //1500
+    int AutoPlayAnimation; // 400
+    int AutoPlayFinal;     // 1500
     int ClueTimeOut;       // 2500
     int ClueAnswer;        // 2000
     int GameOver;          // 5000

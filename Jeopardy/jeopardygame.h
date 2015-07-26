@@ -10,6 +10,7 @@ class QModelIndex;
 class JeopardyGame
 {
 public:
+    JeopardyGame();
     JeopardyGame(NextClueOptions& nextClueOptions);
     ~JeopardyGame();
 

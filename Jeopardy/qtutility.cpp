@@ -1,12 +1,12 @@
-#include "utility.h"
+#include "qtutility.h"
 
 
-QFont Util::GetBasicClueFont()
+QFont QtUtil::GetBasicClueFont()
 {
     return QFont( CLUE_FONT, CLUE_FONT_SIZE, QFont::Normal );
 }
 
-QFont Util::GetBasicBoardFont()
+QFont QtUtil::GetBasicBoardFont()
 {
     QFont boardFont( BOARD_FONT, 34, QFont::Normal );
     boardFont.setLetterSpacing( QFont::AbsoluteSpacing, 2 );

@@ -20,7 +20,9 @@ SOURCES += main.cpp\
     optionsdialog.cpp \
     pausedialog.cpp \
     gamepanewidget.cpp \
-    utility.cpp
+    qtutility.cpp \
+    statehandleroffline.cpp \
+    istatehandler.cpp
 
 HEADERS  += mainwindow.h \
     jeopardygame.h \
@@ -28,7 +30,9 @@ HEADERS  += mainwindow.h \
     optionsdialog.h \
     pausedialog.h \
     gamepanewidget.h \
-    utility.h
+    qtutility.h \
+    statehandleroffline.h \
+    istatehandler.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui \

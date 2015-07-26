@@ -18,7 +18,8 @@ macx: LIBS += -framework CoreFoundation
 
 SOURCES += jeopardydatabase.cpp
 
-HEADERS += jeopardydatabase.h
+HEADERS += jeopardydatabase.h \
+    gamestateutils.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
