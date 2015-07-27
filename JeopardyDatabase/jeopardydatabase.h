@@ -1,6 +1,7 @@
 #ifndef JEOPARDYDATABASE_H
 #define JEOPARDYDATABASE_H
 
+#include "gamestateutils.h"
 
 #include <map>
 #include <vector>
@@ -42,6 +43,25 @@ namespace DatabaseUtils
     bool IsValidClueValue( int value, bool doubleJeopardy);
 
     void UseUnitTestDatabasePath();
+
+
+    struct StaticGameInfo2
+    {
+        QString finalCategory;
+        QString finalClue;
+        QString finalAnswer;
+
+        GameStateUtils::Clues singleRoundQuestions{false};
+        GameStateUtils::Clues doubleRoundQuestions{true};
+
+        int totalSingleClues;
+        int totalDoubleClues;
+
+        StaticGameInfo2();
+        void clear();
+    };
+
+    void GetGameInfo2(const int gameID, StaticGameInfo2& gameInfo);
 }
 
 #endif // JEOPARDYDATABASE_H

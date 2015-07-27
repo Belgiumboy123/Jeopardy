@@ -16,7 +16,8 @@ CONFIG += c++11
 QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
 macx: LIBS += -framework CoreFoundation
 
-SOURCES += jeopardydatabase.cpp
+SOURCES += jeopardydatabase.cpp \
+    gamestateutils.cpp
 
 HEADERS += jeopardydatabase.h \
     gamestateutils.h

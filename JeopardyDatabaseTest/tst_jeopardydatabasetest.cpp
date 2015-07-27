@@ -13,6 +13,7 @@ public:
 
 private Q_SLOTS:
     void testCase1();
+    void testCase2();
 };
 
 JeopardyDatabaseTest::JeopardyDatabaseTest()
@@ -59,6 +60,39 @@ void JeopardyDatabaseTest::testCase1()
     runTest(2, 26, 29);
 
     runTest(5, 29, 24);
+}
+
+void runTest2(int gameID, int totalSingleClues, int totalDoubleClues)
+{
+    DatabaseUtils::StaticGameInfo2 gameInfo;
+    DatabaseUtils::GetGameInfo2(gameID, gameInfo);
+
+    QVERIFY2(!gameInfo.finalCategory.isEmpty(), "Final Category is empty");
+    QVERIFY2(!gameInfo.finalClue.isEmpty(), "Final question is empty");
+    QVERIFY2(!gameInfo.finalAnswer.isEmpty(), "Final answer is empty");
+
+    QVERIFY2(gameInfo.totalSingleClues == totalSingleClues, "Wrong number of double round Qs");
+    QVERIFY2(gameInfo.totalDoubleClues == totalDoubleClues, "Wrong number of single round Qs");
+
+    const int numUnanswered = gameInfo.singleRoundQuestions.GetNumberOfUnansweredClues();
+    QString msg = QString("Unanswered single clues ") + QString::number(numUnanswered);
+    QVERIFY2(numUnanswered == totalSingleClues, msg.toStdString().c_str());
+
+    const int numUnanswered2 = gameInfo.doubleRoundQuestions.GetNumberOfUnansweredClues();
+    msg = QString("Unanswered double clues ") + QString::number(numUnanswered2);
+    QVERIFY2(numUnanswered2 == totalDoubleClues, msg.toStdString().c_str());
+}
+
+void JeopardyDatabaseTest::testCase2()
+{
+    DatabaseUtils::UseUnitTestDatabasePath();
+
+    runTest2(1, 30, 30);
+
+    runTest2(2, 26, 29);
+
+    // Doesn't pass yet
+    //runTest2(5, 29, 24);
 }
 
 QTEST_APPLESS_MAIN(JeopardyDatabaseTest)

@@ -120,6 +120,25 @@ DatabaseUtils::StaticGameInfo::clear()
     doubleRoundQuestions.clear();
 }
 
+DatabaseUtils::StaticGameInfo2::StaticGameInfo2()
+{
+    clear();
+}
+
+void
+DatabaseUtils::StaticGameInfo2::clear()
+{
+    totalDoubleClues = 0;
+    totalSingleClues = 0;
+
+    finalCategory.clear();
+    finalClue.clear();
+    finalAnswer.clear();
+
+    singleRoundQuestions.Reset();
+    doubleRoundQuestions.Reset();
+}
+
 namespace
 {
     // string used by QSqlQuery needs to be on one line
@@ -278,6 +297,57 @@ DatabaseUtils::GetGameInfo(const int gameID, StaticGameInfo& info)
 
          FixDailyDoubleValues(info.singleRoundQuestions, false/*doubleJeopardy*/);
          FixDailyDoubleValues(info.doubleRoundQuestions, true/*doubleJeopardy*/);
+    }
+
+    db.close();
+}
+
+void
+DatabaseUtils::GetGameInfo2(const int gameID, StaticGameInfo2& info)
+{
+    // be sure to clear any variables from a previously loaded game
+    info.clear();
+
+    QSqlDatabase db = GetDatabase();
+
+    if(db.open())
+    {
+         QSqlQuery query(db);
+         query.setForwardOnly(true);
+         query.prepare(sQuery);
+         query.addBindValue(gameID);
+         query.exec();
+         while(query.next())
+         {
+            const int& round = query.value(QRO_Round).toInt();
+
+            if( round == FINAL_JEOPARDY )
+            {
+                info.finalClue = query.value(QRO_Clue).toString();
+                info.finalAnswer = query.value(QRO_Answer).toString();
+                info.finalCategory = query.value(QRO_Category).toString();
+                continue;
+            }
+
+            // database numbers have comma's in them which Qt number conversion can't handle
+            // so remove comma's from numbers first
+            const int& value = query.value(QRO_Value).toString().remove(COMMA).toInt();
+            const QString& category = query.value(QRO_Category).toString();
+            const QString& clue = query.value(QRO_Clue).toString().toUpper();
+            const QString& answer = query.value(QRO_Answer).toString().toUpper();
+
+            // select the correct variables depending on round
+            const bool doubleJeopardy = (round == DOUBLE_JEOPARDY);
+            auto& clues = doubleJeopardy ? info.doubleRoundQuestions : info.singleRoundQuestions;
+            int& totalClues = doubleJeopardy ? info.totalDoubleClues : info.totalSingleClues;
+            totalClues++;
+
+            clues.InsertClue(category, clue, answer, value);
+         }
+
+         // Add any invalid clues that were found during insertion
+         info.singleRoundQuestions.AddInvalidClues();
+         info.doubleRoundQuestions.AddInvalidClues();
     }
 
     db.close();
