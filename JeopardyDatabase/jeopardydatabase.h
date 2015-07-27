@@ -45,23 +45,23 @@ namespace DatabaseUtils
     void UseUnitTestDatabasePath();
 
 
-    struct StaticGameInfo2
+    struct JeopardyGameInfo
     {
         QString finalCategory;
         QString finalClue;
         QString finalAnswer;
 
-        GameStateUtils::Clues singleRoundQuestions{false};
-        GameStateUtils::Clues doubleRoundQuestions{true};
+        GameStateUtils::Clues singleRoundClues{false};
+        GameStateUtils::Clues doubleRoundClues{true};
 
         int totalSingleClues;
         int totalDoubleClues;
 
-        StaticGameInfo2();
+        JeopardyGameInfo();
         void clear();
     };
 
-    void GetGameInfo2(const int gameID, StaticGameInfo2& gameInfo);
+    void GetJeopardyGameInfo(const int gameID, JeopardyGameInfo& gameInfo);
 }
 
 #endif // JEOPARDYDATABASE_H

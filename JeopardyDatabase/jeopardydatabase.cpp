@@ -120,13 +120,13 @@ DatabaseUtils::StaticGameInfo::clear()
     doubleRoundQuestions.clear();
 }
 
-DatabaseUtils::StaticGameInfo2::StaticGameInfo2()
+DatabaseUtils::JeopardyGameInfo::JeopardyGameInfo()
 {
     clear();
 }
 
 void
-DatabaseUtils::StaticGameInfo2::clear()
+DatabaseUtils::JeopardyGameInfo::clear()
 {
     totalDoubleClues = 0;
     totalSingleClues = 0;
@@ -135,8 +135,8 @@ DatabaseUtils::StaticGameInfo2::clear()
     finalClue.clear();
     finalAnswer.clear();
 
-    singleRoundQuestions.Reset();
-    doubleRoundQuestions.Reset();
+    singleRoundClues.Reset();
+    doubleRoundClues.Reset();
 }
 
 namespace
@@ -303,7 +303,7 @@ DatabaseUtils::GetGameInfo(const int gameID, StaticGameInfo& info)
 }
 
 void
-DatabaseUtils::GetGameInfo2(const int gameID, StaticGameInfo2& info)
+DatabaseUtils::GetJeopardyGameInfo(const int gameID, JeopardyGameInfo& info)
 {
     // be sure to clear any variables from a previously loaded game
     info.clear();
@@ -338,7 +338,7 @@ DatabaseUtils::GetGameInfo2(const int gameID, StaticGameInfo2& info)
 
             // select the correct variables depending on round
             const bool doubleJeopardy = (round == DOUBLE_JEOPARDY);
-            auto& clues = doubleJeopardy ? info.doubleRoundQuestions : info.singleRoundQuestions;
+            auto& clues = doubleJeopardy ? info.doubleRoundClues : info.singleRoundClues;
             int& totalClues = doubleJeopardy ? info.totalDoubleClues : info.totalSingleClues;
             totalClues++;
 
@@ -346,8 +346,8 @@ DatabaseUtils::GetGameInfo2(const int gameID, StaticGameInfo2& info)
          }
 
          // Add any invalid clues that were found during insertion
-         info.singleRoundQuestions.AddInvalidClues();
-         info.doubleRoundQuestions.AddInvalidClues();
+         info.singleRoundClues.AddInvalidClues();
+         info.doubleRoundClues.AddInvalidClues();
     }
 
     db.close();

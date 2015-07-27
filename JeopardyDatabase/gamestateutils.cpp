@@ -95,26 +95,25 @@ void
 Clues::AddInvalidClues()
 {
     int column = 0;
-    for( auto& vec : m_invalidClues)
+    for( const auto& vec : m_invalidClues)
     {
-        if (vec.size() == 1)
+        if (!vec.empty())
         {
             const int start = column*TOTAL_ROWS;
             const int end = start + TOTAL_ROWS;
-            for( int i = start; i<end; i++ )
+            for( const auto& info : vec)
             {
-                if(m_clues[i].answered)
+                for( int i = start; i<end; i++ )
                 {
-                    m_clues[i].answered = false;
-                    m_clues[i].question = vec[0].question;
-                    m_clues[i].answer = vec[0].answer;
-                    break;
+                    if(m_clues[i].answered)
+                    {
+                        m_clues[i].answered = false;
+                        m_clues[i].question = info.question;
+                        m_clues[i].answer = info.answer;
+                        break;
+                    }
                 }
             }
-        }
-        else if (!vec.empty())
-        {
-
         }
 
         column++;
