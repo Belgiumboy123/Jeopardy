@@ -96,7 +96,18 @@ JeopardyGame::LoadRound( const GameMode gameMode )
     const DatabaseUtils::RoundQuestions& roundQuestions = (gameMode == GM_SINGLE) ? m_staticGameInfo.singleRoundQuestions
                                                                                   : m_staticGameInfo.doubleRoundQuestions;
 
+    m_jeopardyGameInfo.currentClues = (gameMode == GM_SINGLE) ? m_jeopardyGameInfo.singleRoundClues : m_jeopardyGameInfo.doubleRoundClues;
+
     m_model->clear();
+
+    // for each column
+
+        // add header item -> category string
+
+        // for each row
+
+            // set text, and add answer,question
+
 
     int column = 0;
     for( const auto& category : roundQuestions)
@@ -154,8 +165,10 @@ JeopardyGame::HandleBoardAction( const QModelIndex& index )
 
     // clue has been clicked so, it's empty it's text
     item->setText("");
+    //  m_jeopardyGameInfo.currentClues.SetClueAnswered( index.column(), index.row() );
+    //  setting model item text to empty is the one "logic" responsibility of UI code
 
-    return item->GetClue();
+    return item->GetClue(); // m_jeopardyGameInfo.currentClues.GetQuestion( index.column(), index.row() );
 }
 
 /*

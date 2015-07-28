@@ -54,6 +54,11 @@ namespace DatabaseUtils
         GameStateUtils::Clues singleRoundClues{false};
         GameStateUtils::Clues doubleRoundClues{true};
 
+        // hide this behind some functions, should be private
+        // and other getter functions will all have to be sure to go through
+        // those functions instead of directly accessing the above clues
+        GameStateUtils::Clues& currentClues{singleRoundClues};
+
         int totalSingleClues;
         int totalDoubleClues;
 

@@ -58,6 +58,9 @@ namespace GameStateUtils
 
         void SetClueAsAnswered(int col, int row);
 
+        //const QString& GetCategoryHeader(int column);
+        //const QString& GetClueText(int col, int row);
+
         void Reset();
 
         // NOTE this function is meant for unit test only
