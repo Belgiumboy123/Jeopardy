@@ -17,10 +17,14 @@ QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
 macx: LIBS += -framework CoreFoundation
 
 SOURCES += jeopardydatabase.cpp \
-    gamestateutils.cpp
+    gamestateutils.cpp \
+    options.cpp \
+    jeopardygame.cpp
 
 HEADERS += jeopardydatabase.h \
-    gamestateutils.h
+    gamestateutils.h \
+    options.h \
+    jeopardygame.h
 unix {
     target.path = /usr/lib
     INSTALLS += target
