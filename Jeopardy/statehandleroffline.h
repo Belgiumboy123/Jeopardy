@@ -18,6 +18,9 @@ public:
     virtual void SetNextClueOptions(const NextClueOptions& nextClueOptions);
 
 private:
+
+    void LoadModelFromCurrentClues();
+
     std::unique_ptr<JeopardyGame> m_game;
 };
 

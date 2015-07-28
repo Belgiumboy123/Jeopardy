@@ -57,7 +57,7 @@ Clues::HasClueBeenAnswered(int col, int row) const
 }
 
 void
-Clues::SetClueAsAnswered(int col, int row)
+Clues::SetClueAnswered(int col, int row)
 {
     if(IsValidCol(col) && IsValidRow(row))
     {
@@ -142,6 +142,33 @@ Clues::GetClueInfo(const int col, const int row) const
     Q_ASSERT(IsValidCol(col) && IsValidRow(row));
 
     return m_clues[col*TOTAL_ROWS+row];
+}
+
+const QString
+Clues::GetCategoryHeader(int column) const
+{
+    for( const auto& category : m_categoryIndices)
+    {
+        if( category.second == column)
+        {
+            return category.first;
+        }
+    }
+
+    return "";
+}
+
+const QString
+Clues::GetClueText(int col, int row) const
+{
+    Q_ASSERT(IsValidCol(col) && IsValidRow(row));
+
+    if( !GetClueInfo(col,row).answered)
+    {
+        return DOLLAR + QString::number((m_doubleJeopardy ? 400 : 200)*(row+1));
+    }
+
+    return "";
 }
 
 bool

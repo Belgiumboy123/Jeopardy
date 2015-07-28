@@ -4,9 +4,6 @@
 #include "jeopardydatabase.h"
 #include "options.h"
 
-class QStandardItemModel;
-class QModelIndex;
-
 class JeopardyGame
 {
 public:
@@ -14,12 +11,12 @@ public:
     JeopardyGame(NextClueOptions& nextClueOptions);
     ~JeopardyGame();
 
-    QStandardItemModel* GetModel() const;
+    const GameStateUtils::Clues& GetCurrentClues() const;
 
     void LoadRandomGame();
 
-    QString HandleBoardAction( const QModelIndex& index );
-    QString HandleClueAction( const QModelIndex& index );
+    QString HandleBoardAction( const int column, const int row );
+    QString HandleClueAction( const int column, const int row );
 
     enum GameMode
     {
@@ -28,13 +25,14 @@ public:
         GM_DOUBLE,
         GM_FINAL
     };
+
     GameMode HandleAnswerAction();
 
     const QString& GetFinalCategory() const;
     const QString& GetFinalClue() const;
     const QString& GetFinalAnswer() const;
 
-    QModelIndex GetNextClue(const QModelIndex& currentClue);
+    std::pair<int,int> GetNextClue(const int column, const int row);
 
     void SetNextClueOptions(const NextClueOptions& nextClueOptions);
 
@@ -43,12 +41,9 @@ private:
     void LoadGame(const int gameID );
     void LoadRound( const GameMode gameMode );
 
-    int GetRowFromValue( const int value, const GameMode mode) const;
+    bool IsClueAvailable(const int column, const int row) const;
 
-    DatabaseUtils::StaticGameInfo m_staticGameInfo;
     DatabaseUtils::JeopardyGameInfo m_jeopardyGameInfo;
-
-    QStandardItemModel* m_model;
 
     GameMode m_gameMode;
 

@@ -6,7 +6,7 @@
 
 namespace GameStateUtils
 {
-    const QString DOLLAR = "$";
+    const QString DOLLAR = "$"; // todo move to cpp file
 
     const int TOTAL_ROWS = 5;
     const int TOTAL_COLS = 6;
@@ -56,10 +56,10 @@ namespace GameStateUtils
         void InsertClue(const QString& category, const QString& question, const QString& answer, const int value);
         void AddInvalidClues();
 
-        void SetClueAsAnswered(int col, int row);
+        void SetClueAnswered(int col, int row);
 
-        //const QString& GetCategoryHeader(int column);
-        //const QString& GetClueText(int col, int row);
+        const QString GetCategoryHeader(int column) const;
+        const QString GetClueText(int col, int row) const;
 
         void Reset();
 

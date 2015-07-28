@@ -1,43 +1,10 @@
 #include "jeopardygame.h"
-#include "qtutility.h"
-#include <QStandardItemModel>
 #include <QTime>
 #include <QDebug>
 
+using GameStateUtils::TOTAL_COLS;
+using GameStateUtils::TOTAL_ROWS;
 
-namespace
-{
-    const QString DOLLAR = "$";
-
-    const int TOTAL_ROWS = 5;
-    const int TOTAL_COLS = 6;
-}
-
-class JeopardyItem : public QStandardItem
-{
-public:
-
-    JeopardyItem(const QString& clue, const QString& answer)
-        : QStandardItem()
-        , m_clue(clue)
-        , m_answer(answer)
-    {
-        setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-        setForeground(QBrush(BOARD_TEXT));
-        setBackground(QBrush(CLUE_BLUE));
-    }
-
-    void SetClue(const QString& s){ m_clue = s; }
-    QString GetClue() const { return m_clue; }
-
-    void SetAnswer(const QString& s){ m_answer = s; }
-    QString GetAnswer() const { return m_answer; }
-
-private:
-
-    QString m_clue;
-    QString m_answer;
-};
 
 JeopardyGame::JeopardyGame()
     : JeopardyGame(OptionsData::GetInstance().m_nextClueOptions)
@@ -45,8 +12,7 @@ JeopardyGame::JeopardyGame()
 }
 
 JeopardyGame::JeopardyGame(NextClueOptions& nextClueOptions)
-    : m_model( new QStandardItemModel(TOTAL_ROWS, TOTAL_COLS))
-    , m_gameMode(GM_NONE)
+    : m_gameMode(GM_NONE)
     , m_cluesAnswered(0)
     , m_nextClueOptions(nextClueOptions)
 {
@@ -56,14 +22,12 @@ JeopardyGame::JeopardyGame(NextClueOptions& nextClueOptions)
 
 JeopardyGame::~JeopardyGame()
 {
-    if( m_model)
-        delete m_model;
 }
 
-QStandardItemModel*
-JeopardyGame::GetModel() const
+const GameStateUtils::Clues&
+JeopardyGame::GetCurrentClues() const
 {
-    return m_model;
+    return m_jeopardyGameInfo.currentClues;
 }
 
 /**
@@ -81,7 +45,6 @@ JeopardyGame::LoadRandomGame()
 void
 JeopardyGame::LoadGame(const int gameID )
 {
-    DatabaseUtils::GetGameInfo(gameID, m_staticGameInfo /*out*/);
     DatabaseUtils::GetJeopardyGameInfo(gameID, m_jeopardyGameInfo/*out*/);
 
     LoadRound(GM_SINGLE);
@@ -93,54 +56,7 @@ JeopardyGame::LoadRound( const GameMode gameMode )
     if( gameMode != GM_SINGLE && gameMode != GM_DOUBLE )
         return;
 
-    const DatabaseUtils::RoundQuestions& roundQuestions = (gameMode == GM_SINGLE) ? m_staticGameInfo.singleRoundQuestions
-                                                                                  : m_staticGameInfo.doubleRoundQuestions;
-
     m_jeopardyGameInfo.currentClues = (gameMode == GM_SINGLE) ? m_jeopardyGameInfo.singleRoundClues : m_jeopardyGameInfo.doubleRoundClues;
-
-    m_model->clear();
-
-    // for each column
-
-        // add header item -> category string
-
-        // for each row
-
-            // set text, and add answer,question
-
-
-    int column = 0;
-    for( const auto& category : roundQuestions)
-    {
-        // add header item for category
-        QStandardItem* horizontalItem = new QStandardItem(category.first);
-        m_model->setHorizontalHeaderItem(column, horizontalItem);
-
-        for( const auto& clue : category.second)
-        {
-            JeopardyItem* item = new JeopardyItem( clue.second.first, clue.second.second );
-            if(!clue.second.first.isEmpty())
-            {
-                item->setText( DOLLAR + QString::number(clue.first) );
-            }
-            m_model->setItem(GetRowFromValue(clue.first, gameMode), column, item);
-        }
-
-        //Set empty items for missing empty clues
-        if( category.second.size() != TOTAL_ROWS)
-        {
-            for( int i = 0; i<TOTAL_ROWS; i++)
-            {
-                if( !m_model->item(i,column))
-                {
-                    JeopardyItem* item = new JeopardyItem( "", "" );
-                    m_model->setItem(i, column, item);
-                }
-            }
-        }
-
-        column++;
-    }
 
     m_cluesAnswered = 0;
     m_gameMode = gameMode;
@@ -152,23 +68,16 @@ JeopardyGame::LoadRound( const GameMode gameMode )
  *  Returning an empty string denotes to ignore this action
 */
 QString
-JeopardyGame::HandleBoardAction( const QModelIndex& index )
+JeopardyGame::HandleBoardAction(const int column, const int row)
 {
-    if( !index.isValid() )
+    // TODO can we combine these three currentClues function calls into one?
+
+    if( m_jeopardyGameInfo.currentClues.HasClueBeenAnswered(column, row) )
         return "";
 
-    // static_cast cause we know, use dynamic_cast, if separate category item class
-    JeopardyItem* item = static_cast<JeopardyItem*>(m_model->itemFromIndex(index));
+    m_jeopardyGameInfo.currentClues.SetClueAnswered(column, row);
 
-    if( !item || item->text().isEmpty() )
-        return "";
-
-    // clue has been clicked so, it's empty it's text
-    item->setText("");
-    //  m_jeopardyGameInfo.currentClues.SetClueAnswered( index.column(), index.row() );
-    //  setting model item text to empty is the one "logic" responsibility of UI code
-
-    return item->GetClue(); // m_jeopardyGameInfo.currentClues.GetQuestion( index.column(), index.row() );
+    return m_jeopardyGameInfo.currentClues.GetClueQuestion(column, row);
 }
 
 /*
@@ -177,20 +86,12 @@ JeopardyGame::HandleBoardAction( const QModelIndex& index )
  *  Returning an empty string denotes to ignore this action
  */
 QString
-JeopardyGame::HandleClueAction( const QModelIndex& index )
+JeopardyGame::HandleClueAction(const int column, const int row)
 {
-    if( !index.isValid() )
-        return "";
-
-    JeopardyItem* item = static_cast<JeopardyItem*>(m_model->itemFromIndex(index));
-
-    if( !item )
-        return "";
-
     // clue has been answered!
     m_cluesAnswered++;
 
-    return item->GetAnswer();
+    return m_jeopardyGameInfo.currentClues.GetClueAnswer(column, row);
 }
 
 /*
@@ -214,7 +115,6 @@ JeopardyGame::HandleAnswerAction()
             {
                 m_gameMode = GM_FINAL;
 
-                // return true when FINAL round has begun
                 return GM_FINAL;
             }
             break;
@@ -237,21 +137,16 @@ namespace
     {
         return qrand() % size;
     }
-
-    bool IsItemAvailable(const QStandardItemModel* model, const int row, const int col)
-    {
-        if( !model->item(row,col))
-        {
-            qDebug() << "ERROR " << row  << " " << col;
-            return false;
-        }
-
-        return !model->item(row,col)->text().isEmpty();
-    }
 }
 
-QModelIndex
-JeopardyGame::GetNextClue(const QModelIndex& currentClue)
+bool
+JeopardyGame::IsClueAvailable(const int column, const int row) const
+{
+    return !m_jeopardyGameInfo.currentClues.HasClueBeenAnswered(column, row);
+}
+
+std::pair<int,int>
+JeopardyGame::GetNextClue(const int currentColumn, const int currentRow)
 {
     /**
      * This is the algorithm
@@ -265,12 +160,11 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
      *      newRow = 90% chance ? next lowest available ? random avail
      **/
 
-    const int currColumn = currentClue.column();
-    int newColumn = currColumn;
+    int newColumn = currentColumn;
     bool isCurrColumnEmpty = true;
     for( int row = 0; row< TOTAL_ROWS; row++)
     {
-        if(IsItemAvailable(m_model,row,currColumn))
+        if(IsClueAvailable(currentColumn, row))
         {
             isCurrColumnEmpty = false;
             break;
@@ -282,12 +176,12 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
         std::vector<int> availCols;
         for( int col = 0; col<TOTAL_COLS; col++)
         {
-            if( col == currColumn)
+            if( col == currentColumn)
                 continue;
 
             for( int row = 0; row<TOTAL_ROWS; row++)
             {
-                if(IsItemAvailable(m_model,row,col))
+                if(IsClueAvailable(col, row))
                 {
                     availCols.push_back(col);
                     break;
@@ -303,20 +197,21 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
 
     // at this point we are guaranteed that newColumn contains valid rows
     // otherwise it should not have been chosen by the above code
+    // TODO lets assert on this assumption then
 
     int newRow = -1;
     std::vector<int> availRows;
     for( int row = 0; row <TOTAL_ROWS; row++)
     {
-        if( IsItemAvailable(m_model,row,newColumn))
+        if( IsClueAvailable(newColumn, row))
         {
             availRows.push_back(row);
         }
     }
 
-    // assert that availRows is not empty
+    // TODO assert that availRows is not empty
 
-    if( newColumn != currColumn)
+    if( newColumn != currentColumn)
     {
         if( IsWithinRandPercentage(m_nextClueOptions.NextRowNewColumnChance))
         {
@@ -335,7 +230,7 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
         {
             // current clue has been answered ( unless it's the start of the game
             // and new clues have been answered yet ), so start at the next row
-            const int startRow = currentClue.row() + (m_cluesAnswered == 0 ? 0 : 1);
+            const int startRow = currentRow + (m_cluesAnswered == 0 ? 0 : 1);
 
             for( auto row : availRows )
             {
@@ -353,7 +248,7 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
         }
     }
 
-    return m_model->index(newRow,newColumn);
+    return std::make_pair(newRow,newColumn);
 }
 
 const QString&
@@ -372,12 +267,6 @@ const QString&
 JeopardyGame::GetFinalAnswer() const
 {
     return m_jeopardyGameInfo.finalAnswer;
-}
-
-int
-JeopardyGame::GetRowFromValue( const int value, const GameMode mode) const
-{
-    return (value / (mode == GM_DOUBLE ? 400 : 200) ) - 1;
 }
 
 void
