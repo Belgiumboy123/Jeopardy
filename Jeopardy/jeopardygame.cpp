@@ -82,6 +82,7 @@ void
 JeopardyGame::LoadGame(const int gameID )
 {
     DatabaseUtils::GetGameInfo(gameID, m_staticGameInfo /*out*/);
+    DatabaseUtils::GetJeopardyGameInfo(gameID, m_jeopardyGameInfo/*out*/);
 
     LoadRound(GM_SINGLE);
 }
@@ -188,7 +189,7 @@ JeopardyGame::HandleAnswerAction()
     switch( m_gameMode )
     {
         case GM_SINGLE:
-            if( m_cluesAnswered == m_staticGameInfo.totalSingleClues)
+            if( m_cluesAnswered == m_jeopardyGameInfo.totalSingleClues)
             {
                 LoadRound(GM_DOUBLE);
                 return GM_DOUBLE;
@@ -196,7 +197,7 @@ JeopardyGame::HandleAnswerAction()
             break;
 
         case GM_DOUBLE:
-            if( m_cluesAnswered == m_staticGameInfo.totalDoubleClues)
+            if( m_cluesAnswered == m_jeopardyGameInfo.totalDoubleClues)
             {
                 m_gameMode = GM_FINAL;
 
@@ -345,19 +346,19 @@ JeopardyGame::GetNextClue(const QModelIndex& currentClue)
 const QString&
 JeopardyGame::GetFinalCategory() const
 {
-    return m_staticGameInfo.finalCategory;
+    return m_jeopardyGameInfo.finalCategory;
 }
 
 const QString&
 JeopardyGame::GetFinalClue() const
 {
-    return m_staticGameInfo.finalClue;
+    return m_jeopardyGameInfo.finalClue;
 }
 
 const QString&
 JeopardyGame::GetFinalAnswer() const
 {
-    return m_staticGameInfo.finalAnswer;
+    return m_jeopardyGameInfo.finalAnswer;
 }
 
 int

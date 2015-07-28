@@ -41,17 +41,18 @@ public:
 private:
 
     void LoadGame(const int gameID );
+    void LoadRound( const GameMode gameMode );
+
+    int GetRowFromValue( const int value, const GameMode mode) const;
 
     DatabaseUtils::StaticGameInfo m_staticGameInfo;
+    DatabaseUtils::JeopardyGameInfo m_jeopardyGameInfo;
 
     QStandardItemModel* m_model;
 
     GameMode m_gameMode;
 
     int m_cluesAnswered;
-
-    int GetRowFromValue( const int value, const GameMode mode) const;
-    void LoadRound( const GameMode gameMode );
 
     NextClueOptions& m_nextClueOptions;
 };

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "Please open up Qt Creator, go to Projects tab on the left hand pane."
-echo "Update the build directory to workspace_root/Jeopardy-build/(Debug or Release)"
+echo "Update the build directory to workspace_root/Jeopardy-build/Qt5.3/(Debug or Release)"
 echo "Then build both Debug and Release mode."
 echo "Note have not yet figured out how to automate the above steps."
 echo "Copying over needed resouce files to both Debug and Release app bundles..."
