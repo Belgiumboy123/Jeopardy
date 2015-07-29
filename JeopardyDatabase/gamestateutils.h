@@ -6,8 +6,6 @@
 
 namespace GameStateUtils
 {
-    const QString DOLLAR = "$"; // todo move to cpp file
-
     const int TOTAL_ROWS = 5;
     const int TOTAL_COLS = 6;
 
@@ -49,7 +47,7 @@ namespace GameStateUtils
         Clues(bool doubleJeopardy);
         virtual ~Clues();
 
-        QString GetClueQuestion( int col, int row) const;
+        QString GetClueQuestion( int col, int row);
         QString GetClueAnswer(int col, int row) const;
         bool HasClueBeenAnswered(int col, int row) const;
 

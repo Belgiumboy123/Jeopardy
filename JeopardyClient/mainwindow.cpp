@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect( m_socket, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error), this, &MainWindow::OnSocketError);
     connect( m_socket, &QAbstractSocket::connected, this, &MainWindow::OnSocketConnected);
     connect( m_socket, &QAbstractSocket::stateChanged, this, &MainWindow::OnStateChanged);
-    // todo connect to disconnected
+    connect( m_socket, &QAbstractSocket::disconnected, this, &MainWindow::OnDisconnected);
 }
 
 void
@@ -62,6 +62,12 @@ void
 MainWindow::OnSocketConnected()
 {
     m_ui->resultLabel->setText("Connected to Server!");
+}
+
+void
+MainWindow::OnDisconnected()
+{
+    m_ui->resultLabel->setText("Disconnected!");
 }
 
 void

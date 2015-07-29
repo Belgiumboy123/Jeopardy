@@ -22,6 +22,7 @@ private:
     void OnSocketError(QAbstractSocket::SocketError socketError);
     void OnSocketConnected();
     void OnStateChanged(QAbstractSocket::SocketState socketState);
+    void OnDisconnected();
 
     Ui::MainWindow *m_ui;
 

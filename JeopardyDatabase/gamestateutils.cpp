@@ -3,6 +3,11 @@
 using GameStateUtils::Clues;
 using GameStateUtils::ClueInfo;
 
+namespace
+{
+    const QString DOLLAR = "$";
+}
+
 Clues::Clues(bool doubleJeopardy)
     : m_doubleJeopardy(doubleJeopardy)
 {
@@ -24,11 +29,16 @@ Clues::Reset()
 }
 
 QString
-Clues::GetClueQuestion( int col, int row) const
+Clues::GetClueQuestion( int col, int row)
 {
     if( IsValidCol(col) && IsValidRow(row) )
     {
-        return GetClueInfo(col,row).question;
+        auto& clueInfo = GetClueInfo(col,row);
+        if(!clueInfo.answered)
+        {
+            clueInfo.answered = true;
+            return clueInfo.question;
+        }
     }
 
     return "";

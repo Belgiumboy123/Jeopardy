@@ -70,13 +70,7 @@ JeopardyGame::LoadRound( const GameMode gameMode )
 QString
 JeopardyGame::HandleBoardAction(const int column, const int row)
 {
-    // TODO can we combine these three currentClues function calls into one?
-
-    if( m_jeopardyGameInfo.currentClues.HasClueBeenAnswered(column, row) )
-        return "";
-
-    m_jeopardyGameInfo.currentClues.SetClueAnswered(column, row);
-
+    // This will set answered to true, if it hasn't been answered yet
     return m_jeopardyGameInfo.currentClues.GetClueQuestion(column, row);
 }
 
@@ -197,7 +191,6 @@ JeopardyGame::GetNextClue(const int currentColumn, const int currentRow)
 
     // at this point we are guaranteed that newColumn contains valid rows
     // otherwise it should not have been chosen by the above code
-    // TODO lets assert on this assumption then
 
     int newRow = -1;
     std::vector<int> availRows;
@@ -209,7 +202,7 @@ JeopardyGame::GetNextClue(const int currentColumn, const int currentRow)
         }
     }
 
-    // TODO assert that availRows is not empty
+    Q_ASSERT(!availRows.empty());
 
     if( newColumn != currentColumn)
     {
