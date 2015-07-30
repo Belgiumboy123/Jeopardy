@@ -4,7 +4,7 @@
 
 using GameStateUtils::TOTAL_COLS;
 using GameStateUtils::TOTAL_ROWS;
-
+using GameStateUtils::GameState;
 
 JeopardyGame::JeopardyGame()
     : JeopardyGame(OptionsData::GetInstance().m_nextClueOptions)
@@ -22,12 +22,6 @@ JeopardyGame::JeopardyGame(NextClueOptions& nextClueOptions)
 
 JeopardyGame::~JeopardyGame()
 {
-}
-
-const GameStateUtils::Clues&
-JeopardyGame::GetCurrentClues() const
-{
-    return m_jeopardyGameInfo.currentClues;
 }
 
 /**
@@ -267,3 +261,83 @@ JeopardyGame::SetNextClueOptions(const NextClueOptions& nextClueOptions)
 {
     m_nextClueOptions = nextClueOptions;
 }
+
+GameStateUtils::StateResponse
+JeopardyGame::DoStateAction( const GameStateUtils::StateAction action)
+{
+    GameStateUtils::StateResponse response;
+
+    switch(action.state)
+    {
+    case GameState::MENU:
+        LoadRandomGame();
+        response.column = 0;
+        response.row = 0;
+        response.state = GameState::BOARD_START;
+        response.clues = &m_jeopardyGameInfo.currentClues;
+        break;
+
+    case GameState::BOARD:
+        response.message = HandleBoardAction(action.column, action.row);
+        response.row = action.row;
+        response.column = action.column;
+        response.state = GameState::CLUE_QUESTION;
+        break;
+
+    case GameState::CLUE_QUESTION:
+        response.message = HandleClueAction(action.column, action.row);
+        response.row = action.row;
+        response.column = action.column;
+        response.state = GameState::CLUE_ANSWER;
+        break;
+
+    case GameState::CLUE_ANSWER:
+    {
+        auto newMode = HandleAnswerAction();
+        if( newMode == JeopardyGame::GM_FINAL )
+        {
+            response.state = GameState::FINAL_START;
+        }
+        else if( newMode == JeopardyGame::GM_DOUBLE)
+        {
+            response.column = 0;
+            response.row = 0;
+            response.state = GameState::BOARD_START;
+            response.clues = &m_jeopardyGameInfo.currentClues;
+        }
+        else
+        {
+            const auto& pair = GetNextClue(action.column, action.row);
+            response.column = pair.second;
+            response.row = pair.first;
+            response.state = GameState::BOARD;
+        }
+        break;
+    }
+
+    case GameState::FINAL_START:
+        response.message = GetFinalCategory();
+        response.state = GameState::FINAL_CATEGORY;
+        break;
+
+     case GameState::FINAL_CATEGORY:
+        response.message = GetFinalClue();
+        response.state = GameState::FINAL_CLUE;
+        break;
+
+     case GameState::FINAL_CLUE:
+        response.message = GetFinalAnswer();
+        response.state = GameState::FINAL_ANSWER;
+        break;
+
+     case GameState::FINAL_ANSWER:
+        response.state = GameState::GAME_OVER;
+        break;
+
+    default:
+        break;
+    }
+
+    return response;
+}
+

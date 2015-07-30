@@ -19,7 +19,7 @@ public:
 
 private:
 
-    void LoadModelFromCurrentClues();
+    void LoadModelFromCurrentClues(GameStateUtils::Clues* clues);
 
     std::unique_ptr<JeopardyGame> m_game;
 };

@@ -89,5 +89,23 @@ namespace GameStateUtils
         bool IsValidRow(const int row) const;
         bool IsValidCol(const int col) const;
     };
+
+
+    struct StateAction
+    {
+        int         row{-1};
+        int         column{-1};
+        QString     message;
+        GameState   state;
+    };
+
+    struct StateResponse
+    {
+        int         row{-1};
+        int         column{-1};
+        QString     message;
+        GameState   state;
+        Clues*      clues{nullptr};
+    };
 }
 

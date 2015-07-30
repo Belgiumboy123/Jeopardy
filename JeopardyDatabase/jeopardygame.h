@@ -11,13 +11,11 @@ public:
     JeopardyGame(NextClueOptions& nextClueOptions);
     ~JeopardyGame();
 
-    const GameStateUtils::Clues& GetCurrentClues() const;
+    void SetNextClueOptions(const NextClueOptions& nextClueOptions);
 
-    void LoadRandomGame();
+    GameStateUtils::StateResponse DoStateAction( const GameStateUtils::StateAction action);
 
-    QString HandleBoardAction( const int column, const int row );
-    QString HandleClueAction( const int column, const int row );
-
+private:
     enum GameMode
     {
         GM_NONE = 0,
@@ -26,6 +24,12 @@ public:
         GM_FINAL
     };
 
+    void LoadRandomGame();
+    void LoadGame(const int gameID );
+    void LoadRound( const GameMode gameMode );
+
+    QString HandleBoardAction( const int column, const int row );
+    QString HandleClueAction( const int column, const int row );
     GameMode HandleAnswerAction();
 
     const QString& GetFinalCategory() const;
@@ -34,15 +38,9 @@ public:
 
     std::pair<int,int> GetNextClue(const int column, const int row);
 
-    void SetNextClueOptions(const NextClueOptions& nextClueOptions);
-
-private:
-
-    void LoadGame(const int gameID );
-    void LoadRound( const GameMode gameMode );
-
     bool IsClueAvailable(const int column, const int row) const;
 
+private:
     DatabaseUtils::JeopardyGameInfo m_jeopardyGameInfo;
 
     GameMode m_gameMode;
