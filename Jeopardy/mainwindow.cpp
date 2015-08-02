@@ -38,8 +38,11 @@ MainWindow::MainWindow(QWidget *parent/*=nullptr*/)
     m_ui->startGameButton->setFont(buttonFont);
     connect( m_ui->startGameButton, &QPushButton::clicked, this, &MainWindow::OnOfflineGameStart );
 
-   // m_ui->backButton->setFont(buttonFont);
-    //connect( m_ui->backButton, &QPushButton::clicked, this, &MainWindow::OnBack);
+    QFont backFont(buttonFont);
+    backFont.setPointSize(32);
+    m_ui->backButton->setFont(backFont);
+    connect( m_ui->backButton, &QPushButton::clicked, this, &MainWindow::OnBack);
+    m_ui->backWidget->setFixedSize(m_ui->backWidget->sizeHint());
 
     m_ui->pickGameWidget->setAutoFillBackground(true);
     auto pickGamePal = m_ui->pickGameWidget->palette();
@@ -150,14 +153,14 @@ MainWindow::ShowGameState(GameState gameState)
         m_ui->pickOnlineWidget->hide();
         m_ui->gamePaneWidget->hide();
         m_ui->connectOnlineWidget->hide();
-        //m_ui->backButton->show();
+        m_ui->backButton->show();
         m_ui->optionsWidget->show();
         m_ui->startGameButton->show();
         m_ui->pickGameWidget->show();
         break;
 
     case PICK_OFFLINE_ONLINE:
-        //m_ui->backButton->hide();
+        m_ui->backButton->hide();
         m_ui->gamePaneWidget->hide();
         m_ui->optionsWidget->hide();
         m_ui->connectOnlineWidget->hide();

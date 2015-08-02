@@ -3,6 +3,8 @@
 echo "Please open up Qt Creator, go to Projects tab on the left hand pane."
 echo "Update the build directory to workspace_root/Jeopardy-build/Qt5.3/(Debug or Release)"
 echo "Then build both Debug and Release mode."
+echo "If you see a \'Can't resolve SDK path for 10.8 then open and update the following file"
+echo "~/Qt5.3.2/5.3/clang_64/mkspecs/qdevice.pri."
 echo "Note have not yet figured out how to automate the above steps."
 echo "Copying over needed resouce files to both Debug and Release app bundles..."
 
