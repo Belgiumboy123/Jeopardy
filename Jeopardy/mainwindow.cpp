@@ -88,6 +88,7 @@ MainWindow::OnGameOver()
 void
 MainWindow::OnOnlineButtonClicked()
 {
+    // todo create and set online state handler
     ShowGameState(ONLINE_MENU);
 }
 
