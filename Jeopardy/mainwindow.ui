@@ -112,6 +112,59 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QWidget" name="pickOnlineWidget" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <property name="spacing">
+              <number>10</number>
+             </property>
+             <property name="leftMargin">
+              <number>50</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>50</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item alignment="Qt::AlignTop">
+              <widget class="QPushButton" name="offlineButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Offline</string>
+               </property>
+              </widget>
+             </item>
+             <item alignment="Qt::AlignTop">
+              <widget class="QPushButton" name="onlineButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Online</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
           <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
            <widget class="QPushButton" name="startGameButton">
             <property name="sizePolicy">
@@ -119,9 +172,6 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
-            </property>
-            <property name="mouseTracking">
-             <bool>true</bool>
             </property>
             <property name="text">
              <string>Start Game</string>
@@ -176,6 +226,9 @@
         </widget>
        </item>
        <item>
+        <widget class="ConnectOnlineWidget" name="connectOnlineWidget" native="true"/>
+       </item>
+       <item>
         <widget class="GamePaneWidget" name="gamePaneWidget" native="true"/>
        </item>
       </layout>
@@ -204,6 +257,12 @@
    <class>GamePaneWidget</class>
    <extends>QWidget</extends>
    <header>gamepanewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ConnectOnlineWidget</class>
+   <extends>QWidget</extends>
+   <header>connectonlinewidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

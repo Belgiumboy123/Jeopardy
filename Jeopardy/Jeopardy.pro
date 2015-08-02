@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     gamepanewidget.cpp \
     qtutility.cpp \
     statehandleroffline.cpp \
-    istatehandler.cpp
+    istatehandler.cpp \
+    connectonlinewidget.cpp
 
 HEADERS  += mainwindow.h \
     optionsdialog.h \
@@ -28,12 +29,14 @@ HEADERS  += mainwindow.h \
     gamepanewidget.h \
     qtutility.h \
     statehandleroffline.h \
-    istatehandler.h
+    istatehandler.h \
+    connectonlinewidget.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui \
     pausedialog.ui \
-    gamepanewidget.ui
+    gamepanewidget.ui \
+    connectonlinewidget.ui
 
 QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
 macx: LIBS += -framework CoreFoundation

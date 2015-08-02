@@ -18,26 +18,35 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget* parent = nullptr);
     virtual ~MainWindow();
 
 protected:
-    virtual void closeEvent(QCloseEvent *event);
+    virtual void closeEvent(QCloseEvent* event);
 
 private:
-    void handleStartGameClick();
+    void OnOfflineGameStart();
     void OnGameOver();
+    void OnBack();
+    void OnOnlineGameStart();
+
+    void OnOnlineButtonClicked();
+    void OnOfflineButtonClicked();
 
     std::unique_ptr<Ui::MainWindow> m_ui;
 
     enum GameState
     {
-        MENU = 0,
+        PICK_OFFLINE_ONLINE = 0,
+        OFFLINE_MENU,
+        ONLINE_MENU,
         GAME,
         GAME_OVER,
         PAUSED
     };
-    GameState m_mode;
+    GameState m_gameState;
+
+    void ShowGameState(GameState gameState);
 
     void launchOptionsDialog();
 };
