@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += sql widgets multimedia
+greaterThan(QT_MAJOR_VERSION, 4): QT += sql widgets multimedia network
 
 TARGET = Jeopardy
 TEMPLATE = app
@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     qtutility.cpp \
     statehandleroffline.cpp \
     istatehandler.cpp \
-    connectonlinewidget.cpp
+    connectonlinewidget.cpp \
+    statehandleronline.cpp
 
 HEADERS  += mainwindow.h \
     optionsdialog.h \
@@ -30,7 +31,8 @@ HEADERS  += mainwindow.h \
     qtutility.h \
     statehandleroffline.h \
     istatehandler.h \
-    connectonlinewidget.h
+    connectonlinewidget.h \
+    statehandleronline.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui \

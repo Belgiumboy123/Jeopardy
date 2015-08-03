@@ -2,6 +2,9 @@
 #include "ui_connectonlinewidget.h"
 
 #include "qtutility.h"
+#include "statehandleronline.h"
+
+#include <QDebug>
 
 ConnectOnlineWidget::ConnectOnlineWidget(QWidget *parent) :
     QWidget(parent),
@@ -56,9 +59,57 @@ ConnectOnlineWidget::ConnectOnlineWidget(QWidget *parent) :
 }
 
 void
+ConnectOnlineWidget::SetStateHandler(std::unique_ptr<StateHandlerOnline> stateHandler)
+{
+    m_stateHandler = std::move(stateHandler);
+    connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMade, this, &ConnectOnlineWidget::OnConnectionMade);
+    connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionLost, this, &ConnectOnlineWidget::OnConnectionLost);
+    connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMessage, this, &ConnectOnlineWidget::OnConnectionMessage);
+}
+
+void
+ConnectOnlineWidget::OnConnectionMade()
+{
+    ShowState(CONNECTED);
+}
+
+void
+ConnectOnlineWidget::OnConnectionLost()
+{
+
+}
+
+void
+ConnectOnlineWidget::OnConnectionMessage(const QString& message)
+{
+    if( m_state == ENTRY )
+    {
+        m_ui->resultLabel->setText(message);
+    }
+    else
+    {
+        qDebug() << message << " not in entry state";
+    }
+}
+
+void
 ConnectOnlineWidget::OnConnectButton()
 {
-    ShowState(START);
+    const QString& hostname = m_ui->hostnameEdit->text();
+    bool isInt;
+    const int portNumber = m_ui->portEdit->text().toInt(&isInt);
+
+    if( hostname.isEmpty() || !isInt)
+    {
+        m_ui->resultLabel->setText("Oops, server name or port number is in incorrect format.");
+    }
+    else
+    {
+        m_stateHandler->ConnectToHost(hostname, portNumber);
+        m_ui->resultLabel->setText("Attempting to connect to server...");
+    }
+
+    m_ui->connectButton->hide();
 }
 
 void

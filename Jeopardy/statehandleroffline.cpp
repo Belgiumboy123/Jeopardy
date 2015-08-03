@@ -17,12 +17,6 @@ StateHandlerOffline::StateHandlerOffline()
 
 StateHandlerOffline::~StateHandlerOffline() {}
 
-QStandardItemModel*
-StateHandlerOffline::GetModel() const
-{
-    return m_model.get();
-}
-
 void
 StateHandlerOffline::LoadModelFromCurrentClues(GameStateUtils::Clues* clues)
 {
@@ -60,7 +54,7 @@ StateHandlerOffline::SetNextClueOptions(const NextClueOptions& nextClueOptions)
 
 void
 StateHandlerOffline::DoActionOnState(GameStateUtils::GameState currentState)
-{
+{   // TODO move to base class
     DoActionOnState(currentState, QModelIndex());
 }
 

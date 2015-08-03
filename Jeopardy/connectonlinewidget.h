@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+class StateHandlerOnline;
 namespace Ui {
 class ConnectOnlineWidget;
 }
@@ -15,6 +16,8 @@ public:
     explicit ConnectOnlineWidget(QWidget *parent = 0);
     ~ConnectOnlineWidget();
 
+    void SetStateHandler(std::unique_ptr<StateHandlerOnline> stateHandler);
+
 signals:
     void StartGame();
     void BackToMenu();
@@ -23,6 +26,10 @@ private:
     void OnConnectButton();
     void OnBackButton();
     void OnStartGameButton();
+
+    void OnConnectionMade();
+    void OnConnectionLost();
+    void OnConnectionMessage(const QString& message);
 
     std::unique_ptr<Ui::ConnectOnlineWidget> m_ui;
 
@@ -34,6 +41,8 @@ private:
     } m_state;
 
     void ShowState( State state);
+
+    std::unique_ptr<StateHandlerOnline> m_stateHandler;
 };
 
 #endif // CONNECTONLINEWIDGET_H

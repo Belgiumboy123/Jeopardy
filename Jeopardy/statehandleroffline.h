@@ -6,14 +6,14 @@ class JeopardyGame;
 
 class StateHandlerOffline : public IStateHandler
 {
+   // Q_OBJECT
+
 public:
     StateHandlerOffline();
     virtual ~StateHandlerOffline();
 
     virtual void DoActionOnState(GameStateUtils::GameState currentState);
     virtual void DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index);
-
-    virtual QStandardItemModel* GetModel() const;
 
     virtual void SetNextClueOptions(const NextClueOptions& nextClueOptions);
 

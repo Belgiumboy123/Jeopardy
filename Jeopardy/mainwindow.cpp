@@ -5,6 +5,7 @@
 #include "pausedialog.h"
 #include "qtutility.h"
 #include "statehandleroffline.h"
+#include "statehandleronline.h"
 
 #include <QFontDatabase>
 #include <QKeyEvent>
@@ -88,7 +89,8 @@ MainWindow::OnGameOver()
 void
 MainWindow::OnOnlineButtonClicked()
 {
-    // todo create and set online state handler
+    std::unique_ptr<StateHandlerOnline> stateHandler(new StateHandlerOnline);
+    m_ui->connectOnlineWidget->SetStateHandler(std::move(stateHandler));
     ShowGameState(ONLINE_MENU);
 }
 
