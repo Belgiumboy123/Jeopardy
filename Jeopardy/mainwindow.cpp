@@ -90,7 +90,7 @@ void
 MainWindow::OnOnlineButtonClicked()
 {
     std::unique_ptr<StateHandlerOnline> stateHandler(new StateHandlerOnline);
-    m_ui->connectOnlineWidget->SetStateHandler(std::move(stateHandler));
+    m_ui->connectOnlineWidget->BeginConnection(std::move(stateHandler));
     ShowGameState(ONLINE_MENU);
 }
 

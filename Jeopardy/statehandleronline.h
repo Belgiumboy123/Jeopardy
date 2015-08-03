@@ -12,9 +12,7 @@ public:
     StateHandlerOnline();
     virtual ~StateHandlerOnline();
 
-    virtual void DoActionOnState(GameStateUtils::GameState currentState);
     virtual void DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index);
-
     virtual void SetNextClueOptions(const NextClueOptions& nextClueOptions);
 
     void ConnectToHost(const QString& hostname, const int port);
@@ -22,7 +20,7 @@ public:
 signals:
     void ConnectionMessage(const QString& message);
     void ConnectionMade();
-    void ConnectionLost();
+    void ConnectionLost(const QString& message);
 
 private:
     void OnHostFound();

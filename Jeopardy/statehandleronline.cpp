@@ -14,12 +14,6 @@ StateHandlerOnline::StateHandlerOnline()
 StateHandlerOnline::~StateHandlerOnline() {}
 
 void
-StateHandlerOnline::DoActionOnState(GameStateUtils::GameState currentState)
-{   //TODO move method to base class and remove pure virtual qualifier
-    DoActionOnState(currentState, QModelIndex());
-}
-
-void
 StateHandlerOnline::DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index)
 {
     Q_UNUSED(currentState);
@@ -35,8 +29,7 @@ StateHandlerOnline::SetNextClueOptions(const NextClueOptions& nextClueOptions)
 void
 StateHandlerOnline::ConnectToHost(const QString& hostname, const int port)
 {
-    Q_UNUSED(hostname);
-    Q_UNUSED(port);
+    m_socket->connectToHost(hostname, port);
 }
 
 void
@@ -48,13 +41,13 @@ StateHandlerOnline::OnSocketConnected()
 void
 StateHandlerOnline::OnDisconnected()
 {
-    emit ConnectionLost();
+    emit ConnectionLost("Connection was lost!");
 }
 
 void
 StateHandlerOnline::OnHostFound()
 {
-    emit ConnectionMessage("Host Found! Waiting to be connected.");
+    emit ConnectionMessage("Host Found! Waiting to be connected...");
 }
 
 void
@@ -80,7 +73,7 @@ StateHandlerOnline::OnSocketError(QAbstractSocket::SocketError socketError)
         errorString = m_socket->errorString();
     }
 
-    emit ConnectionMessage( tr("Error: %1.").arg(errorString) );
+    emit ConnectionLost( tr("Error: %1.").arg(errorString) );
 }
 
 void
@@ -90,9 +83,9 @@ StateHandlerOnline::OnStateChanged(QAbstractSocket::SocketState socketState)
 
     switch(socketState)
     {
-    case QAbstractSocket::UnconnectedState: text = "UnconnectedState"; break;
-    case QAbstractSocket::HostLookupState: text = "HostLookupState"; break;
-    case QAbstractSocket::ConnectingState: text = "ConnectingState"; break;
+    case QAbstractSocket::UnconnectedState: text = "Unconnected"; break;
+    case QAbstractSocket::HostLookupState: text = "Looking up host"; break;
+    case QAbstractSocket::ConnectingState: text = "Connecting..."; break;
     case QAbstractSocket::ConnectedState: text = "Connected"; break;
     case QAbstractSocket::BoundState: text = "Bound"; break;
     case QAbstractSocket::ClosingState: text = "Closing"; break;

@@ -21,7 +21,7 @@ private:
     void OnStartClicked();
     void OnNewConnection();
 
-    Ui::MainWindow *m_ui;
+    std::unique_ptr<Ui::MainWindow> m_ui;
 
     QTcpServer* m_server;
 };

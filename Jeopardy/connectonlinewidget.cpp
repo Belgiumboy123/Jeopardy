@@ -43,6 +43,8 @@ ConnectOnlineWidget::ConnectOnlineWidget(QWidget *parent) :
     m_ui->startGameButton->setFont(controlFont);
     connect(m_ui->startGameButton, &QPushButton::clicked, this, &ConnectOnlineWidget::OnStartGameButton);
 
+    m_ui->buttonsWidget->setFixedSize(m_ui->buttonsWidget->sizeHint());
+
     m_ui->portEdit->setValidator(new QIntValidator(1025, 65535, this));
     m_ui->portEdit->setFont(controlFont);
     m_ui->portLabel->setFont(controlFont);
@@ -54,17 +56,19 @@ ConnectOnlineWidget::ConnectOnlineWidget(QWidget *parent) :
     auto resultLabelPal = m_ui->resultLabel->palette();
     resultLabelPal.setColor(m_ui->resultLabel->foregroundRole(), Qt::red);
     m_ui->resultLabel->setPalette(resultLabelPal);
-
-    ShowState(ENTRY);
 }
 
 void
-ConnectOnlineWidget::SetStateHandler(std::unique_ptr<StateHandlerOnline> stateHandler)
+ConnectOnlineWidget::BeginConnection(std::unique_ptr<StateHandlerOnline> stateHandler)
 {
     m_stateHandler = std::move(stateHandler);
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMade, this, &ConnectOnlineWidget::OnConnectionMade);
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionLost, this, &ConnectOnlineWidget::OnConnectionLost);
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMessage, this, &ConnectOnlineWidget::OnConnectionMessage);
+
+
+    m_ui->resultLabel->setText("");
+    ShowState(ENTRY);
 }
 
 void
@@ -74,9 +78,10 @@ ConnectOnlineWidget::OnConnectionMade()
 }
 
 void
-ConnectOnlineWidget::OnConnectionLost()
+ConnectOnlineWidget::OnConnectionLost(const QString& message)
 {
-
+    m_ui->resultLabel->setText(message);
+    ShowState(ENTRY);
 }
 
 void
@@ -88,7 +93,7 @@ ConnectOnlineWidget::OnConnectionMessage(const QString& message)
     }
     else
     {
-        qDebug() << message << " not in entry state";
+        qDebug() << message << " not in ENTRY state";
     }
 }
 
@@ -101,15 +106,14 @@ ConnectOnlineWidget::OnConnectButton()
 
     if( hostname.isEmpty() || !isInt)
     {
-        m_ui->resultLabel->setText("Oops, server name or port number is in incorrect format.");
+        m_ui->resultLabel->setText("Oops, server name or port number is an in incorrect format.");
     }
     else
     {
         m_stateHandler->ConnectToHost(hostname, portNumber);
         m_ui->resultLabel->setText("Attempting to connect to server...");
+        m_ui->connectButton->hide();
     }
-
-    m_ui->connectButton->hide();
 }
 
 void
@@ -124,7 +128,8 @@ ConnectOnlineWidget::OnBackButton()
     case START:
     case CONNECTED:
         // TODO show warning dialog - leave server
-        ShowState(ENTRY);
+        // if ok send message to state handler to disconnect
+        // and show entry -> ShowState(ENTRY);
         break;
 
     default:

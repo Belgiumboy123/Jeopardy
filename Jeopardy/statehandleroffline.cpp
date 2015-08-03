@@ -53,12 +53,6 @@ StateHandlerOffline::SetNextClueOptions(const NextClueOptions& nextClueOptions)
 }
 
 void
-StateHandlerOffline::DoActionOnState(GameStateUtils::GameState currentState)
-{   // TODO move to base class
-    DoActionOnState(currentState, QModelIndex());
-}
-
-void
 StateHandlerOffline::DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index)
 {
     GameStateUtils::StateAction action;

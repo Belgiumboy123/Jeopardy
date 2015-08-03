@@ -16,7 +16,7 @@ public:
     explicit ConnectOnlineWidget(QWidget *parent = 0);
     ~ConnectOnlineWidget();
 
-    void SetStateHandler(std::unique_ptr<StateHandlerOnline> stateHandler);
+    void BeginConnection(std::unique_ptr<StateHandlerOnline> stateHandler);
 
 signals:
     void StartGame();
@@ -28,7 +28,7 @@ private:
     void OnStartGameButton();
 
     void OnConnectionMade();
-    void OnConnectionLost();
+    void OnConnectionLost(const QString& message);
     void OnConnectionMessage(const QString& message);
 
     std::unique_ptr<Ui::ConnectOnlineWidget> m_ui;

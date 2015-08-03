@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     m_ui->setupUi(this);
 
+
+
+
     connect( m_ui->startButton, &QPushButton::clicked, this, &MainWindow::OnStartClicked);
 
     m_ui->portEdit->setValidator( new QIntValidator(1025, 65535, this));
@@ -70,7 +73,4 @@ MainWindow::OnNewConnection()
     m_ui->resultLabel->setText(result);
 }
 
-MainWindow::~MainWindow()
-{
-    delete m_ui;
-}
+MainWindow::~MainWindow() {}
