@@ -20,6 +20,7 @@ public:
 private:
     void OnStartClicked();
     void OnNewConnection();
+    void OnCloseServer();
 
     std::unique_ptr<Ui::MainWindow> m_ui;
 
