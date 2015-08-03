@@ -91,9 +91,9 @@ ConnectOnlineWidget::OnConnectionMessage(const QString& message)
     {
         m_ui->resultLabel->setText(message);
     }
-    else
+    else if( m_state == CONNECTED)
     {
-        qDebug() << message << " not in ENTRY state";
+        m_ui->resultLabel->setText(tr("two players connected! messeage from server: %1").arg(message));
     }
 }
 

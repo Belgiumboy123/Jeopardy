@@ -28,6 +28,7 @@ private:
     void OnSocketConnected();
     void OnStateChanged(QAbstractSocket::SocketState socketState);
     void OnDisconnected();
+    void OnServerMessage();
 
     QTcpSocket* m_socket;
 };

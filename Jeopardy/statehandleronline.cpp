@@ -35,7 +35,18 @@ StateHandlerOnline::ConnectToHost(const QString& hostname, const int port)
 void
 StateHandlerOnline::OnSocketConnected()
 {
+    connect( m_socket, &QTcpSocket::readyRead, this, &StateHandlerOnline::OnServerMessage );
+
     emit ConnectionMade();
+}
+
+void
+StateHandlerOnline::OnServerMessage()
+{
+    auto message = m_socket->readAll();
+    QString str = QString(message.constData());
+
+    emit ConnectionMessage(str);
 }
 
 void

@@ -108,12 +108,28 @@ MainWindow::OnStartClicked()
 void
 MainWindow::OnNewConnection()
 {
-    QTcpSocket* socket = m_server->nextPendingConnection();
+    if( m_sockets.size() < 2)
+    {
+        QTcpSocket* socket = m_server->nextPendingConnection();
+        // TODO setup connections here
 
-    auto socketDescriptor = socket->socketDescriptor();
+        m_sockets << socket;
 
-    auto result = QString::number(socketDescriptor) + tr(": made Connection.");
-    m_ui->textEdit->appendPlainText(result);
+        auto result = QString::number(socket->socketDescriptor()) + tr(": made Connection.");
+        m_ui->textEdit->appendPlainText(result);
+
+        if( m_sockets.size() == 2)
+        {
+            m_server->pauseAccepting();
+
+            // send message to sockets about having enough players.
+            for( auto socket : m_sockets)
+            {
+                QString message("Start Game");
+                socket->write( message.toLocal8Bit() );
+            }
+        }
+    }
 }
 
 void
@@ -124,6 +140,16 @@ MainWindow::OnCloseServer()
         m_server->close();
     }
 
+    for( auto socket : m_sockets)
+    {
+        socket->disconnectFromHost();
+        socket->deleteLater();
+    }
+
+    m_sockets.clear();
+
+
+    m_ui->textEdit->clear();
     m_ui->closeButton->hide();
     m_ui->serverStartLabel->hide();
     m_ui->textEdit->hide();
