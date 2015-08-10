@@ -6,6 +6,7 @@
 using GameStateUtils::Clues;
 using GameStateUtils::ClueInfo;
 using GameStateUtils::StateAction;
+using GameStateUtils::StateResponse;
 
 namespace
 {
@@ -237,14 +238,64 @@ Clues::GetNumberOfUnansweredClues() const
 
 namespace
 {
-    const QString S_DELIMIT = ";";
-    const QString S_TOKEN   = ":";
-    const QString S_STATE   = "s:";
-    const QString S_ROW     = "r:";
-    const QString S_COLUMN  = "c:";
-    const QString S_MSG     = "m:";
+    const QString S_DELIMIT     = ";";
+    const QString S_TOKEN       = ":";
+    const QString S_STATE       = "s:";
+    const QString S_ROW         = "r:";
+    const QString S_COLUMN      = "c:";
+    const QString S_MSG         = "m:";
+    const QString S_CLUES       = "b:";
+    const QString S_CATEGORY    = "|";
+    const QString S_CLUE        = ",";
 
     const int state_upper_bound = static_cast<int>(GameStateUtils::GameState::INVALID);
+
+    template<class T>
+    void GenerateFromStringImpl(const QString& str, std::pair<bool,T>& pair, QString& clues)
+    {
+        // This is attempting to parse strings recieved from clients
+        // into StateActions.  Ensure 'str' is in valid condition before
+        // setting any values.
+
+        QStringList tokens = str.split(S_DELIMIT);
+        if( tokens.size() != 4 && tokens.size() != 5)
+            return;
+
+        if( !tokens[0].startsWith(S_STATE) || !tokens[1].startsWith(S_ROW) || !tokens[2].startsWith(S_COLUMN) || !tokens[3].startsWith(S_MSG) )
+            return;
+
+        bool ok;
+        int stateToken = tokens[0].remove(0,2).toInt(&ok);
+        if( !ok || stateToken < 0 || stateToken >= state_upper_bound )
+            return;
+
+        ok = false;
+        int row = tokens[1].remove(0,2).toInt(&ok);
+        if( !ok || row < 0 || row >= GameStateUtils::TOTAL_ROWS)
+            return;
+
+        ok = false;
+        int column = tokens[2].remove(0,2).toInt(&ok);
+        if( !ok || column < 0 || column >= GameStateUtils::TOTAL_COLS)
+            return;
+
+        const QString& message = tokens[3].remove(0,2);
+
+        //special case for StateResponse
+        if( tokens.size() == 5)
+        {
+            if( !tokens[4].startsWith(S_CLUES))
+                return;
+
+            clues = tokens[4].remove(0,2);
+        }
+
+        pair.first = true;
+        pair.second.state = static_cast<GameStateUtils::GameState>(stateToken);
+        pair.second.row = row;
+        pair.second.column = column;
+        pair.second.message = message;
+    }
 }
 
 // StateAction
@@ -261,41 +312,41 @@ StateAction::ToString() const
 /*static*/ std::pair<bool,StateAction>
 StateAction::GenerateFromString(const QString& str)
 {
+    QString clues;
     auto pair = std::make_pair(false,StateAction());
-
-    // This is attempting to parse strings recieved from clients
-    // into StateActions.  Ensure 'str' is in valid condition before
-    // setting any values.
-
-    QStringList tokens = str.split(S_DELIMIT);
-    if( tokens.size() != 4)
-        return pair;
-
-    if( !tokens[0].startsWith(S_STATE) || !tokens[1].startsWith(S_ROW) || !tokens[2].startsWith(S_COLUMN) || !tokens[3].startsWith(S_MSG) )
-        return pair;
-
-    bool ok;
-    int stateToken = tokens[0].remove(0,2).toInt(&ok);
-    if( !ok || stateToken < 0 || stateToken >= state_upper_bound )
-        return pair;
-
-    ok = false;
-    int row = tokens[1].remove(0,2).toInt(&ok);
-    if( !ok || row < 0 || row >= TOTAL_ROWS)
-        return pair;
-
-    ok = false;
-    int column = tokens[2].remove(0,2).toInt(&ok);
-    if( !ok || column < 0 || column >= TOTAL_COLS)
-        return pair;
-
-    const QString& message = tokens[3].remove(0,2);
-
-    pair.first = true;
-    pair.second.state = static_cast<GameStateUtils::GameState>(stateToken);
-    pair.second.row = row;
-    pair.second.column = column;
-    pair.second.message = message;
+    GenerateFromStringImpl<StateAction>(str, pair, clues/*unused*/);
     return pair;
 }
 
+// StateResponse
+
+QString
+StateResponse::ToString() const
+{
+    QString str = StateAction::ToString() + S_CLUES;
+
+    if( clues )
+    {
+        for( int column = 0; column<TOTAL_COLS; column++)
+        {
+            str += S_CATEGORY + clues->GetCategoryHeader(column);
+
+            for( int row = 0; row<TOTAL_ROWS; row++)
+            {
+                str += S_CLUE + clues->GetClueText(column, row);
+            }
+        }
+    }
+
+    return str;
+}
+
+/*static*/ std::pair<bool,StateResponse>
+StateResponse::GenerateFromString(const QString& str)
+{
+    QString clues;
+    auto pair = std::make_pair(false,StateResponse());
+    GenerateFromStringImpl<StateResponse>(str, pair, clues);
+    pair.second.serverClues = clues;
+    return pair;
+}

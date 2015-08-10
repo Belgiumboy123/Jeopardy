@@ -88,6 +88,7 @@ void JeopardyDatabaseTest::testStateActionFromString()
 
     result.message = "message";
     runTestSAFS("s:2;r:0;c:0;m:message", result, true);
+    runTestSAFS("s:2;r:0;c:0;m:message;b:", result, true);
 }
 
 QTEST_APPLESS_MAIN(JeopardyDatabaseTest)

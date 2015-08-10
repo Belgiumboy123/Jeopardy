@@ -111,7 +111,7 @@ MainWindow::OnNewConnection()
     if( m_sockets.size() < 2)
     {
         QTcpSocket* socket = m_server->nextPendingConnection();
-        // TODO setup connections here
+        // TODO setup connections here -> disconnected
 
         m_sockets << socket;
 
@@ -147,7 +147,6 @@ MainWindow::OnCloseServer()
     }
 
     m_sockets.clear();
-
 
     m_ui->textEdit->clear();
     m_ui->closeButton->hide();

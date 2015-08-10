@@ -94,36 +94,26 @@ namespace GameStateUtils
 
     struct StateAction
     {
+        GameState   state{GameState::INVALID};
         int         row{-1};
         int         column{-1};
-        QString     message;
-        GameState   state{GameState::MENU};
+        QString     message;    
 
-        QString ToString() const;
+        virtual QString ToString() const;
         StateAction() = default;
 
         static std::pair<bool,StateAction> GenerateFromString(const QString& str);
     };
 
-    struct StateResponse
-    {
-        int         row{-1};
-        int         column{-1};
-        QString     message;
-        GameState   state;
+    struct StateResponse : public StateAction
+    { 
         Clues*      clues{nullptr};
+        QString     serverClues;
+
+        virtual QString ToString() const;
+        StateResponse() = default;
+
+        static std::pair<bool,StateResponse> GenerateFromString(const QString& str);
     };
-
-    struct StateResponseServer
-    {
-        int row{-1};
-        int column{-1};
-        QString message;
-        GameState state;
-        QString clues;
-    };
-
-
-
 }
 

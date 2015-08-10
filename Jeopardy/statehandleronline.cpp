@@ -49,8 +49,12 @@ StateHandlerOnline::OnServerMessage()
 {
     auto message = m_socket->readAll();
     QString str = QString(message.constData());
+    auto pair = GameStateUtils::StateResponse::GenerateFromString(str);
 
-    emit ConnectionMessage(str);
+    if(pair.first)
+    {
+         emit ConnectionMessage(str);
+    }
 }
 
 void
