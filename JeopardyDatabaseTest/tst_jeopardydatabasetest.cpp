@@ -1,8 +1,10 @@
 #include <QString>
 #include <QtTest>
+#include <QDebug>
 
 #include "jeopardydatabase.h"
 
+using namespace GameStateUtils;
 
 class JeopardyDatabaseTest : public QObject
 {
@@ -12,14 +14,15 @@ public:
     JeopardyDatabaseTest();
 
 private Q_SLOTS:
-    void testCase1();
+    void testLoadGame();
+    void testStateActionFromString();
 };
 
 JeopardyDatabaseTest::JeopardyDatabaseTest()
 {
 }
 
-void runTest(int gameID, int totalSingleClues, int totalDoubleClues)
+void runLoadGameTest(int gameID, int totalSingleClues, int totalDoubleClues)
 {
     DatabaseUtils::JeopardyGameInfo gameInfo;
     DatabaseUtils::GetJeopardyGameInfo(gameID, gameInfo);
@@ -40,15 +43,51 @@ void runTest(int gameID, int totalSingleClues, int totalDoubleClues)
     QVERIFY2(numUnanswered2 == totalDoubleClues, msg.toStdString().c_str());
 }
 
-void JeopardyDatabaseTest::testCase1()
+void JeopardyDatabaseTest::testLoadGame()
 {
     DatabaseUtils::UseUnitTestDatabasePath();
 
-    runTest(1, 30, 30);
+    runLoadGameTest(1, 30, 30);
 
-    runTest(2, 26, 29);
+    runLoadGameTest(2, 26, 29);
 
-    runTest(5, 29, 24);
+    runLoadGameTest(5, 29, 24);
+}
+
+void runTestSAFS(const QString& str, const StateAction& expectedAction, const bool successParse)
+{
+    auto pair = StateAction::GenerateFromString(str);
+    const auto& actualAction = pair.second;
+
+    QVERIFY(pair.first == successParse);
+    QVERIFY(actualAction.state == expectedAction.state);
+    QVERIFY(actualAction.row == expectedAction.row);
+    QVERIFY(actualAction.column == expectedAction.column);
+    QVERIFY(actualAction.message == expectedAction.message);
+}
+
+void JeopardyDatabaseTest::testStateActionFromString()
+{
+    StateAction defaultAction;
+
+    runTestSAFS("", defaultAction, false);
+    runTestSAFS(";;;;", defaultAction, false);
+    runTestSAFS(";;;", defaultAction, false);
+    runTestSAFS("s:2;;;", defaultAction, false);
+    runTestSAFS("s:2;r:0;c:0;msg:", defaultAction, false);
+    runTestSAFS("s:2;r:0;c:0;msg:;", defaultAction, false);
+    runTestSAFS("s:2;r:7;c:0;msg:", defaultAction, false);
+    runTestSAFS("s:200;r:0;c:0;msg:", defaultAction, false);
+    runTestSAFS("s:2;r:0;c:-1;msg:", defaultAction, false);
+
+    StateAction result;
+    result.column = 0;
+    result.row = 0;
+    result.state = GameState::BOARD;
+    runTestSAFS("s:2;r:0;c:0;m:", result, true);
+
+    result.message = "message";
+    runTestSAFS("s:2;r:0;c:0;m:message", result, true);
 }
 
 QTEST_APPLESS_MAIN(JeopardyDatabaseTest)

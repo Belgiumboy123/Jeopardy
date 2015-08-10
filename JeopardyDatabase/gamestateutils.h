@@ -22,7 +22,8 @@ namespace GameStateUtils
         FINAL_CLUE,
         FINAL_ANSWER,
         GAME_OVER,
-        PAUSED
+        PAUSED,
+        INVALID // Used for parsing gamestate
     };
 
     struct ClueInfo
@@ -96,7 +97,12 @@ namespace GameStateUtils
         int         row{-1};
         int         column{-1};
         QString     message;
-        GameState   state;
+        GameState   state{GameState::MENU};
+
+        QString ToString() const;
+        StateAction() = default;
+
+        static std::pair<bool,StateAction> GenerateFromString(const QString& str);
     };
 
     struct StateResponse
@@ -107,5 +113,17 @@ namespace GameStateUtils
         GameState   state;
         Clues*      clues{nullptr};
     };
+
+    struct StateResponseServer
+    {
+        int row{-1};
+        int column{-1};
+        QString message;
+        GameState state;
+        QString clues;
+    };
+
+
+
 }
 

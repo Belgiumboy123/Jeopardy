@@ -16,8 +16,12 @@ StateHandlerOnline::~StateHandlerOnline() {}
 void
 StateHandlerOnline::DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index)
 {
-    Q_UNUSED(currentState);
-    Q_UNUSED(index);
+    GameStateUtils::StateAction action;
+    action.column = index.column();
+    action.row = index.row();
+    action.state = currentState;
+
+    m_socket->write( action.ToString().toLocal8Bit() );
 }
 
 void

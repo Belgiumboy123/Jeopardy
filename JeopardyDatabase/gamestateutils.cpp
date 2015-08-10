@@ -1,7 +1,11 @@
 #include "gamestateutils.h"
 
+#include <QStringList>
+#include <QDebug>
+
 using GameStateUtils::Clues;
 using GameStateUtils::ClueInfo;
+using GameStateUtils::StateAction;
 
 namespace
 {
@@ -231,5 +235,67 @@ Clues::GetNumberOfUnansweredClues() const
     return std::count_if(m_clues.begin(), m_clues.end(), [](const ClueInfo& info){ return !info.answered; });
 }
 
+namespace
+{
+    const QString S_DELIMIT = ";";
+    const QString S_TOKEN   = ":";
+    const QString S_STATE   = "s:";
+    const QString S_ROW     = "r:";
+    const QString S_COLUMN  = "c:";
+    const QString S_MSG     = "m:";
 
+    const int state_upper_bound = static_cast<int>(GameStateUtils::GameState::INVALID);
+}
+
+// StateAction
+
+QString
+StateAction::ToString() const
+{
+    return S_STATE + QString::number(static_cast<int>(state)) + S_DELIMIT
+            + S_ROW + QString::number(row) + S_DELIMIT
+            + S_COLUMN + QString::number(column) + S_DELIMIT
+            + S_MSG + message;
+}
+
+/*static*/ std::pair<bool,StateAction>
+StateAction::GenerateFromString(const QString& str)
+{
+    auto pair = std::make_pair(false,StateAction());
+
+    // This is attempting to parse strings recieved from clients
+    // into StateActions.  Ensure 'str' is in valid condition before
+    // setting any values.
+
+    QStringList tokens = str.split(S_DELIMIT);
+    if( tokens.size() != 4)
+        return pair;
+
+    if( !tokens[0].startsWith(S_STATE) || !tokens[1].startsWith(S_ROW) || !tokens[2].startsWith(S_COLUMN) || !tokens[3].startsWith(S_MSG) )
+        return pair;
+
+    bool ok;
+    int stateToken = tokens[0].remove(0,2).toInt(&ok);
+    if( !ok || stateToken < 0 || stateToken >= state_upper_bound )
+        return pair;
+
+    ok = false;
+    int row = tokens[1].remove(0,2).toInt(&ok);
+    if( !ok || row < 0 || row >= TOTAL_ROWS)
+        return pair;
+
+    ok = false;
+    int column = tokens[2].remove(0,2).toInt(&ok);
+    if( !ok || column < 0 || column >= TOTAL_COLS)
+        return pair;
+
+    const QString& message = tokens[3].remove(0,2);
+
+    pair.first = true;
+    pair.second.state = static_cast<GameStateUtils::GameState>(stateToken);
+    pair.second.row = row;
+    pair.second.column = column;
+    pair.second.message = message;
+    return pair;
+}
 
