@@ -1,17 +1,23 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include <QNetworkInterface>
-#include <QTcpSocket>
-#include <QTcpServer>
-#include <QDebug>
+#include "jeopardyserver.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , m_ui(new Ui::MainWindow)
-    , m_server( new QTcpServer(this))
+    , m_server(new JeopardyServer)
 {
     m_ui->setupUi(this);
+
+    // Load the two needed fonts from resources.qrc
+    QFontDatabase::addApplicationFont(":/korinna");
+    QFontDatabase::addApplicationFont(":/swiss");
+
+    QFont titleFont( "Swiss 911", 120, QFont::Normal );
+    titleFont.setLetterSpacing( QFont::AbsoluteSpacing, 2 );
+
+    QFont controlFont( "Korinna BT", 40, QFont::Normal );
 
     setAutoFillBackground(true);
     auto windowPal = palette();
@@ -21,13 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     auto titlePal = m_ui->title->palette();
     titlePal.setColor(m_ui->title->foregroundRole(), "#E29D44");
     m_ui->title->setPalette(titlePal);
-    auto titleFont = m_ui->title->font();
-    titleFont.setLetterSpacing( QFont::AbsoluteSpacing, 2 );
-    titleFont.setPointSize(120);
     m_ui->title->setFont(titleFont);
-
-    QFont controlFont(font());
-    controlFont.setPointSize(40);
 
     m_ui->portLabel->setFont(controlFont);
     auto portPal = m_ui->portLabel->palette();
@@ -64,89 +64,45 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->serverStartLabel->hide();
     m_ui->textEdit->hide();
 
+    connect( m_server.get(), &JeopardyServer::ServerMessage, this, &MainWindow::OnServerMessage);
+
     showMaximized();
 }
 
 void
 MainWindow::OnStartClicked()
 {
-    QHostAddress address(QHostAddress::Any);
     const int portNumber = m_ui->portEdit->text().toInt();
+    auto result = m_server->StartServer(portNumber);
 
-    if(!m_server->listen(address, portNumber))
+    if(!result.first)
     {
-        m_ui->resultLabel->setText( tr("Unable to start the server: %1.").arg(m_server->errorString()));
+        m_ui->resultLabel->setText(result.second);
     }
     else
-    {   // server was started successfully!
-        QString ipAddress;
-        QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-        // use the first non-localhost IPv4 address
-        for (int i = 0; i < ipAddressesList.size(); ++i) {
-            if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
-                ipAddressesList.at(i).toIPv4Address()) {
-                ipAddress = ipAddressesList.at(i).toString();
-                break;
-            }
-        }
-        if (ipAddress.isEmpty())
-            ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-
+    {
+        // server was started successfully!
         m_ui->resultLabel->setText("");
         m_ui->startWidget->hide();
         m_ui->portEdit->hide();
         m_ui->portLabel->hide();
-        m_ui->serverStartLabel->setText( tr("Server started on IP: %1 on host %2.").arg(ipAddress).arg(portNumber) );
-        m_ui->textEdit->appendPlainText("Server started.");
+        m_ui->serverStartLabel->setText( result.second );
         m_ui->textEdit->show();
         m_ui->serverStartLabel->show();
         m_ui->closeButton->show();
-        connect( m_server, &QTcpServer::newConnection, this, &MainWindow::OnNewConnection);
     }
 }
 
 void
-MainWindow::OnNewConnection()
+MainWindow::OnServerMessage(const QString& message)
 {
-    if( m_sockets.size() < 2)
-    {
-        QTcpSocket* socket = m_server->nextPendingConnection();
-        // TODO setup connections here -> disconnected
-
-        m_sockets << socket;
-
-        auto result = QString::number(socket->socketDescriptor()) + tr(": made Connection.");
-        m_ui->textEdit->appendPlainText(result);
-
-        if( m_sockets.size() == 2)
-        {
-            m_server->pauseAccepting();
-
-            // send message to sockets about having enough players.
-            for( auto socket : m_sockets)
-            {
-                QString message("Start Game");
-                socket->write( message.toLocal8Bit() );
-            }
-        }
-    }
+    m_ui->textEdit->appendPlainText(message);
 }
 
 void
 MainWindow::OnCloseServer()
 {
-    if( m_server->isListening())
-    {
-        m_server->close();
-    }
-
-    for( auto socket : m_sockets)
-    {
-        socket->disconnectFromHost();
-        socket->deleteLater();
-    }
-
-    m_sockets.clear();
+    m_server->CloseServer();
 
     m_ui->textEdit->clear();
     m_ui->closeButton->hide();

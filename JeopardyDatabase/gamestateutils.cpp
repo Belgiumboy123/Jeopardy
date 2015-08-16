@@ -314,7 +314,7 @@ StateAction::GenerateFromString(const QString& str)
 {
     QString clues;
     auto pair = std::make_pair(false,StateAction());
-    GenerateFromStringImpl<StateAction>(str, pair, clues/*unused*/);
+    GenerateFromStringImpl(str, pair, clues/*unused*/);
     return pair;
 }
 
@@ -346,7 +346,7 @@ StateResponse::GenerateFromString(const QString& str)
 {
     QString clues;
     auto pair = std::make_pair(false,StateResponse());
-    GenerateFromStringImpl<StateResponse>(str, pair, clues);
+    GenerateFromStringImpl(str, pair, clues);
     pair.second.serverClues = clues;
     return pair;
 }

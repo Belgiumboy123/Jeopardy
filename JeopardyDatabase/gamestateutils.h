@@ -11,7 +11,8 @@ namespace GameStateUtils
 
     enum class GameState
     {
-        MENU = 0,
+        SERVER_OFFLINE = 0,
+        MENU,
         BOARD_START,
         BOARD,
         CLUE_QUESTION,

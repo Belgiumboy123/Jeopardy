@@ -42,6 +42,7 @@ namespace
     // warning messages by just adding the datasource once
     QSqlDatabase GetDatabase()
     {
+        // TODO could we use std::call_once and std::once_flag here instead
         static bool OPENED = false;
         if( !OPENED)
         {

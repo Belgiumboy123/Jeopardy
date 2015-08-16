@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>603</width>
     <height>300</height>
    </rect>
   </property>
@@ -22,13 +22,13 @@
      <number>0</number>
     </property>
     <property name="topMargin">
-     <number>25</number>
+     <number>50</number>
     </property>
     <property name="rightMargin">
      <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>25</number>
+     <number>50</number>
     </property>
     <item alignment="Qt::AlignHCenter">
      <widget class="QLabel" name="title">

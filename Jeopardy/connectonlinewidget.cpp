@@ -66,7 +66,6 @@ ConnectOnlineWidget::BeginConnection(std::unique_ptr<StateHandlerOnline> stateHa
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionLost, this, &ConnectOnlineWidget::OnConnectionLost);
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMessage, this, &ConnectOnlineWidget::OnConnectionMessage);
 
-
     m_ui->resultLabel->setText("");
     ShowState(ENTRY);
 }

@@ -6,6 +6,8 @@
 class QTcpServer;
 class QTcpSocket;
 
+class JeopardyServer;
+
 namespace Ui {
 class MainWindow;
 }
@@ -20,14 +22,12 @@ public:
 
 private:
     void OnStartClicked();
-    void OnNewConnection();
+    void OnServerMessage(const QString& message);
     void OnCloseServer();
 
     std::unique_ptr<Ui::MainWindow> m_ui;
 
-    QTcpServer* m_server;
-
-    QList<QTcpSocket*> m_sockets;
+    std::unique_ptr<JeopardyServer> m_server;
 };
 
 #endif // MAINWINDOW_H
