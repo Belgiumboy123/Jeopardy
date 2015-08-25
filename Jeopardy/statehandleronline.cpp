@@ -1,5 +1,7 @@
 #include "statehandleronline.h"
 
+using GameStateUtils::GameState;
+
 StateHandlerOnline::StateHandlerOnline()
     : IStateHandler()
     , m_socket(new QTcpSocket(this))
@@ -53,7 +55,23 @@ StateHandlerOnline::OnServerMessage()
 
     if(pair.first)
     {
-         emit ConnectionMessage(str);
+        const GameStateUtils::StateResponse& response = pair.second;
+
+        emit ConnectionMessage(response.message);
+
+        switch(response.state)
+        {
+        case GameState::SERVER_START_MENU:
+            emit BothPlayersConnected();
+            break;
+
+        case GameState::BOARD_START:
+            // Game has Started!
+            break;
+
+        default:
+            break;
+        }
     }
 }
 

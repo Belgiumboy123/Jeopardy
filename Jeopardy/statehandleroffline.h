@@ -6,7 +6,7 @@ class JeopardyGame;
 
 class StateHandlerOffline : public IStateHandler
 {
-   // Q_OBJECT
+    //Q_OBJECT
 
 public:
     StateHandlerOffline();

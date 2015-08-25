@@ -16,6 +16,7 @@ public:
 private Q_SLOTS:
     void testLoadGame();
     void testStateActionFromString();
+    void testStateResponseFromString();
 };
 
 JeopardyDatabaseTest::JeopardyDatabaseTest()
@@ -75,20 +76,46 @@ void JeopardyDatabaseTest::testStateActionFromString()
     runTestSAFS(";;;", defaultAction, false);
     runTestSAFS("s:2;;;", defaultAction, false);
     runTestSAFS("s:2;r:0;c:0;msg:", defaultAction, false);
-    runTestSAFS("s:2;r:0;c:0;msg:;", defaultAction, false);
-    runTestSAFS("s:2;r:7;c:0;msg:", defaultAction, false);
-    runTestSAFS("s:200;r:0;c:0;msg:", defaultAction, false);
-    runTestSAFS("s:2;r:0;c:-1;msg:", defaultAction, false);
+    runTestSAFS("s:2;r:0;c:0;m;", defaultAction, false);
+    runTestSAFS("s:2;r:7;c:0;m:", defaultAction, false);
+    runTestSAFS("s:200;r:0;c:0;m:", defaultAction, false);
+    runTestSAFS("s:2;r:0;c:-1;m:", defaultAction, false);
+    runTestSAFS("s:5;r:0;c:0;m:message;b:", defaultAction, false);
 
     StateAction result;
     result.column = 0;
     result.row = 0;
     result.state = GameState::BOARD;
-    runTestSAFS("s:2;r:0;c:0;m:", result, true);
+    runTestSAFS("s:5;r:0;c:0;m:", result, true);
 
     result.message = "message";
-    runTestSAFS("s:2;r:0;c:0;m:message", result, true);
-    runTestSAFS("s:2;r:0;c:0;m:message;b:", result, true);
+    runTestSAFS("s:5;r:0;c:0;m:message", result, true);
+}
+
+void runTestSRFS(const QString& str, const StateResponse& expectedAction, const bool successParse)
+{
+    auto pair = StateResponse::GenerateFromString(str);
+    const auto& actualResponse = pair.second;
+
+    QVERIFY(pair.first == successParse);
+    QVERIFY(actualResponse.state == expectedAction.state);
+    QVERIFY(actualResponse.row == expectedAction.row);
+    QVERIFY(actualResponse.column == expectedAction.column);
+    QVERIFY(actualResponse.message == expectedAction.message);
+}
+
+void JeopardyDatabaseTest::testStateResponseFromString()
+{
+    StateResponse result;
+    result.state = GameState::SERVER_START_MENU;
+    result.row = -1;
+    result.column = -1;
+    runTestSRFS("s:2;r:-1;c:-1;m:;b:", result, true);
+
+    StateResponse defaultResponse;
+    runTestSRFS("s:2;r:-1;c:-1;m:b:", defaultResponse, false);
+    runTestSRFS("s:2;r:-1;c:2;m:;b:", defaultResponse, false);
+    runTestSRFS("s:2;r:-8;c:-1;m:;b:", defaultResponse, false);
 }
 
 QTEST_APPLESS_MAIN(JeopardyDatabaseTest)

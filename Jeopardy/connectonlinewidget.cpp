@@ -65,6 +65,7 @@ ConnectOnlineWidget::BeginConnection(std::unique_ptr<StateHandlerOnline> stateHa
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMade, this, &ConnectOnlineWidget::OnConnectionMade);
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionLost, this, &ConnectOnlineWidget::OnConnectionLost);
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMessage, this, &ConnectOnlineWidget::OnConnectionMessage);
+    connect( m_stateHandler.get(), &StateHandlerOnline::BothPlayersConnected, this, &ConnectOnlineWidget::OnBothPlayersConnected);
 
     m_ui->resultLabel->setText("");
     ShowState(ENTRY);
@@ -74,6 +75,12 @@ void
 ConnectOnlineWidget::OnConnectionMade()
 {
     ShowState(CONNECTED);
+}
+
+void
+ConnectOnlineWidget::OnBothPlayersConnected()
+{
+    ShowState(START);
 }
 
 void
@@ -89,10 +96,6 @@ ConnectOnlineWidget::OnConnectionMessage(const QString& message)
     if( m_state == ENTRY )
     {
         m_ui->resultLabel->setText(message);
-    }
-    else if( m_state == CONNECTED)
-    {
-        m_ui->resultLabel->setText(tr("two players connected! messeage from server: %1").arg(message));
     }
 }
 
@@ -139,13 +142,12 @@ ConnectOnlineWidget::OnBackButton()
 void
 ConnectOnlineWidget::OnStartGameButton()
 {
-    // todo send message to server -> start game has been clicked.
-    // On server start we send out the GameStart signal
-
     m_ui->startGameButton->hide();
     m_ui->headerLabel->setText("Starting game!");
     m_ui->resultLabel->setText("Waiting for other player...");
     m_ui->resultLabel->show();
+
+    m_stateHandler->DoActionOnState(GameStateUtils::GameState::SERVER_START_MENU, QModelIndex()/*TODO why is this argument necassary*/);
 }
 
 void

@@ -251,14 +251,15 @@ namespace
     const int state_upper_bound = static_cast<int>(GameStateUtils::GameState::INVALID);
 
     template<class T>
-    void GenerateFromStringImpl(const QString& str, std::pair<bool,T>& pair, QString& clues)
+    void GenerateFromStringImpl(const QString& str, std::pair<bool,T>& pair, QString& clues, int numberOfTokens)
     {
         // This is attempting to parse strings recieved from clients
         // into StateActions.  Ensure 'str' is in valid condition before
         // setting any values.
 
         QStringList tokens = str.split(S_DELIMIT);
-        if( tokens.size() != 4 && tokens.size() != 5)
+        //qDebug() << tokens;
+        if( tokens.size() != numberOfTokens)
             return;
 
         if( !tokens[0].startsWith(S_STATE) || !tokens[1].startsWith(S_ROW) || !tokens[2].startsWith(S_COLUMN) || !tokens[3].startsWith(S_MSG) )
@@ -271,12 +272,16 @@ namespace
 
         ok = false;
         int row = tokens[1].remove(0,2).toInt(&ok);
-        if( !ok || row < 0 || row >= GameStateUtils::TOTAL_ROWS)
+        if( !ok || row < -1 || row >= GameStateUtils::TOTAL_ROWS)
             return;
 
         ok = false;
         int column = tokens[2].remove(0,2).toInt(&ok);
-        if( !ok || column < 0 || column >= GameStateUtils::TOTAL_COLS)
+        if( !ok || column < -1 || column >= GameStateUtils::TOTAL_COLS)
+            return;
+
+        // row or column can only be -1 if they both are.
+        if( (column == -1 && row != -1) || (row == -1 && column != -1) )
             return;
 
         const QString& message = tokens[3].remove(0,2);
@@ -314,7 +319,7 @@ StateAction::GenerateFromString(const QString& str)
 {
     QString clues;
     auto pair = std::make_pair(false,StateAction());
-    GenerateFromStringImpl(str, pair, clues/*unused*/);
+    GenerateFromStringImpl(str, pair, clues/*unused*/, 4);
     return pair;
 }
 
@@ -323,7 +328,7 @@ StateAction::GenerateFromString(const QString& str)
 QString
 StateResponse::ToString() const
 {
-    QString str = StateAction::ToString() + S_CLUES;
+    QString str = StateAction::ToString() + S_DELIMIT + S_CLUES;
 
     if( clues )
     {
@@ -346,7 +351,7 @@ StateResponse::GenerateFromString(const QString& str)
 {
     QString clues;
     auto pair = std::make_pair(false,StateResponse());
-    GenerateFromStringImpl(str, pair, clues);
+    GenerateFromStringImpl(str, pair, clues, 5);
     pair.second.serverClues = clues;
     return pair;
 }

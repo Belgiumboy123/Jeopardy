@@ -21,6 +21,7 @@ signals:
     void ConnectionMessage(const QString& message);
     void ConnectionMade();
     void ConnectionLost(const QString& message);
+    void BothPlayersConnected();
 
 private:
     void OnHostFound();

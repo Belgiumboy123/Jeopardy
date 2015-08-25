@@ -12,6 +12,8 @@ namespace GameStateUtils
     enum class GameState
     {
         SERVER_OFFLINE = 0,
+        SERVER_ONLINE,
+        SERVER_START_MENU,
         MENU,
         BOARD_START,
         BOARD,
@@ -98,7 +100,7 @@ namespace GameStateUtils
         GameState   state{GameState::INVALID};
         int         row{-1};
         int         column{-1};
-        QString     message;    
+        QString     message;
 
         virtual QString ToString() const;
         StateAction() = default;

@@ -30,6 +30,7 @@ private:
     void OnConnectionMade();
     void OnConnectionLost(const QString& message);
     void OnConnectionMessage(const QString& message);
+    void OnBothPlayersConnected();
 
     std::unique_ptr<Ui::ConnectOnlineWidget> m_ui;
 

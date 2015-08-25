@@ -16,7 +16,7 @@ JeopardyServer::JeopardyServer()
 
     m_serverGameState = GameState::SERVER_OFFLINE;
 
-    m_server =  new QTcpServer(this);
+    m_server = new QTcpServer(this);
 }
 
 std::pair<bool,QString>
@@ -29,8 +29,11 @@ JeopardyServer::StartServer(const int port)
     {
         pair.second = tr("Unable to start the server: %1.").arg(m_server->errorString());
     }
-    else    // Sucess!
+    else    // Success!
     {
+        m_serverGameState = GameState::SERVER_ONLINE;
+        m_server->resumeAccepting();
+
         QString ipAddress;
         QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
         // use the first non-localhost IPv4 address
@@ -60,9 +63,12 @@ JeopardyServer::OnNewConnection()
     if( m_sockets.size() < 2)
     {
         QTcpSocket* socket = m_server->nextPendingConnection();
-        // TODO setup connections here
-        // disconnected
-        // readyReady
+        if(!socket)
+            return;
+
+        // TODO disconnected signal
+        // todo should this connection be moved down to when we are in start menu?
+        connect( socket, &QTcpSocket::readyRead, this, &JeopardyServer::OnClientMessage );
 
         m_sockets << socket;
 
@@ -72,14 +78,47 @@ JeopardyServer::OnNewConnection()
         {
             m_server->pauseAccepting();
 
-            // send message to sockets about having enough players.
+            m_serverGameState = GameState::SERVER_START_MENU;
+
+            GameStateUtils::StateResponse response;
+            response.state = m_serverGameState;
+            auto message = response.ToString().toLocal8Bit();
+
+            // tell both players the server has connected to both
+            // and is ready to start the game when the players are.
             for( auto socket : m_sockets)
             {
-                // TODO send out a proper State Response
-
-                QString message("Start Game");
-                socket->write( message.toLocal8Bit() );
+                emit ServerMessage(tr("Sending message to both players: ") + message);
+                socket->write( message );
             }
+        }
+    }
+}
+
+void
+JeopardyServer::OnClientMessage()
+{
+    QTcpSocket* socket = qobject_cast<QTcpSocket*>(QObject::sender());
+    if(!socket)
+        return;
+
+    auto message = socket->readAll();
+    const QString str = QString(message.constData());
+    const auto pair = GameStateUtils::StateAction::GenerateFromString(str);
+
+    if(pair.first)
+    {
+        emit ServerMessage(QString::number(socket->socketDescriptor()) + ": " + str);
+
+        const GameStateUtils::StateAction& action = pair.second;
+
+        if( action.state == GameState::SERVER_START_MENU)
+        {
+            // TODO if both clients have hit this action
+            // send out start game message.
+
+            // send jeopardy game instance with a action with state GameState::MENU
+            // set jeopardy server game state to match return value of jeopardy game response
         }
     }
 }

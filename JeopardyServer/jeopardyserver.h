@@ -24,6 +24,7 @@ signals:
 
 private:
     void OnNewConnection();
+    void OnClientMessage();
 
     std::unique_ptr<JeopardyGame> m_game;
 
