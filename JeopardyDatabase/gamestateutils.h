@@ -3,6 +3,7 @@
 #include <QString>
 #include <unordered_map>
 #include <vector>
+#include <map>
 
 namespace GameStateUtils
 {
@@ -14,6 +15,7 @@ namespace GameStateUtils
         SERVER_OFFLINE = 0,
         SERVER_ONLINE,
         SERVER_START_MENU,
+        SERVER_GAME_START,
         MENU,
         BOARD_START,
         BOARD,
@@ -27,6 +29,25 @@ namespace GameStateUtils
         GAME_OVER,
         PAUSED,
         INVALID // Used for parsing gamestate
+    };
+
+    static std::map<GameState,QString> GameStateString
+    {       {GameState::SERVER_OFFLINE,         "Server offline"}
+        ,   {GameState::SERVER_ONLINE,          "SERVER_ONLINE"}
+        ,   {GameState::SERVER_START_MENU,      "SERVER_START_MENU"}
+        ,   {GameState::SERVER_GAME_START,      "SERVER_GAME_START"}
+        ,   {GameState::MENU,                   "MENU"}
+        ,   {GameState::BOARD,                  "BOARD"}
+        ,   {GameState::BOARD_START,            "BOARD_START"}
+        ,   {GameState::CLUE_QUESTION,          "CLUE_QUESTION"}
+        ,   {GameState::CLUE_ANSWER,            "CLUE_ANSWER"}
+        ,   {GameState::CLUE_TIMEOUT,           "CLUE_TIMEOUT"}
+        ,   {GameState::FINAL_START,            "FINAL_START"}
+        ,   {GameState::FINAL_CATEGORY,         "FINAL_CATEGORY"}
+        ,   {GameState::FINAL_CLUE,             "FINAL_CLUE"}
+        ,   {GameState::FINAL_ANSWER,           "FINAL_ANSWER"}
+        ,   {GameState::GAME_OVER,              "GAME_OVER"}
+        ,   {GameState::INVALID,                "INVALID"}
     };
 
     struct ClueInfo
@@ -94,7 +115,6 @@ namespace GameStateUtils
         bool IsValidCol(const int col) const;
     };
 
-
     struct StateAction
     {
         GameState   state{GameState::INVALID};
@@ -118,5 +138,8 @@ namespace GameStateUtils
 
         static std::pair<bool,StateResponse> GenerateFromString(const QString& str);
     };
+
+    std::pair<bool,QString> GetCategoryHeader(QString& clues);
+    std::pair<bool,QString> GetClueText(QString& clues);
 }
 

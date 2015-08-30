@@ -23,6 +23,7 @@ public:
     virtual QStandardItemModel* GetModel() const;
 
     virtual void SetNextClueOptions(const NextClueOptions& nextClueOptions) = 0;
+    virtual bool AllowUserInteraction() const = 0;
 
 signals:
     void StateChanged(GameStateUtils::GameState state, const QModelIndex& index = QModelIndex(), const QString& message = "");

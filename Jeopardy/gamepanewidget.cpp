@@ -117,10 +117,7 @@ GamePaneWidget::GamePaneWidget(QWidget *parent)
     m_ui->tableView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     m_ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_ui->tableView->installEventFilter(this);
     m_ui->tableView->setFont(QtUtil::GetBasicBoardFont());
-
-    connect( m_ui->tableView, &QAbstractItemView::clicked, this, &GamePaneWidget::handleBoardClick );
 
     m_ui->clueLabel->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
     m_ui->clueLabel->setWordWrap(true);
@@ -131,7 +128,6 @@ GamePaneWidget::GamePaneWidget(QWidget *parent)
     cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::white);
     m_ui->clueWidget->setPalette(cluePal);
     m_ui->clueWidget->setAutoFillBackground(true);
-    m_ui->clueWidget->installEventFilter(this);
 
     m_mediaPlayer = std::unique_ptr<QMediaPlayer>( new QMediaPlayer( this ) );
     m_mediaPlayer->setMedia(QUrl::fromLocalFile(DatabaseUtils::GetFilePathAppResourcesFile("song.mp3")));
@@ -318,10 +314,27 @@ GamePaneWidget::OnStateChanged(GameStateUtils::GameState state, const QModelInde
 void
 GamePaneWidget::StartGame(std::unique_ptr<IStateHandler> stateHandler)
 {
+     m_mode = MENU;
+
     // Setup the state handler
     m_stateHandler = std::move(stateHandler);
     connect( m_stateHandler.get(), &IStateHandler::StateChanged, this, &GamePaneWidget::OnStateChanged);
     m_ui->tableView->setModel(m_stateHandler->GetModel());
+
+    if( m_stateHandler->AllowUserInteraction())
+    {
+        m_ui->tableView->installEventFilter(this);
+        m_ui->clueWidget->installEventFilter(this);
+        connect( m_ui->tableView, &QAbstractItemView::clicked, this, &GamePaneWidget::handleBoardClick );
+    }
+    else
+    {
+        // if User can't interact it means auto play is on by default
+        SetAutoPlayEnabled(true);
+        m_ui->tableView->removeEventFilter(this);
+        m_ui->clueWidget->removeEventFilter(this);
+        disconnect( m_ui->tableView, &QAbstractItemView::clicked, this, &GamePaneWidget::handleBoardClick );
+    }
 
     m_stateHandler->SetNextClueOptions(m_options.m_nextClueOptions);
     m_stateHandler->DoActionOnState(GameStateUtils::GameState::MENU);

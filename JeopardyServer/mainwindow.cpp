@@ -3,6 +3,8 @@
 
 #include "jeopardyserver.h"
 
+#include <QDebug>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , m_ui(new Ui::MainWindow)
@@ -96,6 +98,7 @@ MainWindow::OnStartClicked()
 void
 MainWindow::OnServerMessage(const QString& message)
 {
+    qDebug() << message;
     m_ui->textEdit->appendPlainText(message);
 }
 

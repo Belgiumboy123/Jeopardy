@@ -346,6 +346,46 @@ StateResponse::ToString() const
     return str;
 }
 
+std::pair<bool,QString>
+GameStateUtils::GetCategoryHeader(QString& clues)
+{
+    auto returnValue = std::make_pair(false, QString(""));
+    if( clues.startsWith(S_CATEGORY))
+    {
+        clues.remove(0,S_CATEGORY.length());
+        const int index = clues.indexOf(S_CLUE);
+
+        if( index != -1 )
+        {
+            returnValue.first = true;
+            returnValue.second = clues.left(index);
+            clues.remove(0,index);
+        }
+    }
+
+    return returnValue;
+}
+
+std::pair<bool,QString>
+GameStateUtils::GetClueText(QString& clues)
+{
+    auto returnValue = std::make_pair(false, QString(""));
+
+    if( clues.startsWith(S_CLUE))
+    {
+        clues.remove(0,S_CLUE.length());
+
+        const int nextCategoryIndex = clues.indexOf(S_CATEGORY);
+        const int index = std::min(clues.indexOf(S_CLUE), nextCategoryIndex == -1 ? std::numeric_limits<int>::max() : nextCategoryIndex);
+
+        returnValue.first = true;
+        returnValue.second = clues.left(index);
+        clues.remove(0,index);
+    }
+
+    return returnValue;
+}
+
 /*static*/ std::pair<bool,StateResponse>
 StateResponse::GenerateFromString(const QString& str)
 {

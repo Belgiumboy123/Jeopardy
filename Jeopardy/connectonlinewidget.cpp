@@ -58,6 +58,12 @@ ConnectOnlineWidget::ConnectOnlineWidget(QWidget *parent) :
     m_ui->resultLabel->setPalette(resultLabelPal);
 }
 
+std::unique_ptr<StateHandlerOnline>
+ConnectOnlineWidget::GetStateHandler()
+{
+    return std::move(m_stateHandler);
+}
+
 void
 ConnectOnlineWidget::BeginConnection(std::unique_ptr<StateHandlerOnline> stateHandler)
 {
@@ -66,6 +72,7 @@ ConnectOnlineWidget::BeginConnection(std::unique_ptr<StateHandlerOnline> stateHa
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionLost, this, &ConnectOnlineWidget::OnConnectionLost);
     connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMessage, this, &ConnectOnlineWidget::OnConnectionMessage);
     connect( m_stateHandler.get(), &StateHandlerOnline::BothPlayersConnected, this, &ConnectOnlineWidget::OnBothPlayersConnected);
+    connect( m_stateHandler.get(), &StateHandlerOnline::StartGame, this, &ConnectOnlineWidget::StartGame);
 
     m_ui->resultLabel->setText("");
     ShowState(ENTRY);

@@ -17,6 +17,7 @@ public:
     ~ConnectOnlineWidget();
 
     void BeginConnection(std::unique_ptr<StateHandlerOnline> stateHandler);
+    std::unique_ptr<StateHandlerOnline> GetStateHandler();
 
 signals:
     void StartGame();

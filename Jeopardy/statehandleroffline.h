@@ -16,6 +16,8 @@ public:
 
     virtual void SetNextClueOptions(const NextClueOptions& nextClueOptions);
 
+    virtual bool AllowUserInteraction() const;
+
 private:
     void LoadModelFromCurrentClues(GameStateUtils::Clues* clues);
 

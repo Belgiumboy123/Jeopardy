@@ -7,11 +7,16 @@
 #include <QTcpServer>
 
 using GameStateUtils::GameState;
+using GameStateUtils::GameStateString;
 
 JeopardyServer::JeopardyServer()
     : QObject()
+    , m_playersReadyToPlay(0)
 {
-    // TODO initialize with jeopardy server options
+    // For now JeopardyServer is loaded with the local system's
+    // saved game options. It should be loading and saving its own
+    // options.
+
     m_game.reset(new JeopardyGame);
 
     m_serverGameState = GameState::SERVER_OFFLINE;
@@ -66,9 +71,7 @@ JeopardyServer::OnNewConnection()
         if(!socket)
             return;
 
-        // TODO disconnected signal
-        // todo should this connection be moved down to when we are in start menu?
-        connect( socket, &QTcpSocket::readyRead, this, &JeopardyServer::OnClientMessage );
+        connect( socket, &QAbstractSocket::disconnected, this, &JeopardyServer::OnClientDisconnected);
 
         m_sockets << socket;
 
@@ -88,11 +91,20 @@ JeopardyServer::OnNewConnection()
             // and is ready to start the game when the players are.
             for( auto socket : m_sockets)
             {
+                connect( socket, &QTcpSocket::readyRead, this, &JeopardyServer::OnClientMessage );
                 emit ServerMessage(tr("Sending message to both players: ") + message);
                 socket->write( message );
             }
+
+            m_playersReadyToPlay = 0;
         }
     }
+}
+
+void
+JeopardyServer::OnClientDisconnected()
+{
+    // TODO logic here
 }
 
 void
@@ -100,27 +112,98 @@ JeopardyServer::OnClientMessage()
 {
     QTcpSocket* socket = qobject_cast<QTcpSocket*>(QObject::sender());
     if(!socket)
+    {
+        emit ServerMessage("Unable to cast to QObject::sender()");
         return;
+    }
 
     auto message = socket->readAll();
     const QString str = QString(message.constData());
+
+    emit ServerMessage("Attempting to parse message: " + message);
     const auto pair = GameStateUtils::StateAction::GenerateFromString(str);
 
     if(pair.first)
     {
-        emit ServerMessage(QString::number(socket->socketDescriptor()) + ": " + str);
+        emit ServerMessage("Message from " + QString::number(socket->socketDescriptor()) + ": " + str);
 
         const GameStateUtils::StateAction& action = pair.second;
 
         if( action.state == GameState::SERVER_START_MENU)
         {
-            // TODO if both clients have hit this action
-            // send out start game message.
+            m_playersReadyToPlay++;
 
-            // send jeopardy game instance with a action with state GameState::MENU
-            // set jeopardy server game state to match return value of jeopardy game response
+            emit ServerMessage(QString::number(socket->socketDescriptor()) + " is ready to play.");
+
+            if(m_playersReadyToPlay == 2)
+            {
+                // This requires a little state setting trickery
+                // so that the client can properly load the game now
+                // instead of waiting for another message from a client
+
+                GameStateUtils::StateAction action;
+                action.state = GameState::MENU;
+
+                auto response = m_game->DoStateAction(action);
+                response.state = GameState::SERVER_GAME_START;
+                SendResponseToClients(response);
+            }
+        }
+        else
+        {
+            // Checks to make sure we don't do action's twice.
+            // TODO we should be smarter about this check
+
+            // TODO this below block needs to be atomic
+            // only one client should be allowed to enter this block at once.
+
+            if( m_serverGameState == action.state)
+            {
+                const auto response = m_game->DoStateAction(action);
+                SendResponseToClients(response);
+                emit ServerMessage( "Server state is " + GameStateString[m_serverGameState] + " after action on " + GameStateString[action.state] + ".");
+            }
+            else
+            {
+                emit ServerMessage("Ignoring this message because server state doesn't equal the client action state.");
+                emit ServerMessage( GameStateString[m_serverGameState] + " - ignored state - " + GameStateString[action.state] + ".");
+            }
         }
     }
+    else
+    {
+        emit ServerMessage("Parse failed " + message);
+    }
+}
+
+void
+JeopardyServer::SendResponseToClients(const GameStateUtils::StateResponse& response)
+{
+    if(response.state == GameState::INVALID)
+        return;
+
+    // The clients will send back an action on the BOARD
+    // instead of SERVER_GAME_START/BOARD_START so we need to set
+    // server state to BOARD since that we will be receiving next.
+    switch( response.state )
+    {
+    case GameState::SERVER_GAME_START:
+    case GameState::BOARD_START:
+        m_serverGameState = GameState::BOARD;
+        break;
+
+    default:
+        m_serverGameState = response.state;
+    }
+
+    const auto message = response.ToString().toLocal8Bit();
+    for( auto socket : m_sockets)
+    {
+        socket->write( message );
+    }
+
+    // log the sent message
+    emit ServerMessage(tr("Sending message to both players: ") + message);
 }
 
 void

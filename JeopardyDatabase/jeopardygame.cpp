@@ -335,6 +335,7 @@ JeopardyGame::DoStateAction( const GameStateUtils::StateAction action)
         break;
 
     default:
+        response.state = GameState::INVALID;
         break;
     }
 

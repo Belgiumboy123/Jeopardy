@@ -4,6 +4,7 @@
 #include "qtutility.h"
 
 #include <QStandardItemModel>
+#include <QDebug>
 
 using GameStateUtils::TOTAL_COLS;
 using GameStateUtils::TOTAL_ROWS;
@@ -16,6 +17,12 @@ StateHandlerOffline::StateHandlerOffline()
 }
 
 StateHandlerOffline::~StateHandlerOffline() {}
+
+bool
+StateHandlerOffline::AllowUserInteraction() const
+{
+    return true;
+}
 
 void
 StateHandlerOffline::LoadModelFromCurrentClues(GameStateUtils::Clues* clues)

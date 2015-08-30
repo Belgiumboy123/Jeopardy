@@ -119,9 +119,11 @@ MainWindow::OnBack()
 void
 MainWindow::OnOnlineGameStart()
 {
-    // Grab/create a StateHandlerOnline here.
-    // m_ui->gamePaneWidget->StartGame(std::move(stateHandler));
-    // ShowGameState(Game)
+    auto stateHandler = std::move(m_ui->connectOnlineWidget->GetStateHandler());
+    disconnect(stateHandler.get());
+
+    m_ui->gamePaneWidget->StartGame(std::move(stateHandler));
+    ShowGameState(GAME);
 }
 
 void
@@ -130,7 +132,6 @@ MainWindow::OnOfflineGameStart()
     // Setup the OfflineStateHandler for gamePaneWidget
     std::unique_ptr<IStateHandler> stateHandler(new StateHandlerOffline);
     m_ui->gamePaneWidget->StartGame(std::move(stateHandler));
-
     ShowGameState(GAME);
 }
 

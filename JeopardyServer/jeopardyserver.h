@@ -23,8 +23,10 @@ signals:
     void ServerMessage(const QString& message);
 
 private:
+    void OnClientDisconnected();
     void OnNewConnection();
     void OnClientMessage();
+    void SendResponseToClients(const GameStateUtils::StateResponse& response);
 
     std::unique_ptr<JeopardyGame> m_game;
 
@@ -36,5 +38,7 @@ private:
     QTcpServer* m_server;
 
     QList<QTcpSocket*> m_sockets;
+
+    int m_playersReadyToPlay;
 };
 

@@ -17,6 +17,7 @@ private Q_SLOTS:
     void testLoadGame();
     void testStateActionFromString();
     void testStateResponseFromString();
+    void testParseResponseServerText();
 };
 
 JeopardyDatabaseTest::JeopardyDatabaseTest()
@@ -85,7 +86,7 @@ void JeopardyDatabaseTest::testStateActionFromString()
     StateAction result;
     result.column = 0;
     result.row = 0;
-    result.state = GameState::BOARD;
+    result.state = GameState::BOARD_START;
     runTestSAFS("s:5;r:0;c:0;m:", result, true);
 
     result.message = "message";
@@ -116,6 +117,31 @@ void JeopardyDatabaseTest::testStateResponseFromString()
     runTestSRFS("s:2;r:-1;c:-1;m:b:", defaultResponse, false);
     runTestSRFS("s:2;r:-1;c:2;m:;b:", defaultResponse, false);
     runTestSRFS("s:2;r:-8;c:-1;m:;b:", defaultResponse, false);
+}
+
+void runTestPRST(QString serverClues, bool success)
+{
+    bool parseTotalSuccess = true;
+
+    for( int column = 0; column<TOTAL_COLS; column++)
+    {
+        auto result = GetCategoryHeader(serverClues);
+        parseTotalSuccess = parseTotalSuccess && result.first;
+
+        for( int row = 0; row<TOTAL_ROWS; row++)
+        {
+            auto result = GetClueText(serverClues);
+            parseTotalSuccess = parseTotalSuccess && result.first;
+        }
+    }
+
+    QVERIFY(success == parseTotalSuccess);
+}
+
+void JeopardyDatabaseTest::testParseResponseServerText()
+{
+    runTestPRST("", false);
+    runTestPRST("|THE HISTORY CHANNEL,$200,$400,$600,$800,|AD CAMPAIGNS,$200,$400,$600,$800,$1000|KNOW YOUR MUPPETS,$200,$400,$600,$800,$1000|PRESIDENTIAL LIFETIMES,$200,$400,$600,$800,$1000|UNIVERSITY OF MICHIGAN ALUMNI,$200,$400,$600,$800,$1000|ENDS IN \"X\",$200,$400,$600,$800,$1000", true);
 }
 
 QTEST_APPLESS_MAIN(JeopardyDatabaseTest)
