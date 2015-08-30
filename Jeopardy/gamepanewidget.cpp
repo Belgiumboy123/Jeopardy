@@ -91,7 +91,10 @@ GamePaneWidget::GamePaneWidget(QWidget *parent)
   , m_ui(new Ui::GamePaneWidget)
   , m_options(OptionsData::GetInstance())
   , m_timeIntervals(m_options.m_timeIntervals)
+  , m_clueTimer(nullptr)
+  , m_timeOverTimer(nullptr)
   , m_isAutoPlayEnabled(false)
+  , m_autoPlayTimer(nullptr)
   , m_mediaPlayer(nullptr)
 {
     m_ui->setupUi(this);
@@ -175,7 +178,10 @@ GamePaneWidget::OnStateChanged(GameStateUtils::GameState state, const QModelInde
         {
             // pick an index to start animating from
             m_clickedIndex = index;
-            m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::Select);
+
+            // The following both caus non-consistent crashes, this means user can't tell what the first selected clue is
+            //m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::Select);
+            //m_ui->tableView->setCurrentIndex(m_clickedIndex);
 
             AutoPlayNextClue(index);
         }
