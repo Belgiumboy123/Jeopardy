@@ -8,6 +8,11 @@
 
 using GameStateUtils::GameState;
 using GameStateUtils::GameStateString;
+using JeopardyServerMessageType::NONE;
+using JeopardyServerMessageType::SENT;
+using JeopardyServerMessageType::IGNORED;
+using JeopardyServerMessageType::RECEIVED;
+using JeopardyServerMessageType::ERROR;
 
 JeopardyServer::JeopardyServer()
     : QObject()
@@ -55,7 +60,7 @@ JeopardyServer::StartServer(const int port)
         pair.first = true;
         pair.second = tr("Server started on IP: %1 on host %2.").arg(ipAddress).arg(QString::number(port));
 
-        emit ServerMessage("Server started.");
+        emit ServerMessage("Server started.", NONE);
         connect( m_server, &QTcpServer::newConnection, this, &JeopardyServer::OnNewConnection);
     }
 
@@ -75,7 +80,7 @@ JeopardyServer::OnNewConnection()
 
         m_sockets << socket;
 
-        emit ServerMessage( QString::number(socket->socketDescriptor()) + tr(": made Connection.") );
+        emit ServerMessage( QString::number(socket->socketDescriptor()) + tr(": made Connection."), NONE );
 
         if( m_sockets.size() == 2)
         {
@@ -92,7 +97,7 @@ JeopardyServer::OnNewConnection()
             for( auto socket : m_sockets)
             {
                 connect( socket, &QTcpSocket::readyRead, this, &JeopardyServer::OnClientMessage );
-                emit ServerMessage(tr("Sending message to both players: ") + message);
+                emit ServerMessage(tr("Sending message to both players: ") + message, SENT);
                 socket->write( message );
             }
 
@@ -113,19 +118,19 @@ JeopardyServer::OnClientMessage()
     QTcpSocket* socket = qobject_cast<QTcpSocket*>(QObject::sender());
     if(!socket)
     {
-        emit ServerMessage("Unable to cast to QObject::sender()");
+        emit ServerMessage("Unable to cast to QObject::sender()", ERROR);
         return;
     }
 
     auto message = socket->readAll();
     const QString str = QString(message.constData());
 
-    emit ServerMessage("Attempting to parse message: " + message);
+    emit ServerMessage("Attempting to parse message: " + message, NONE);
     const auto pair = GameStateUtils::StateAction::GenerateFromString(str);
 
     if(pair.first)
     {
-        emit ServerMessage("Message from " + QString::number(socket->socketDescriptor()) + ": " + str);
+        emit ServerMessage("Message from " + QString::number(socket->socketDescriptor()) + ": " + str, RECEIVED);
 
         const GameStateUtils::StateAction& action = pair.second;
 
@@ -133,7 +138,7 @@ JeopardyServer::OnClientMessage()
         {
             m_playersReadyToPlay++;
 
-            emit ServerMessage(QString::number(socket->socketDescriptor()) + " is ready to play.");
+            emit ServerMessage(QString::number(socket->socketDescriptor()) + " is ready to play.", NONE);
 
             if(m_playersReadyToPlay == 2)
             {
@@ -161,18 +166,18 @@ JeopardyServer::OnClientMessage()
             {
                 const auto response = m_game->DoStateAction(action);
                 SendResponseToClients(response);
-                emit ServerMessage( "Server state is " + GameStateString[m_serverGameState] + " after action on " + GameStateString[action.state] + ".");
+                emit ServerMessage( "Server state is " + GameStateString[m_serverGameState] + " after action on " + GameStateString[action.state] + ".", NONE);
             }
             else
             {
-                emit ServerMessage("Ignoring this message because server state doesn't equal the client action state.");
-                emit ServerMessage( GameStateString[m_serverGameState] + " - ignored state - " + GameStateString[action.state] + ".");
+                emit ServerMessage("Ignoring this message because server state doesn't equal the client action state.", IGNORED);
+                emit ServerMessage("Server state is " + GameStateString[m_serverGameState] + " - ignored action on state - " + GameStateString[action.state] + ".", NONE);
             }
         }
     }
     else
     {
-        emit ServerMessage("Parse failed " + message);
+        emit ServerMessage("Parse failed " + message, ERROR);
     }
 }
 
@@ -203,7 +208,7 @@ JeopardyServer::SendResponseToClients(const GameStateUtils::StateResponse& respo
     }
 
     // log the sent message
-    emit ServerMessage(tr("Sending message to both players: ") + message);
+    emit ServerMessage(tr("Sending message to both players: ") + message, SENT);
 }
 
 void

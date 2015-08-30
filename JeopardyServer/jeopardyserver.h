@@ -8,6 +8,15 @@ class JeopardyGame;
 class QTcpServer;
 class QTcpSocket;
 
+enum class JeopardyServerMessageType
+{
+    SENT = 0,
+    RECEIVED,
+    IGNORED,
+    NONE,
+    ERROR
+};
+
 class JeopardyServer : public QObject
 {
     Q_OBJECT
@@ -20,7 +29,7 @@ public:
     void CloseServer();
 
 signals:
-    void ServerMessage(const QString& message);
+    void ServerMessage(const QString& message, JeopardyServerMessageType type);
 
 private:
     void OnClientDisconnected();

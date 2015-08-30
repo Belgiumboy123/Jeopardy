@@ -130,6 +130,7 @@ void
 MainWindow::OnOfflineGameStart()
 {
     // Setup the OfflineStateHandler for gamePaneWidget
+    m_ui->gamePaneWidget->SetAutoPlayEnabled(m_ui->autoPlayCheckBox->isChecked());
     std::unique_ptr<IStateHandler> stateHandler(new StateHandlerOffline);
     m_ui->gamePaneWidget->StartGame(std::move(stateHandler));
     ShowGameState(GAME);

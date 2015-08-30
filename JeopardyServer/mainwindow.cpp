@@ -3,6 +3,7 @@
 
 #include "jeopardyserver.h"
 
+#include <QDateTime>
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -96,10 +97,42 @@ MainWindow::OnStartClicked()
 }
 
 void
-MainWindow::OnServerMessage(const QString& message)
+MainWindow::OnServerMessage(const QString& message, const JeopardyServerMessageType& type)
 {
-    qDebug() << message;
-    m_ui->textEdit->appendPlainText(message);
+    auto textCharFormat = m_ui->textEdit->currentCharFormat();
+
+    auto bgColor = Qt::white;
+
+    switch(type)
+    {
+    case JeopardyServerMessageType::ERROR:
+        bgColor = Qt::red;
+        break;
+
+    case JeopardyServerMessageType::SENT:
+        bgColor = Qt::green;
+        break;
+
+    case JeopardyServerMessageType::IGNORED:
+        bgColor = Qt::yellow;
+        break;
+
+    case JeopardyServerMessageType::RECEIVED:
+        bgColor = Qt::cyan;
+        break;
+
+    default:
+        break;
+    }
+
+    textCharFormat.setBackground(bgColor);
+    m_ui->textEdit->setCurrentCharFormat(textCharFormat);
+
+    const auto dtString = QDateTime::currentDateTime().toString("HH:MM:ss.zzz");
+    const QString timeMessage = dtString + QString("> ") + message;
+
+    qDebug() << timeMessage;
+    m_ui->textEdit->appendPlainText(timeMessage);
 }
 
 void

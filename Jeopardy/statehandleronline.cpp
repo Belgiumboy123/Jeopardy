@@ -159,6 +159,10 @@ StateHandlerOnline::OnServerMessage()
 
         emit StateChanged(response.state, responseIndex, response.message);
     }
+    else
+    {
+        qDebug() << "Unable to parse message-------------------------------";
+    }
 }
 
 void

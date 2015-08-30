@@ -7,6 +7,7 @@ class QTcpServer;
 class QTcpSocket;
 
 class JeopardyServer;
+enum class JeopardyServerMessageType;
 
 namespace Ui {
 class MainWindow;
@@ -22,7 +23,7 @@ public:
 
 private:
     void OnStartClicked();
-    void OnServerMessage(const QString& message);
+    void OnServerMessage(const QString& message, const JeopardyServerMessageType& type);
     void OnCloseServer();
 
     std::unique_ptr<Ui::MainWindow> m_ui;

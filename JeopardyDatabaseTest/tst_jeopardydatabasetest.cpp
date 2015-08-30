@@ -17,7 +17,7 @@ private Q_SLOTS:
     void testLoadGame();
     void testStateActionFromString();
     void testStateResponseFromString();
-    void testParseResponseServerText();
+    void testParseResponseServerClues();
 };
 
 JeopardyDatabaseTest::JeopardyDatabaseTest()
@@ -73,24 +73,24 @@ void JeopardyDatabaseTest::testStateActionFromString()
     StateAction defaultAction;
 
     runTestSAFS("", defaultAction, false);
-    runTestSAFS(";;;;", defaultAction, false);
-    runTestSAFS(";;;", defaultAction, false);
-    runTestSAFS("s:2;;;", defaultAction, false);
-    runTestSAFS("s:2;r:0;c:0;msg:", defaultAction, false);
-    runTestSAFS("s:2;r:0;c:0;m;", defaultAction, false);
-    runTestSAFS("s:2;r:7;c:0;m:", defaultAction, false);
-    runTestSAFS("s:200;r:0;c:0;m:", defaultAction, false);
-    runTestSAFS("s:2;r:0;c:-1;m:", defaultAction, false);
-    runTestSAFS("s:5;r:0;c:0;m:message;b:", defaultAction, false);
+    runTestSAFS("^^^^^^^^", defaultAction, false);
+    runTestSAFS("^^^^^^", defaultAction, false);
+    runTestSAFS("s:2^^^^^^", defaultAction, false);
+    runTestSAFS("s:2^^r:0^^c:0^^msg:", defaultAction, false);
+    runTestSAFS("s:2^^r:0^^c:0^^m^^", defaultAction, false);
+    runTestSAFS("s:2^^r:7^^c:0^^m:", defaultAction, false);
+    runTestSAFS("s:200^^r:0^^c:0^^m:", defaultAction, false);
+    runTestSAFS("s:2^^r:0^^c:-1^^m:", defaultAction, false);
+    runTestSAFS("s:5^^r:0^^c:0^^m:message^^b:", defaultAction, false);
 
     StateAction result;
     result.column = 0;
     result.row = 0;
     result.state = GameState::BOARD_START;
-    runTestSAFS("s:5;r:0;c:0;m:", result, true);
+    runTestSAFS("s:5^^r:0^^c:0^^m:", result, true);
 
     result.message = "message";
-    runTestSAFS("s:5;r:0;c:0;m:message", result, true);
+    runTestSAFS("s:5^^r:0^^c:0^^m:message", result, true);
 }
 
 void runTestSRFS(const QString& str, const StateResponse& expectedAction, const bool successParse)
@@ -111,12 +111,21 @@ void JeopardyDatabaseTest::testStateResponseFromString()
     result.state = GameState::SERVER_START_MENU;
     result.row = -1;
     result.column = -1;
-    runTestSRFS("s:2;r:-1;c:-1;m:;b:", result, true);
+    runTestSRFS("s:2^^r:-1^^c:-1^^m:^^b:", result, true);
 
     StateResponse defaultResponse;
-    runTestSRFS("s:2;r:-1;c:-1;m:b:", defaultResponse, false);
-    runTestSRFS("s:2;r:-1;c:2;m:;b:", defaultResponse, false);
-    runTestSRFS("s:2;r:-8;c:-1;m:;b:", defaultResponse, false);
+    runTestSRFS("s:2^^r:-1^^c:-1^^m:b:", defaultResponse, false);
+    runTestSRFS("s:2^^r:-1^^c:2^^m:^^b:", defaultResponse, false);
+    runTestSRFS("s:2^^r:-8^^c:-1;m:^^b:", defaultResponse, false);
+
+    // The clue answer has a ; (semicolon) in it. Which was being used as the delimeter
+    // So obviously this wasn't being parsed correctly
+    const QString message = "s:7^^r:4^^c:4^^m:IT'S FUN TO RIDE THE AERIAL TRAMWAY FROM MANHATTAN TO THIS EAST RIVER ISLAND; CATCH IT AT 2ND AVENUE & 59TH STREET^^b:";
+    result.state = GameState::CLUE_QUESTION;
+    result.row = 4;
+    result.column = 4;
+    result.message = "IT'S FUN TO RIDE THE AERIAL TRAMWAY FROM MANHATTAN TO THIS EAST RIVER ISLAND; CATCH IT AT 2ND AVENUE & 59TH STREET";
+    runTestSRFS(message, result, true);
 }
 
 void runTestPRST(QString serverClues, bool success)
@@ -138,7 +147,7 @@ void runTestPRST(QString serverClues, bool success)
     QVERIFY(success == parseTotalSuccess);
 }
 
-void JeopardyDatabaseTest::testParseResponseServerText()
+void JeopardyDatabaseTest::testParseResponseServerClues()
 {
     runTestPRST("", false);
     runTestPRST("|THE HISTORY CHANNEL,$200,$400,$600,$800,|AD CAMPAIGNS,$200,$400,$600,$800,$1000|KNOW YOUR MUPPETS,$200,$400,$600,$800,$1000|PRESIDENTIAL LIFETIMES,$200,$400,$600,$800,$1000|UNIVERSITY OF MICHIGAN ALUMNI,$200,$400,$600,$800,$1000|ENDS IN \"X\",$200,$400,$600,$800,$1000", true);

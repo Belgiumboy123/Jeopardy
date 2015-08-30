@@ -238,15 +238,14 @@ Clues::GetNumberOfUnansweredClues() const
 
 namespace
 {
-    const QString S_DELIMIT     = ";";
-    const QString S_TOKEN       = ":";
+    const QString S_DELIMIT     = "^^";
     const QString S_STATE       = "s:";
     const QString S_ROW         = "r:";
     const QString S_COLUMN      = "c:";
     const QString S_MSG         = "m:";
     const QString S_CLUES       = "b:";
     const QString S_CATEGORY    = "|";
-    const QString S_CLUE        = ",";
+    const QString S_CLUE        = ",";  // Assumes there are no commas in category names
 
     const int state_upper_bound = static_cast<int>(GameStateUtils::GameState::INVALID);
 
