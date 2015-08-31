@@ -18,15 +18,15 @@ ConnectOnlineWidget::ConnectOnlineWidget(QWidget *parent) :
     mainPalette.setColor(foregroundRole(), Qt::white);
     setPalette(mainPalette);
 
-    QFont boardFont( QtUtil::GetBasicBoardFont() );
+    QFont titleFont( QtUtil::GetBasicTitleFont() );
     QFont controlFont( QtUtil::GetBasicClueFont() );
     controlFont.setPointSize(40);
 
     auto titleLabelPal = m_ui->titleLabel->palette();
     titleLabelPal.setColor(m_ui->titleLabel->foregroundRole(), BOARD_TEXT);
     m_ui->titleLabel->setPalette(titleLabelPal);
-    boardFont.setPointSize(120);
-    m_ui->titleLabel->setFont(boardFont);
+    titleFont.setPointSize(120);
+    m_ui->titleLabel->setFont(titleFont);
 
     QFont headerFont(controlFont);
     headerFont.setPointSize(52);

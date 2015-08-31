@@ -21,18 +21,20 @@ MainWindow::MainWindow(QWidget *parent/*=nullptr*/)
     // Load the two needed fonts from resources.qrc
     QFontDatabase::addApplicationFont(":/korinna");
     QFontDatabase::addApplicationFont(":/swiss");
+    QFontDatabase::addApplicationFont(":/swiss2");
+    QFontDatabase::addApplicationFont(":/trium");
 
     // the toolbar is unused for now
     m_ui->mainToolBar->hide();
 
-    QFont boardFont( QtUtil::GetBasicBoardFont() );
+    QFont titleFont( QtUtil::GetBasicTitleFont() );
     QFont clueFont( QtUtil::GetBasicClueFont() );
 
     auto jeopardyTitleLabelPal = m_ui->jeopardyTitleLabel->palette();
     jeopardyTitleLabelPal.setColor(m_ui->jeopardyTitleLabel->foregroundRole(), BOARD_TEXT);
     m_ui->jeopardyTitleLabel->setPalette(jeopardyTitleLabelPal);
-    boardFont.setPointSize(200);
-    m_ui->jeopardyTitleLabel->setFont(boardFont);
+    titleFont.setPointSize(200);
+    m_ui->jeopardyTitleLabel->setFont(titleFont);
 
     QFont buttonFont(clueFont);
     buttonFont.setPointSize(40);

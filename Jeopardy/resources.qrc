@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file alias="korinna">fonts/Korinna Regular BT.ttf</file>
         <file alias="swiss">fonts/Swiss 911 Extra Compressed.ttf</file>
+        <file alias="trium">fonts/Triumvirate CG Inserat.otf</file>
     </qresource>
 </RCC>

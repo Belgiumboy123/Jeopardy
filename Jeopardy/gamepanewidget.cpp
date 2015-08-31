@@ -117,7 +117,8 @@ GamePaneWidget::GamePaneWidget(QWidget *parent)
     m_ui->tableView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     m_ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    m_ui->tableView->setFont(QtUtil::GetBasicBoardFont());
+    QFont boardFont( QtUtil::GetBasicBoardFont() );
+    m_ui->tableView->setFont(boardFont);
 
     m_ui->clueLabel->setAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
     m_ui->clueLabel->setWordWrap(true);
