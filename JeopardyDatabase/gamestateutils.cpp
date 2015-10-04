@@ -394,3 +394,22 @@ StateResponse::GenerateFromString(const QString& str)
     pair.second.serverClues = clues;
     return pair;
 }
+
+int
+GameStateUtils::GetEditDistance(const QString& str1, const QString str2)
+{
+    if(str1.isEmpty())
+    {
+        return str2.length();
+    }
+
+    if(str2.isEmpty())
+    {
+       return str1.length();
+    }
+
+    QVector< QVector<int> > values( str2.length(), QVector<int>() );
+
+    return 0;
+}
+

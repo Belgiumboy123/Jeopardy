@@ -141,5 +141,7 @@ namespace GameStateUtils
 
     std::pair<bool,QString> GetCategoryHeader(QString& clues);
     std::pair<bool,QString> GetClueText(QString& clues);
+
+    int GetEditDistance(const QString& str1, const QString str2);
 }
 

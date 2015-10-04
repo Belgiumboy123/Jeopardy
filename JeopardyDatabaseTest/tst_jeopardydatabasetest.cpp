@@ -18,6 +18,7 @@ private Q_SLOTS:
     void testStateActionFromString();
     void testStateResponseFromString();
     void testParseResponseServerClues();
+    void testGetEditDistance();
 };
 
 JeopardyDatabaseTest::JeopardyDatabaseTest()
@@ -151,6 +152,21 @@ void JeopardyDatabaseTest::testParseResponseServerClues()
 {
     runTestPRST("", false);
     runTestPRST("|THE HISTORY CHANNEL,$200,$400,$600,$800,|AD CAMPAIGNS,$200,$400,$600,$800,$1000|KNOW YOUR MUPPETS,$200,$400,$600,$800,$1000|PRESIDENTIAL LIFETIMES,$200,$400,$600,$800,$1000|UNIVERSITY OF MICHIGAN ALUMNI,$200,$400,$600,$800,$1000|ENDS IN \"X\",$200,$400,$600,$800,$1000", true);
+}
+
+void runEditDistanceTest(const QString& str1, const QString& str2, const int expectedEditDistance)
+{
+    const int actualEditDistance = GameStateUtils::GetEditDistance(str1, str2);
+    QVERIFY(actualEditDistance == expectedEditDistance);
+}
+
+void JeopardyDatabaseTest::testGetEditDistance()
+{
+    runEditDistanceTest("","", 0);
+    runEditDistanceTest("", "test", 4);
+    runEditDistanceTest("test", "", 4);
+
+    runEditDistanceTest("test", "best", 1);
 }
 
 QTEST_APPLESS_MAIN(JeopardyDatabaseTest)
