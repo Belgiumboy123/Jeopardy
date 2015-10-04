@@ -4,7 +4,7 @@ echo "Starting deployment-------------------------"
 
 # needed directories
 DEPLOY_DIR=$(pwd)
-BUILD_DIR=../Jeopardy-build/Release/Jeopardy
+BUILD_DIR=../Jeopardy-build/Qt5.3/Release/Jeopardy
 RESOURCES_DIR=../Resources
 
 # blow away the old saved app
