@@ -17,6 +17,20 @@ JeopardyServerNoUi::JeopardyServerNoUi()
 }
 
 bool
+JeopardyServerNoUi::Start(const QString& port)
+{
+    bool ok;
+    int portNumber = port.toInt(&ok);
+
+    if( ok )
+    {
+        return Start(portNumber);
+    }
+
+    return false;
+}
+
+bool
 JeopardyServerNoUi::Start(const int portNumber)
 {
     connect( m_server.get(), &JeopardyServer::ServerMessage, this, &JeopardyServerNoUi::OnServerMessage);

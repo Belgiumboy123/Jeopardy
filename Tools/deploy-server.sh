@@ -17,6 +17,7 @@ cp -f -R $BUILD_DIR/JeopardyServer.app $DEPLOY_DIR
 
 # copy the needed resources into app bundle resources
 cp -f $RESOURCES_DIR/Server.icns $DEPLOY_DIR/JeopardyServer.app/Contents/Resources
+cp -f $RESOURCES_DIR/server_settings.data $DEPLOY_DIR/JeopardyServer.app/Contents/Resources
 
 # copy over the info.plist into app bundle
 cp -f $RESOURCES_DIR/Server_Info.plist $DEPLOY_DIR/JeopardyServer.app/Contents/Info.plist

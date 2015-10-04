@@ -1,26 +1,52 @@
 #include "mainwindow.h"
-#include <QApplication>
 
+#include "jeopardydatabase.h"
 #include "jeopardyservernoui.h"
+
+#include <QApplication>
+#include <QDebug>
+#include <QFile>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
+
+    const QString serverSettings = DatabaseUtils::GetFilePathAppResourcesFile("server_settings.data");
+    QFile file(serverSettings);
+    QString port;
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        while (!file.atEnd())
+        {
+            QString line = file.readLine();
+            QStringList valuePair = line.split("=");
+            if( valuePair.size() == 2)
+            {
+                if( valuePair.at(0).toUpper() == "PORT")
+                {
+                    port = valuePair.at(1);
+                }
+            }
+        }
+    }
+    file.close();
+
+    JeopardyServerNoUi server;
+    if(server.Start(port))
+    {
+        // server started
+        return app.exec();
+    }
 
     if( argc == 2)
     {
         QString portNumberArg = QCoreApplication::arguments().at(1);
-        bool ok;
-        int port = portNumberArg.toInt(&ok);
 
-        if( ok )
+        JeopardyServerNoUi server;
+        if( server.Start(portNumberArg) )
         {
-            JeopardyServerNoUi server;
-            if( server.Start(port) )
-            {
-                // server started
-                return a.exec();
-            }
+            // server started
+            return app.exec();
         }
     }
 
@@ -29,5 +55,5 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-    return a.exec();
+    return app.exec();
 }

@@ -22,6 +22,13 @@ QString
 DatabaseUtils::GetFilePathAppResourcesFile(const QString& filename)
 {
     CFURLRef appUrlRef = CFBundleCopyResourceURL(CFBundleGetMainBundle(), filename.toCFString(), NULL, NULL);
+    if( !appUrlRef)
+    {
+        // if the file cannot be found or doesn't exist
+        // the appUrlRef will be null so just return the filename
+        return filename;
+    }
+
     CFStringRef filePathRef = CFURLCopyPath(appUrlRef);
     const char* filePath = CFStringGetCStringPtr(filePathRef, kCFStringEncodingUTF8);
     const QString filePathFinal = QString(filePath);

@@ -11,19 +11,19 @@ echo "Copying over needed resouce files to both Debug and Release app bundles...
 RESOURCES_DIR=../Resources
 BUILD_DIR_R=../Jeopardy-build/Qt5.3/Release/Jeopardy/Jeopardy.app/Contents/Resources
 BUILD_DIR_D=../Jeopardy-build/Qt5.3/Debug/Jeopardy/Jeopardy.app/Contents/Resources
-BUILD_DIR_SR=../Jeopardy-build/Qt5.3/Release/JeopardyServer/JeopardyServer.app/Contents/Resources
-BUILD_DIR_SD=../Jeopardy-build/Qt5.3/Debug/JeopardyServer/JeopardyServer.app/Contents/Resources
+BUILD_DIR_SR=../Jeopardy-build/Qt5.3/Release/JeopardyServerUi/JeopardyServer.app/Contents/Resources
+BUILD_DIR_SD=../Jeopardy-build/Qt5.3/Debug/JeopardyServerUi/JeopardyServer.app/Contents/Resources
 
-cp -f $RESOURCES_DIR/clues.db $BUILD_DIR_D
-cp -f $RESOURCES_DIR/song.mp3 $BUILD_DIR_D
+cp -f $RESOURCES_DIR/clues.db               $BUILD_DIR_D
+cp -f $RESOURCES_DIR/song.mp3               $BUILD_DIR_D
 
-cp -f $RESOURCES_DIR/clues.db $BUILD_DIR_R
-cp -f $RESOURCES_DIR/song.mp3 $BUILD_DIR_R
+cp -f $RESOURCES_DIR/clues.db               $BUILD_DIR_R
+cp -f $RESOURCES_DIR/song.mp3               $BUILD_DIR_R
 
-cp -f $RESOURCES_DIR/clues.db $BUILD_DIR_SD
-cp -f $RESOURCES_DIR/song.mp3 $BUILD_DIR_SD
+cp -f $RESOURCES_DIR/clues.db               $BUILD_DIR_SD
+cp -f $RESOURCES_DIR/server_settings.data   $BUILD_DIR_SD
 
-cp -f $RESOURCES_DIR/clues.db $BUILD_DIR_SR
-cp -f $RESOURCES_DIR/song.mp3 $BUILD_DIR_SR
+cp -f $RESOURCES_DIR/clues.db               $BUILD_DIR_SR
+cp -f $RESOURCES_DIR/server_settings.data   $BUILD_DIR_SR
 
 echo "Done. Now should be able to launch and run app in Qt Creator."
