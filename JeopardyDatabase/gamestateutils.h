@@ -28,6 +28,7 @@ namespace GameStateUtils
         FINAL_ANSWER,
         GAME_OVER,
         PAUSED,
+        OPPONENT_DISCONNECTED,
         INVALID // Used for parsing gamestate
     };
 

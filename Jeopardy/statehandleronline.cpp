@@ -141,7 +141,7 @@ StateHandlerOnline::OnServerMessage()
             LoadModelFromCluesString(response.serverClues);
             break;
 
-        case GameState::CLUE_QUESTION: // TODO clean up duplicate code from offline handler
+        case GameState::CLUE_QUESTION:
             // Only emit state changed if clue isn't empty.
             // The clue might be empty because the either the clue has already been asked
             // Or the clue never existed to begin with
@@ -151,6 +151,10 @@ StateHandlerOnline::OnServerMessage()
             }
 
             GetModel()->itemFromIndex(responseIndex)->setText("");
+            break;
+
+        case GameState::OPPONENT_DISCONNECTED:
+            emit ConnectionLost("Opponent has disconnected!");
             break;
 
         default:

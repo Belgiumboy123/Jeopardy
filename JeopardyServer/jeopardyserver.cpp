@@ -109,7 +109,24 @@ JeopardyServer::OnNewConnection()
 void
 JeopardyServer::OnClientDisconnected()
 {
-    // TODO logic here
+    QTcpSocket* disconnectedSocket = qobject_cast<QTcpSocket*>(QObject::sender());
+
+    for( auto socket : m_sockets)
+    {
+        if( socket != disconnectedSocket)
+        {
+            GameStateUtils::StateResponse response;
+            response.state = GameState::OPPONENT_DISCONNECTED;
+
+            const auto message = response.ToString().toLocal8Bit();
+            socket->write( message );
+        }
+
+        socket->disconnectFromHost();
+        socket->deleteLater();
+    }
+
+    m_sockets.clear();
 }
 
 void
@@ -227,5 +244,8 @@ JeopardyServer::CloseServer()
     m_sockets.clear();
 }
 
-JeopardyServer::~JeopardyServer() {}
+JeopardyServer::~JeopardyServer()
+{
+    CloseServer();
+}
 
