@@ -128,7 +128,7 @@ MainWindow::OnServerMessage(const QString& message, const JeopardyServerMessageT
     textCharFormat.setBackground(bgColor);
     m_ui->textEdit->setCurrentCharFormat(textCharFormat);
 
-    const auto dtString = QDateTime::currentDateTime().toString("HH:MM:ss.zzz");
+    const auto dtString = QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
     const QString timeMessage = dtString + QString("> ") + message;
 
     qDebug() << timeMessage;
