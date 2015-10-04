@@ -408,8 +408,6 @@ GameStateUtils::GetEditDistance(const QString& str1, const QString str2)
        return str1.length();
     }
 
-    QVector< QVector<int> > values( str2.length(), QVector<int>() );
-
     return 0;
 }
 
