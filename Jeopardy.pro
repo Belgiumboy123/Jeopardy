@@ -4,4 +4,5 @@ SUBDIRS += \
     JeopardyDatabase \
     JeopardyDatabaseTest \
     Jeopardy \
-    JeopardyServerUI
+    JeopardyServerUI \
+    JeopardyServer

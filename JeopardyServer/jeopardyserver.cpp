@@ -156,11 +156,8 @@ JeopardyServer::OnClientMessage()
         }
         else
         {
-            // Checks to make sure we don't do action's twice.
-            // TODO we should be smarter about this check
-
-            // TODO this below block needs to be atomic
-            // only one client should be allowed to enter this block at once.
+            // Will this alwasy be the case? Are there actions for which both players
+            // need to entier and properly enter state into the Game?
 
             if( m_serverGameState == action.state)
             {
