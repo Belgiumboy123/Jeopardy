@@ -70,13 +70,16 @@ StateHandlerOnline::LoadModelFromCluesString(QString clues)
 }
 
 void
-StateHandlerOnline::DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index)
+StateHandlerOnline::DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index /*=QModelIndex()*/)
 {
     if( currentState == GameState::MENU)
     {
         // Server loaded the board on state SERVER_START_GAME
         // so just return board start here.
-        // TODO how to grab the index the server actually returned?
+
+        // We could either fire another message to this to server
+        // Though this seems a bit redundant, or save and use
+        // the responseIndex from the SERVER_START_Game state
 
         const auto& responseIndex = GetModel()->index(0, 0);
         emit StateChanged(GameState::BOARD_START, responseIndex, "");

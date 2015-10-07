@@ -12,7 +12,7 @@ public:
     StateHandlerOnline();
     virtual ~StateHandlerOnline();
 
-    virtual void DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index);
+    virtual void DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index = QModelIndex());
     virtual void SetNextClueOptions(const NextClueOptions& nextClueOptions);
     bool AllowUserInteraction() const;
 

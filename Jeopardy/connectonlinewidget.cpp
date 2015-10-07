@@ -154,7 +154,7 @@ ConnectOnlineWidget::OnStartGameButton()
     m_ui->resultLabel->setText("Waiting for other player...");
     m_ui->resultLabel->show();
 
-    m_stateHandler->DoActionOnState(GameStateUtils::GameState::SERVER_START_MENU, QModelIndex()/*TODO why is this argument necassary*/);
+    m_stateHandler->DoActionOnState(GameStateUtils::GameState::SERVER_START_MENU);
 }
 
 void

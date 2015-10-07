@@ -60,7 +60,7 @@ StateHandlerOffline::SetNextClueOptions(const NextClueOptions& nextClueOptions)
 }
 
 void
-StateHandlerOffline::DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index)
+StateHandlerOffline::DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index/*=QModelIndex()*/)
 {
     GameStateUtils::StateAction action;
     action.column = index.column();

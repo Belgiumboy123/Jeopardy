@@ -19,9 +19,3 @@ IStateHandler::GetModel() const
     return m_model.get();
 }
 
-void
-IStateHandler::DoActionOnState(GameStateUtils::GameState currentState)
-{
-    DoActionOnState(currentState, QModelIndex());
-}
-
