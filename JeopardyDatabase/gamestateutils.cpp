@@ -395,6 +395,24 @@ StateResponse::GenerateFromString(const QString& str)
     return pair;
 }
 
+// Meant for test only
+void printData(const std::vector<std::vector<int>>& data)
+{
+    QString dataS = "\n";
+
+    for( const auto& row : data)
+    {
+        for( const auto& col : row)
+        {
+            dataS += QString::number(col) + " ";
+        }
+
+        dataS += "\n";
+    }
+
+    qDebug() << dataS;
+}
+
 int
 GameStateUtils::GetEditDistance(const QString& str1, const QString str2)
 {
@@ -408,6 +426,34 @@ GameStateUtils::GetEditDistance(const QString& str1, const QString str2)
        return str1.length();
     }
 
-    return 0;
+    std::vector<std::vector<int> > data;
+    for( int row = 0; row<str1.length()+1; row++)
+    {
+        std::vector<int> rowData(str2.length()+1,0);
+        rowData[0] = row;
+        data.push_back(rowData);
+    }
+
+    for( int col = 0; col<str2.length()+1; col++)
+    {
+        data[0][col] = col;
+    }
+
+    for( int row = 1; row<str1.length()+1; row++)
+    {
+        for( int col = 1; col<str2.length()+1; col++)
+        {
+            if( str1[row-1] == str2[col-1])
+            {
+                data[row][col] = data[row-1][col-1];
+            }
+            else
+            {
+                data[row][col] = std::min(std::min(data[row-1][col],data[row-1][col-1]),data[row][col-1]) + 1;
+            }
+        }
+    }
+
+    return data[str1.length()][str2.length()];
 }
 

@@ -166,7 +166,13 @@ void JeopardyDatabaseTest::testGetEditDistance()
     runEditDistanceTest("", "test", 4);
     runEditDistanceTest("test", "", 4);
 
+    runEditDistanceTest("test", "test", 0);
     runEditDistanceTest("test", "best", 1);
+    runEditDistanceTest("tests", "best", 2);
+    runEditDistanceTest("str1", "tr1", 1);
+    runEditDistanceTest("abcde", "acd", 2);
+    runEditDistanceTest("abcd", "efghi", 5);
+    runEditDistanceTest("efghi", "abcd", 5);
 }
 
 QTEST_APPLESS_MAIN(JeopardyDatabaseTest)
