@@ -1,4 +1,4 @@
-#include "gamestateutils.h"
+ #include "gamestateutils.h"
 
 #include <QStringList>
 #include <QDebug>

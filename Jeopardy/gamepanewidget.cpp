@@ -176,7 +176,7 @@ GamePaneWidget::OnStateChanged(GameStateUtils::GameState state, const QModelInde
             // pick an index to start animating from
             m_clickedIndex = index;
 
-            // The following both caus non-consistent crashes, this means user can't tell what the first selected clue is
+            // The following both cause non-consistent crashes, this means user can't tell what the first selected clue is
             //m_ui->tableView->selectionModel()->setCurrentIndex(m_clickedIndex, QItemSelectionModel::Select);
             //m_ui->tableView->setCurrentIndex(m_clickedIndex);
 

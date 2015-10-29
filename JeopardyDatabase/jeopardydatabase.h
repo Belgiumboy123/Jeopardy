@@ -1,5 +1,4 @@
-#ifndef JEOPARDYDATABASE_H
-#define JEOPARDYDATABASE_H
+#pragma once
 
 #include "gamestateutils.h"
 
@@ -40,4 +39,3 @@ namespace DatabaseUtils
     void GetJeopardyGameInfo(const int gameID, JeopardyGameInfo& gameInfo);
 }
 
-#endif // JEOPARDYDATABASE_H

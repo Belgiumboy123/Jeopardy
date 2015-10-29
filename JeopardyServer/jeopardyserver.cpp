@@ -174,7 +174,7 @@ JeopardyServer::OnClientMessage()
         else
         {
             // Will this alwasy be the case? Are there actions for which both players
-            // need to entier and properly enter state into the Game?
+            // need to properly enter state into the Game?
 
             if( m_serverGameState == action.state)
             {
