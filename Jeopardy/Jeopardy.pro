@@ -22,7 +22,9 @@ SOURCES += main.cpp\
     statehandleroffline.cpp \
     istatehandler.cpp \
     connectonlinewidget.cpp \
-    statehandleronline.cpp
+    pickgamewidget.cpp \
+    jeopardystatehandleronline.cpp \
+    istatehandleronline.cpp
 
 HEADERS  += mainwindow.h \
     optionsdialog.h \
@@ -32,13 +34,16 @@ HEADERS  += mainwindow.h \
     statehandleroffline.h \
     istatehandler.h \
     connectonlinewidget.h \
-    statehandleronline.h
+    pickgamewidget.h \
+    jeopardystatehandleronline.h \
+    istatehandleronline.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui \
     pausedialog.ui \
     gamepanewidget.ui \
-    connectonlinewidget.ui
+    connectonlinewidget.ui \
+    pickgamewidget.ui
 
 QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
 macx: LIBS += -framework CoreFoundation

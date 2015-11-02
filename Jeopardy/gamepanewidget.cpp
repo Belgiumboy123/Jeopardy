@@ -62,6 +62,7 @@ public:
     {
         QSize size = QHeaderView::sizeHint();
         size.setHeight(120);
+        // TODO this should be max of 120 and making sure all strings fit
         return size;
     }
 
@@ -165,6 +166,9 @@ GamePaneWidget::OnStateChanged(GameStateUtils::GameState state, const QModelInde
     {
     case GameStateUtils::GameState::BOARD_START:
     {
+        // TODO, first highlight each of the categories.
+        // This can be a new mode during which there can be no user interaction
+
         m_ui->clueWidget->hide();
         m_ui->tableView->show();
         m_ui->tableView->setFocus();

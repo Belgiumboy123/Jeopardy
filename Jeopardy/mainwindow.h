@@ -33,11 +33,15 @@ private:
     void OnOnlineButtonClicked();
     void OnOfflineButtonClicked();
 
+    void OnJeopardyStart();
+    void OnBattleShipStart();
+
     std::unique_ptr<Ui::MainWindow> m_ui;
 
     enum GameState
     {
-        PICK_OFFLINE_ONLINE = 0,
+        PICK_GAME = 0,
+        PICK_JEO_OFFLINE_ONLINE,
         OFFLINE_MENU,
         ONLINE_MENU,
         GAME,

@@ -2,7 +2,7 @@
 #include "ui_connectonlinewidget.h"
 
 #include "qtutility.h"
-#include "statehandleronline.h"
+#include "istatehandleronline.h"
 
 #include <QDebug>
 
@@ -58,21 +58,21 @@ ConnectOnlineWidget::ConnectOnlineWidget(QWidget *parent) :
     m_ui->resultLabel->setPalette(resultLabelPal);
 }
 
-std::unique_ptr<StateHandlerOnline>
+std::unique_ptr<IStateHandlerOnline>
 ConnectOnlineWidget::GetStateHandler()
 {
     return std::move(m_stateHandler);
 }
 
 void
-ConnectOnlineWidget::BeginConnection(std::unique_ptr<StateHandlerOnline> stateHandler)
+ConnectOnlineWidget::BeginConnection(std::unique_ptr<IStateHandlerOnline> stateHandler)
 {
     m_stateHandler = std::move(stateHandler);
-    connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMade, this, &ConnectOnlineWidget::OnConnectionMade);
-    connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionLost, this, &ConnectOnlineWidget::OnConnectionLost);
-    connect( m_stateHandler.get(), &StateHandlerOnline::ConnectionMessage, this, &ConnectOnlineWidget::OnConnectionMessage);
-    connect( m_stateHandler.get(), &StateHandlerOnline::BothPlayersConnected, this, &ConnectOnlineWidget::OnBothPlayersConnected);
-    connect( m_stateHandler.get(), &StateHandlerOnline::StartGame, this, &ConnectOnlineWidget::StartGame);
+    connect( m_stateHandler.get(), &IStateHandlerOnline::ConnectionMade, this, &ConnectOnlineWidget::OnConnectionMade);
+    connect( m_stateHandler.get(), &IStateHandlerOnline::ConnectionLost, this, &ConnectOnlineWidget::OnConnectionLost);
+    connect( m_stateHandler.get(), &IStateHandlerOnline::ConnectionMessage, this, &ConnectOnlineWidget::OnConnectionMessage);
+    connect( m_stateHandler.get(), &IStateHandlerOnline::BothPlayersConnected, this, &ConnectOnlineWidget::OnBothPlayersConnected);
+    connect( m_stateHandler.get(), &IStateHandlerOnline::StartGame, this, &ConnectOnlineWidget::StartGame);
 
     m_ui->resultLabel->setText("");
     ShowState(ENTRY);

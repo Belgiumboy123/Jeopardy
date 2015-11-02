@@ -4,19 +4,20 @@
 
 #include <QTcpSocket>
 
-class StateHandlerOnline : public IStateHandler
+class IStateHandlerOnline : public IStateHandler
 {
     Q_OBJECT
 
 public:
-    StateHandlerOnline();
-    virtual ~StateHandlerOnline();
+    IStateHandlerOnline();
+    virtual ~IStateHandlerOnline();
 
-    virtual void DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index = QModelIndex());
     virtual void SetNextClueOptions(const NextClueOptions& nextClueOptions);
-    bool AllowUserInteraction() const;
+    virtual bool AllowUserInteraction() const;
 
     void ConnectToHost(const QString& hostname, const int port);
+
+    virtual void DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index = QModelIndex());
 
 signals:
     void ConnectionMessage(const QString& message);
@@ -33,7 +34,7 @@ private:
     void OnDisconnected();
     void OnServerMessage();
 
-    void LoadModelFromCluesString(QString clues);
+    virtual void HandleServerResponse() = 0;
 
     QTcpSocket* m_socket;
 };

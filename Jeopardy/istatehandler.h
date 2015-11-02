@@ -14,7 +14,7 @@ class IStateHandler : public QObject
     Q_OBJECT
 
 public:
-    explicit IStateHandler();
+    IStateHandler();
     virtual ~IStateHandler();
 
     virtual void DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index = QModelIndex()) = 0;

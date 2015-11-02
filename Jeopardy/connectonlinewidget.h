@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class StateHandlerOnline;
+class IStateHandlerOnline;
 namespace Ui {
 class ConnectOnlineWidget;
 }
@@ -16,8 +16,8 @@ public:
     explicit ConnectOnlineWidget(QWidget *parent = 0);
     ~ConnectOnlineWidget();
 
-    void BeginConnection(std::unique_ptr<StateHandlerOnline> stateHandler);
-    std::unique_ptr<StateHandlerOnline> GetStateHandler();
+    void BeginConnection(std::unique_ptr<IStateHandlerOnline> stateHandler);
+    std::unique_ptr<IStateHandlerOnline> GetStateHandler();
 
 signals:
     void StartGame();
@@ -44,7 +44,7 @@ private:
 
     void ShowState( State state);
 
-    std::unique_ptr<StateHandlerOnline> m_stateHandler;
+    std::unique_ptr<IStateHandlerOnline> m_stateHandler;
 };
 
 #endif // CONNECTONLINEWIDGET_H
