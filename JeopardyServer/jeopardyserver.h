@@ -47,6 +47,16 @@ private:
     QTcpServer* m_server;
 
     QList<QTcpSocket*> m_sockets;
+    QList<QTcpSocket*> m_jeopardySockets;
+
+    enum Games
+    {
+        Jeopardy = 0,
+        Battleship,
+        NUM_GAMES
+    };
+
+    std::vector<int> m_gamePlayersReady;
 
     int m_playersReadyToPlay;
 };

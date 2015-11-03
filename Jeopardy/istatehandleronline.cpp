@@ -83,7 +83,7 @@ IStateHandlerOnline::OnServerMessage()
         }
 
         // Let derived state handlers do their thing
-        HandleServerResponse();
+        HandleServerResponse(response);
     }
     else
     {

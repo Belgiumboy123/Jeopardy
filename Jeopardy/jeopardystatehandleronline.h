@@ -13,7 +13,7 @@ public:
     virtual void DoActionOnState(GameStateUtils::GameState currentState, const QModelIndex& index = QModelIndex());
 
 private:
-    virtual void HandleServerResponse();
+    virtual void HandleServerResponse(const GameStateUtils::StateResponse& response);
 
     void LoadModelFromCluesString(QString clues);
 };

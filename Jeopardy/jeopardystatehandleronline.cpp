@@ -78,58 +78,44 @@ JeopardyStateHandlerOnline::DoActionOnState(GameStateUtils::GameState currentSta
 }
 
 void
-JeopardyStateHandlerOnline::HandleServerResponse()
+JeopardyStateHandlerOnline::HandleServerResponse(const GameStateUtils::StateResponse& response)
 {
-    /*
-    auto message = m_socket->readAll();
-    QString str = QString(message.constData());
-    auto pair = GameStateUtils::StateResponse::GenerateFromString(str);
+    const auto& responseIndex = GetModel()->index(response.row, response.column);
 
-    if(pair.first)
+    // $Mark use this as chat in when the game has started
+    emit ConnectionMessage(response.message);
+
+    switch(response.state)
     {
-        const GameStateUtils::StateResponse& response = pair.second;
-        const auto& responseIndex = GetModel()->index(response.row, response.column);
+    case GameState::SERVER_GAME_PICK:
+        DoActionOnState(GameState::SERVER_GAME_JEOPARDY);
+        return;
 
-        // $Mark use this as chat in when the game has started
-        emit ConnectionMessage(response.message);
+    case GameState::SERVER_GAME_START:
+        LoadModelFromCluesString(response.serverClues);
+        emit StartGame();
+        return;
 
-        switch(response.state)
+    case GameState::BOARD_START:
+        LoadModelFromCluesString(response.serverClues);
+        break;
+
+    case GameState::CLUE_QUESTION:
+        // Only emit state changed if clue isn't empty.
+        // The clue might be empty because the either the clue has already been asked
+        // Or the clue never existed to begin with
+        if(response.message.isEmpty())
         {
-        case GameState::SERVER_START_MENU:
-            emit BothPlayersConnected();
             return;
-
-        case GameState::SERVER_GAME_START:
-            LoadModelFromCluesString(response.serverClues);
-            emit StartGame();
-            return;
-
-        case GameState::BOARD_START:
-            LoadModelFromCluesString(response.serverClues);
-            break;
-
-        case GameState::CLUE_QUESTION:
-            // Only emit state changed if clue isn't empty.
-            // The clue might be empty because the either the clue has already been asked
-            // Or the clue never existed to begin with
-            if(response.message.isEmpty())
-            {
-                return;
-            }
-
-            GetModel()->itemFromIndex(responseIndex)->setText("");
-            break;
-
-        case GameState::OPPONENT_DISCONNECTED:
-            emit ConnectionLost("Opponent has disconnected!");
-            break;
-
-        default:
-            break;
         }
 
-        emit StateChanged(response.state, responseIndex, response.message);
+        GetModel()->itemFromIndex(responseIndex)->setText("");
+        break;
+
+    default:
+        break;
     }
-    */
+
+    emit StateChanged(response.state, responseIndex, response.message);
 }
 

@@ -14,6 +14,9 @@ namespace GameStateUtils
     {
         SERVER_OFFLINE = 0,
         SERVER_ONLINE,
+        SERVER_GAME_PICK,
+        SERVER_GAME_JEOPARDY,
+        SERVER_GAME_BATTLESHIP,
         SERVER_START_MENU,
         SERVER_GAME_START,
         MENU,

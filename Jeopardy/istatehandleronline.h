@@ -34,7 +34,7 @@ private:
     void OnDisconnected();
     void OnServerMessage();
 
-    virtual void HandleServerResponse() = 0;
+    virtual void HandleServerResponse(const GameStateUtils::StateResponse& response) = 0;
 
     QTcpSocket* m_socket;
 };

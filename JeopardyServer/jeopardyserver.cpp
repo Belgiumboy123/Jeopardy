@@ -26,6 +26,8 @@ JeopardyServer::JeopardyServer()
 
     m_serverGameState = GameState::SERVER_OFFLINE;
 
+    m_gamePlayersReady.assign(NUM_GAMES, 0);
+
     m_server = new QTcpServer(this);
 }
 
@@ -70,40 +72,25 @@ JeopardyServer::StartServer(const int port)
 void
 JeopardyServer::OnNewConnection()
 {
-    if( m_sockets.size() < 2)
-    {
-        QTcpSocket* socket = m_server->nextPendingConnection();
-        if(!socket)
-            return;
 
-        connect( socket, &QAbstractSocket::disconnected, this, &JeopardyServer::OnClientDisconnected);
+    QTcpSocket* socket = m_server->nextPendingConnection();
+    if(!socket)
+        return;
 
-        m_sockets << socket;
+    connect( socket, &QAbstractSocket::disconnected, this, &JeopardyServer::OnClientDisconnected);
 
-        emit ServerMessage( QString::number(socket->socketDescriptor()) + tr(": made Connection."), NONE );
+    m_sockets << socket;
 
-        if( m_sockets.size() == 2)
-        {
-            m_server->pauseAccepting();
+    emit ServerMessage( QString::number(socket->socketDescriptor()) + tr(": made Connection."), NONE );
 
-            m_serverGameState = GameState::SERVER_START_MENU;
+    connect( socket, &QTcpSocket::readyRead, this, &JeopardyServer::OnClientMessage );
 
-            GameStateUtils::StateResponse response;
-            response.state = m_serverGameState;
-            auto message = response.ToString().toLocal8Bit();
-
-            // tell both players the server has connected to both
-            // and is ready to start the game when the players are.
-            for( auto socket : m_sockets)
-            {
-                connect( socket, &QTcpSocket::readyRead, this, &JeopardyServer::OnClientMessage );
-                emit ServerMessage(tr("Sending message to both players: ") + message, SENT);
-                socket->write( message );
-            }
-
-            m_playersReadyToPlay = 0;
-        }
-    }
+    // Tell the client to pick a game
+    GameStateUtils::StateResponse response;
+    response.state = GameState::SERVER_GAME_PICK;
+    auto message = response.ToString().toLocal8Bit();
+    emit ServerMessage(tr("Sending message to new player: ") + message, SENT);
+    socket->write( message );
 }
 
 void
@@ -151,7 +138,35 @@ JeopardyServer::OnClientMessage()
 
         const GameStateUtils::StateAction& action = pair.second;
 
-        if( action.state == GameState::SERVER_START_MENU)
+        if( action.state == GameState::SERVER_GAME_JEOPARDY)
+        {
+            m_gamePlayersReady[Jeopardy]++;
+
+            if( m_gamePlayersReady[Jeopardy] == 2)
+            {
+                m_server->pauseAccepting();
+
+                m_serverGameState = GameState::SERVER_START_MENU;
+
+                GameStateUtils::StateResponse response;
+                response.state = m_serverGameState;
+                auto message = response.ToString().toLocal8Bit();
+
+                // tell both players the server has connected to both
+                // and is ready to start the game when the players are.
+                for( auto socket : m_sockets)
+                {
+                    connect( socket, &QTcpSocket::readyRead, this, &JeopardyServer::OnClientMessage );
+                    emit ServerMessage(tr("Sending message to both players: ") + message, SENT);
+                    socket->write( message );
+                }
+            }
+        }
+        else if( action.state == GameState::SERVER_GAME_BATTLESHIP)
+        {
+
+        }
+        else if( action.state == GameState::SERVER_START_MENU)
         {
             m_playersReadyToPlay++;
 
@@ -173,7 +188,7 @@ JeopardyServer::OnClientMessage()
         }
         else
         {
-            // Will this alwasy be the case? Are there actions for which both players
+            // Will this always be the case? Are there actions for which both players
             // need to properly enter state into the Game?
 
             if( m_serverGameState == action.state)
