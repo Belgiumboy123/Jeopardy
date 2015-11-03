@@ -1,4 +1,4 @@
-#include "gamepanewidget.h"
+#include "jeopardygamewidget.h"
 #include "ui_gamepanewidget.h"
 
 #include "jeopardygame.h"
@@ -87,7 +87,7 @@ private:
     QLabel* m_label;
 };
 
-GamePaneWidget::GamePaneWidget(QWidget *parent)
+JeopardyGameWidget::JeopardyGameWidget(QWidget *parent)
   : QWidget(parent)
   , m_ui(new Ui::GamePaneWidget)
   , m_options(OptionsData::GetInstance())
@@ -136,7 +136,7 @@ GamePaneWidget::GamePaneWidget(QWidget *parent)
 }
 
 void
-GamePaneWidget::SetOptions(const OptionsData& options)
+JeopardyGameWidget::SetOptions(const OptionsData& options)
 {
     m_options = options;
     m_timeIntervals = m_options.m_timeIntervals;
@@ -148,19 +148,19 @@ GamePaneWidget::SetOptions(const OptionsData& options)
 }
 
 bool
-GamePaneWidget::IsAutoPlayEnabled() const
+JeopardyGameWidget::IsAutoPlayEnabled() const
 {
     return m_isAutoPlayEnabled;
 }
 
 void
-GamePaneWidget::SetAutoPlayEnabled(bool flag)
+JeopardyGameWidget::SetAutoPlayEnabled(bool flag)
 {
     m_isAutoPlayEnabled = flag;
 }
 
 void
-GamePaneWidget::OnStateChanged(GameStateUtils::GameState state, const QModelIndex& index, const QString& message)
+JeopardyGameWidget::OnStateChanged(GameStateUtils::GameState state, const QModelIndex& index, const QString& message)
 {
     switch(state)
     {
@@ -317,20 +317,20 @@ GamePaneWidget::OnStateChanged(GameStateUtils::GameState state, const QModelInde
 }
 
 void
-GamePaneWidget::StartGame(std::unique_ptr<IStateHandler> stateHandler)
+JeopardyGameWidget::StartGame(std::unique_ptr<IStateHandler> stateHandler)
 {
      m_mode = MENU;
 
     // Setup the state handler
     m_stateHandler = std::move(stateHandler);
-    connect( m_stateHandler.get(), &IStateHandler::StateChanged, this, &GamePaneWidget::OnStateChanged);
+    connect( m_stateHandler.get(), &IStateHandler::StateChanged, this, &JeopardyGameWidget::OnStateChanged);
     m_ui->tableView->setModel(m_stateHandler->GetModel());
 
     if( m_stateHandler->AllowUserInteraction())
     {
         m_ui->tableView->installEventFilter(this);
         m_ui->clueWidget->installEventFilter(this);
-        connect( m_ui->tableView, &QAbstractItemView::clicked, this, &GamePaneWidget::handleBoardClick );
+        connect( m_ui->tableView, &QAbstractItemView::clicked, this, &JeopardyGameWidget::handleBoardClick );
     }
     else
     {
@@ -338,7 +338,7 @@ GamePaneWidget::StartGame(std::unique_ptr<IStateHandler> stateHandler)
         SetAutoPlayEnabled(true);
         m_ui->tableView->removeEventFilter(this);
         m_ui->clueWidget->removeEventFilter(this);
-        disconnect( m_ui->tableView, &QAbstractItemView::clicked, this, &GamePaneWidget::handleBoardClick );
+        disconnect( m_ui->tableView, &QAbstractItemView::clicked, this, &JeopardyGameWidget::handleBoardClick );
     }
 
     m_stateHandler->SetNextClueOptions(m_options.m_nextClueOptions);
@@ -346,7 +346,7 @@ GamePaneWidget::StartGame(std::unique_ptr<IStateHandler> stateHandler)
 }
 
 void
-GamePaneWidget::handleBoardClick(const QModelIndex& index)
+JeopardyGameWidget::handleBoardClick(const QModelIndex& index)
 {
     // cancel the auto-play and time-over timers
     // and pick the clue the user just clicked
@@ -364,7 +364,7 @@ GamePaneWidget::handleBoardClick(const QModelIndex& index)
 }
 
 void
-GamePaneWidget::handleClueClick()
+JeopardyGameWidget::handleClueClick()
 {
     if( m_clueTimer && m_clueTimer->isActive())
     {
@@ -409,7 +409,7 @@ GamePaneWidget::handleClueClick()
 }
 
 void
-GamePaneWidget::AutoPlayNextClue(const QModelIndex& index)
+JeopardyGameWidget::AutoPlayNextClue(const QModelIndex& index)
 {
     m_autoPlayState.newIndex = index;
     m_autoPlayState.currColumn = m_clickedIndex.column();
@@ -425,17 +425,17 @@ GamePaneWidget::AutoPlayNextClue(const QModelIndex& index)
 }
 
 void
-GamePaneWidget::StartAutoPlayTimer()
+JeopardyGameWidget::StartAutoPlayTimer()
 {
     m_autoPlayTimer = new QTimer(this);
     m_autoPlayTimer->setSingleShot(true);
     m_autoPlayTimer->setInterval(m_timeIntervals.AutoPlayAnimation);
-    connect( m_autoPlayTimer, &QTimer::timeout, this, &GamePaneWidget::OnAutoPlayTimer);
+    connect( m_autoPlayTimer, &QTimer::timeout, this, &JeopardyGameWidget::OnAutoPlayTimer);
     m_autoPlayTimer->start();
 }
 
 void
-GamePaneWidget::OnAutoPlayTimer()
+JeopardyGameWidget::OnAutoPlayTimer()
 {
     if( m_autoPlayState.currColumn != m_autoPlayState.newIndex.column())
     {
@@ -467,7 +467,7 @@ GamePaneWidget::OnAutoPlayTimer()
 }
 
 void
-GamePaneWidget::OnClueTimerOut()
+JeopardyGameWidget::OnClueTimerOut()
 {
     auto cluePal = m_ui->clueWidget->palette();
     cluePal.setColor(m_ui->clueWidget->foregroundRole(), Qt::red);
@@ -479,23 +479,23 @@ GamePaneWidget::OnClueTimerOut()
 }
 
 void
-GamePaneWidget::StartTimeOverTimer(const unsigned int milliSeconds)
+JeopardyGameWidget::StartTimeOverTimer(const unsigned int milliSeconds)
 {
     m_timeOverTimer = new QTimer(this);
     m_timeOverTimer->setInterval(milliSeconds);
     m_timeOverTimer->setSingleShot(true);
-    connect(m_timeOverTimer, &QTimer::timeout, this, &GamePaneWidget::OnTimeOverTimerOut);
+    connect(m_timeOverTimer, &QTimer::timeout, this, &JeopardyGameWidget::OnTimeOverTimerOut);
     m_timeOverTimer->start();
 }
 
 void
-GamePaneWidget::OnTimeOverTimerOut()
+JeopardyGameWidget::OnTimeOverTimerOut()
 {
     handleClueClick();
 }
 
 bool
-GamePaneWidget::eventFilter(QObject* watched, QEvent* event)
+JeopardyGameWidget::eventFilter(QObject* watched, QEvent* event)
 {
     if( watched == m_ui->clueWidget)
     {
@@ -555,7 +555,7 @@ GamePaneWidget::eventFilter(QObject* watched, QEvent* event)
 }
 
 void
-GamePaneWidget::launchPauseDialog()
+JeopardyGameWidget::launchPauseDialog()
 {
     if( m_mode != MENU && m_mode != PAUSED)
     {
@@ -631,20 +631,20 @@ GamePaneWidget::launchPauseDialog()
 }
 
 void
-GamePaneWidget::StartClueTimer( const unsigned int milliSeconds)
+JeopardyGameWidget::StartClueTimer( const unsigned int milliSeconds)
 {
     m_clueTimer = new QTimer(this);
     m_clueTimer->setInterval(milliSeconds);
     m_clueTimer->setSingleShot(true);
-    connect(m_clueTimer, &QTimer::timeout, this, &GamePaneWidget::OnClueTimerOut);
+    connect(m_clueTimer, &QTimer::timeout, this, &JeopardyGameWidget::OnClueTimerOut);
     m_clueTimer->start();
 }
 
 void
-GamePaneWidget::UpdateMediaPlayerFromOptions()
+JeopardyGameWidget::UpdateMediaPlayerFromOptions()
 {
     m_mediaPlayer->setVolume(m_options.m_music.volume);
     m_mediaPlayer->setMuted(!m_options.m_music.playFinalJeopardy);
 }
 
-GamePaneWidget::~GamePaneWidget() {}
+JeopardyGameWidget::~JeopardyGameWidget() {}

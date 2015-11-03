@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "battleshipstatehandleronline.h"
 #include "optionsdialog.h"
 #include "pausedialog.h"
 #include "qtutility.h"
@@ -67,19 +68,19 @@ MainWindow::MainWindow(QWidget *parent/*=nullptr*/)
     connect( m_ui->pickGameWidget, &PickGameWidget::StartBattleShip, this, &MainWindow::OnBattleShipStart);
 
     // Lets us know when a game is over
-    connect( m_ui->gamePaneWidget, &GamePaneWidget::GameOver, this, &MainWindow::OnGameOver);
-    m_ui->gamePaneWidget->SetOptions(OptionsData::GetInstance());
+    connect( m_ui->jeopardyGameWidget, &JeopardyGameWidget::GameOver, this, &MainWindow::OnGameOver);
+    m_ui->jeopardyGameWidget->SetOptions(OptionsData::GetInstance());
 
     connect( m_ui->connectOnlineWidget, &ConnectOnlineWidget::BackToMenu, this, &MainWindow::OnBack);
     connect( m_ui->connectOnlineWidget, &ConnectOnlineWidget::StartGame, this, &MainWindow::OnOnlineGameStart);
 
-    connect( m_ui->autoPlayCheckBox, &QCheckBox::toggled, m_ui->gamePaneWidget, &GamePaneWidget::SetAutoPlayEnabled);
+    connect( m_ui->autoPlayCheckBox, &QCheckBox::toggled, m_ui->jeopardyGameWidget, &JeopardyGameWidget::SetAutoPlayEnabled);
 
     m_ui->onlineButton->setFont(buttonFont);
-    connect(  m_ui->onlineButton, &QPushButton::clicked, this, &MainWindow::OnOnlineButtonClicked);
+    connect(  m_ui->onlineButton, &QPushButton::clicked, this, &MainWindow::OnJeoOnlineButtonClicked);
 
     m_ui->offlineButton->setFont(buttonFont);
-    connect( m_ui->offlineButton, &QPushButton::clicked, this, &MainWindow::OnOfflineButtonClicked);
+    connect( m_ui->offlineButton, &QPushButton::clicked, this, &MainWindow::OnJeoOfflineButtonClicked);
 
     ShowGameState(PICK_GAME);
     showMaximized();
@@ -94,9 +95,9 @@ MainWindow::OnJeopardyStart()
 void
 MainWindow::OnBattleShipStart()
 {
-    //std::unique_ptr<StateHandlerOnline> stateHandler(new BattleShipStateHandlerOnline);
-    //m_ui->connectOnlineWidget->BeginConnection(std::move(stateHandler));
-    //ShowGameState(ONLINE_MENU);
+    std::unique_ptr<IStateHandlerOnline> stateHandler(new BattleshipStateHandlerOnline);
+    m_ui->connectOnlineWidget->BeginConnection(std::move(stateHandler));
+    ShowGameState(ONLINE_BS_MENU);
 }
 
 void
@@ -106,15 +107,15 @@ MainWindow::OnGameOver()
 }
 
 void
-MainWindow::OnOnlineButtonClicked()
+MainWindow::OnJeoOnlineButtonClicked()
 {
-    std::unique_ptr<JeopardyStateHandlerOnline> stateHandler(new JeopardyStateHandlerOnline);
+    std::unique_ptr<IStateHandlerOnline> stateHandler(new JeopardyStateHandlerOnline);
     m_ui->connectOnlineWidget->BeginConnection(std::move(stateHandler));
-    ShowGameState(ONLINE_MENU);
+    ShowGameState(ONLINE_JEO_MENU);
 }
 
 void
-MainWindow::OnOfflineButtonClicked()
+MainWindow::OnJeoOfflineButtonClicked()
 {
     m_ui->jeopardyTitleLabel->setText("Jeopardy Offline");
     ShowGameState(OFFLINE_MENU);
@@ -126,7 +127,7 @@ MainWindow::OnBack()
     switch(m_gameState)
     {
     case OFFLINE_MENU:
-    case ONLINE_MENU:
+    case ONLINE_JEO_MENU:
         ShowGameState(PICK_JEO_OFFLINE_ONLINE);
         break;
 
@@ -141,18 +142,26 @@ MainWindow::OnOnlineGameStart()
     auto stateHandler = std::move(m_ui->connectOnlineWidget->GetStateHandler());
     disconnect(stateHandler.get());
 
-    m_ui->gamePaneWidget->StartGame(std::move(stateHandler));
-    ShowGameState(GAME);
+    if(m_gameState == ONLINE_JEO_MENU)
+    {
+        m_ui->jeopardyGameWidget->StartGame(std::move(stateHandler));
+        ShowGameState(JEO_GAME);
+    }
+    else if( m_gameState == ONLINE_BS_MENU)
+    {
+        //m_ui->battleshipGameWidget->StartGame(std::move(stateHandler));
+        ShowGameState(BS_GAME);
+    }
 }
 
 void
 MainWindow::OnOfflineGameStart()
 {
     // Setup the OfflineStateHandler for gamePaneWidget
-    m_ui->gamePaneWidget->SetAutoPlayEnabled(m_ui->autoPlayCheckBox->isChecked());
+    m_ui->jeopardyGameWidget->SetAutoPlayEnabled(m_ui->autoPlayCheckBox->isChecked());
     std::unique_ptr<IStateHandler> stateHandler(new StateHandlerOffline);
-    m_ui->gamePaneWidget->StartGame(std::move(stateHandler));
-    ShowGameState(GAME);
+    m_ui->jeopardyGameWidget->StartGame(std::move(stateHandler));
+    ShowGameState(JEO_GAME);
 }
 
 void
@@ -162,7 +171,7 @@ MainWindow::launchOptionsDialog()
     if(dlg.exec() == QDialog::Accepted)
     {
         OptionsData::GetInstance() = dlg.GetOptions();
-        m_ui->gamePaneWidget->SetOptions(OptionsData::GetInstance());
+        m_ui->jeopardyGameWidget->SetOptions(OptionsData::GetInstance());
     }
 }
 
@@ -176,15 +185,17 @@ MainWindow::ShowGameState(GameState gameState)
     case PICK_GAME:
         m_ui->pickJeopardyModeWidget->hide();
         m_ui->connectOnlineWidget->hide();
-        m_ui->gamePaneWidget->hide();
+        m_ui->jeopardyGameWidget->hide();
+        m_ui->battleshipGameWidget->hide();
         m_ui->pickGameWidget->show();
         break;
 
     case OFFLINE_MENU:
         m_ui->pickOnlineWidget->hide();
-        m_ui->gamePaneWidget->hide();
+        m_ui->jeopardyGameWidget->hide();
         m_ui->connectOnlineWidget->hide();
         m_ui->pickGameWidget->hide();
+        m_ui->battleshipGameWidget->hide();
         m_ui->backButton->show();
         m_ui->optionsWidget->show();
         m_ui->startGameButton->show();
@@ -193,28 +204,40 @@ MainWindow::ShowGameState(GameState gameState)
 
     case PICK_JEO_OFFLINE_ONLINE:
         m_ui->backButton->hide();
-        m_ui->gamePaneWidget->hide();
+        m_ui->jeopardyGameWidget->hide();
         m_ui->optionsWidget->hide();
         m_ui->connectOnlineWidget->hide();
         m_ui->startGameButton->hide();
         m_ui->pickGameWidget->hide();
+        m_ui->battleshipGameWidget->hide();
         m_ui->jeopardyTitleLabel->setText("Jeopardy");
         m_ui->pickOnlineWidget->show();
         m_ui->pickJeopardyModeWidget->show();
         break;
 
-    case ONLINE_MENU:
-        m_ui->gamePaneWidget->hide();
+    case ONLINE_BS_MENU:
+    case ONLINE_JEO_MENU:
+        m_ui->jeopardyGameWidget->hide();
         m_ui->pickJeopardyModeWidget->hide();
         m_ui->pickGameWidget->hide();
+        m_ui->battleshipGameWidget->hide();
         m_ui->connectOnlineWidget->show();
         break;
 
-    case GAME:
+    case JEO_GAME:
         m_ui->pickJeopardyModeWidget->hide();
         m_ui->connectOnlineWidget->hide();
         m_ui->pickGameWidget->hide();
-        m_ui->gamePaneWidget->show();
+        m_ui->battleshipGameWidget->hide();
+        m_ui->jeopardyGameWidget->show();
+        break;
+
+    case BS_GAME:
+        m_ui->pickJeopardyModeWidget->hide();
+        m_ui->connectOnlineWidget->hide();
+        m_ui->pickGameWidget->hide();
+        m_ui->jeopardyGameWidget->hide();
+        m_ui->battleshipGameWidget->show();
         break;
 
     default:

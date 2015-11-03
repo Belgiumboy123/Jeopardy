@@ -30,8 +30,8 @@ private:
     void OnBack();
     void OnOnlineGameStart();
 
-    void OnOnlineButtonClicked();
-    void OnOfflineButtonClicked();
+    void OnJeoOnlineButtonClicked();
+    void OnJeoOfflineButtonClicked();
 
     void OnJeopardyStart();
     void OnBattleShipStart();
@@ -43,8 +43,10 @@ private:
         PICK_GAME = 0,
         PICK_JEO_OFFLINE_ONLINE,
         OFFLINE_MENU,
-        ONLINE_MENU,
-        GAME,
+        ONLINE_JEO_MENU,
+        ONLINE_BS_MENU,
+        JEO_GAME,
+        BS_GAME,
         GAME_OVER,
         PAUSED
     };

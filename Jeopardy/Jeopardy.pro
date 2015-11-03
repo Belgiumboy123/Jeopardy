@@ -17,33 +17,38 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     optionsdialog.cpp \
     pausedialog.cpp \
-    gamepanewidget.cpp \
     qtutility.cpp \
     statehandleroffline.cpp \
     istatehandler.cpp \
     connectonlinewidget.cpp \
     pickgamewidget.cpp \
     jeopardystatehandleronline.cpp \
-    istatehandleronline.cpp
+    istatehandleronline.cpp \
+    battleshipstatehandleronline.cpp \
+    jeopardygamewidget.cpp \
+    battleshipgamewidget.cpp
 
 HEADERS  += mainwindow.h \
     optionsdialog.h \
     pausedialog.h \
-    gamepanewidget.h \
     qtutility.h \
     statehandleroffline.h \
     istatehandler.h \
     connectonlinewidget.h \
     pickgamewidget.h \
     jeopardystatehandleronline.h \
-    istatehandleronline.h
+    istatehandleronline.h \
+    battleshipstatehandleronline.h \
+    jeopardygamewidget.h \
+    battleshipgamewidget.h
 
 FORMS    += mainwindow.ui \
     optionsdialog.ui \
     pausedialog.ui \
     gamepanewidget.ui \
     connectonlinewidget.ui \
-    pickgamewidget.ui
+    pickgamewidget.ui \
+    battleshipgamewidget.ui
 
 QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
 macx: LIBS += -framework CoreFoundation

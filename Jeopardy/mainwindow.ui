@@ -282,13 +282,16 @@
         </widget>
        </item>
        <item>
+        <widget class="BattleshipGameWidget" name="battleshipGameWidget" native="true"/>
+       </item>
+       <item>
         <widget class="PickGameWidget" name="pickGameWidget" native="true"/>
        </item>
        <item>
         <widget class="ConnectOnlineWidget" name="connectOnlineWidget" native="true"/>
        </item>
        <item>
-        <widget class="GamePaneWidget" name="gamePaneWidget" native="true"/>
+        <widget class="JeopardyGameWidget" name="jeopardyGameWidget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -313,9 +316,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>GamePaneWidget</class>
+   <class>JeopardyGameWidget</class>
    <extends>QWidget</extends>
-   <header>gamepanewidget.h</header>
+   <header>jeopardygamewidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -328,6 +331,12 @@
    <class>PickGameWidget</class>
    <extends>QWidget</extends>
    <header>pickgamewidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>BattleshipGameWidget</class>
+   <extends>QWidget</extends>
+   <header>battleshipgamewidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

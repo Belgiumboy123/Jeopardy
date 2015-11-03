@@ -1,12 +1,10 @@
-#ifndef GAMEPANEWIDGET_H
-#define GAMEPANEWIDGET_H
+#pragma once
 
 #include <QModelIndex>
 #include <QWidget>
 
 #include "options.h"
 
-class JeopardyGame;
 class QMediaPlayer;
 class QStandardItemModel;
 class QTimer;
@@ -20,13 +18,13 @@ namespace Ui {
 class GamePaneWidget;
 }
 
-class GamePaneWidget : public QWidget
+class JeopardyGameWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit GamePaneWidget(QWidget *parent = 0);
-    virtual ~GamePaneWidget();
+    explicit JeopardyGameWidget(QWidget *parent = nullptr);
+    virtual ~JeopardyGameWidget();
 
     void StartGame(std::unique_ptr<IStateHandler> stateHandler);
     void SetOptions(const OptionsData& options);
@@ -111,5 +109,3 @@ private:
 
     std::unique_ptr<IStateHandler> m_stateHandler;
 };
-
-#endif // GAMEPANEWIDGET_H
